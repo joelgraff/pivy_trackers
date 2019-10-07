@@ -31,9 +31,27 @@ from FreeCAD import Vector
 
 import FreeCADGui as Gui
 
-from . import utils
+from ...support.singleton import Singleton
+from .smart_tuple import SmartTuple
 
-from .singleton import Singleton
+class ViewStateGlobalCallbacks():
+    """
+    View-level callbacks to manage view state based on input handling
+    """
+    def __init__(self):
+        """
+        Constructor
+        """
+
+        pass
+
+    def global_view_mouse_event(self, arg):
+        """
+        Global mouse event to update view state
+        """
+
+        #clear the matrix to force a refresh at the start of every mouse event
+        ViewState()._matrix = None
 
 class ViewState(metaclass=Singleton):
     """
@@ -56,6 +74,11 @@ class ViewState(metaclass=Singleton):
 
         self.active_task_panel = None
         self._matrix = None
+
+        self.callbacks = {}
+
+        self.add_mouse_event(
+            ViewStateGlobalCallbacks().global_view_mouse_event)
 
     def get_matrix(self, node, parent=None, refresh=True):
         """
@@ -95,7 +118,7 @@ class ViewState(metaclass=Singleton):
         if self.active_task_panel and not refresh:
             return self.active_task_panel
 
-        _form = utils.getMainWindow().findChild(QtGui.QWidget, 'TaskPanel')
+        _form = self.getMainWindow().findChild(QtGui.QWidget, 'TaskPanel')
 
         self.active_task_panel = _form
 
@@ -160,9 +183,124 @@ class ViewState(metaclass=Singleton):
 
         return _result
 
-    def getPointOnScreen(self, point):
+    def remove_event_cb(self, callback, event_class):
         """
-        Convenience function for view.getPointOnScreen()
+        Remove an event callback
         """
 
-        return Vector(self.view.getPointOnScreen(Vector(point)) + (0.0,))
+        if event_class not in self.callbacks:
+            return
+
+        _cbs = self.callbacks[event_class]
+
+        if callback not in _cbs:
+            return
+
+        _cb = _cbs[callback]
+
+        self.view.removeEventCallbackPivy(event_class.getClassTypeId(), _cb)
+
+        del _cb
+
+    def add_event_cb(self, callback, event_class):
+        """
+        Add an event callback
+        """
+
+        if event_class not in self.callbacks:
+            self.callbacks[event_class] = {}
+
+        _cbs = self.callbacks[event_class]
+
+        if callback in _cbs:
+            return
+
+        _cbs[callback] = self.view.addEventCallbackPivy(
+            event_class.getClassTypeId(), callback)
+
+    def remove_mouse_event(self, callback):
+        """
+        Wrapper for InventorView removeEventCallback()
+        """
+
+        self.remove_event_cb(callback, coin.SoLocation2Event)
+
+    def remove_button_event(self, callback):
+        """
+        Wrapper for InventorView removeEventCallback()
+        """
+
+        self.remove_event_cb(callback, coin.SoMouseButtonEvent)
+
+    def add_mouse_event(self, callback):
+        """
+        Wrapper for InventorView addEventCallback()
+        """
+
+        self.add_event_cb(callback, coin.SoLocation2Event)
+
+    def add_button_event(self, callback):
+        """
+        Wrapper for Coin3D addEventCallback()
+        """
+
+        self.add_event_cb(callback, coin.SoMouseButtonEvent)
+
+    def getPoint(self, pos):
+        """
+        Wrapper for InventorView getPoint()
+        """
+
+        _pos = SmartTuple(pos)._tuple
+        return tuple(self.view.getPoint(_pos[:2]))
+
+    def getPointOnScreen(self, point):
+        """
+        Wrapper for InventorView getPointOnScreen()
+        """
+
+        _pt = SmartTuple(point)._tuple
+
+        if len(_pt) == 2:
+            _pt += (0.0,)
+
+        assert(len(_pt) == 3),\
+            'Invalid coordinate. Expected tuple of three floats.'
+
+        return self.view.getPointOnScreen(point[0], point[1], point[2])
+
+    def getObjectInfo(self, pos):
+        """
+        Wrapper for InventorView getObjectInfo()
+        """
+
+        return self.view.getObjectInfo(SmartTuple(pos)._tuple)
+
+    def getCursorPos(self):
+        """
+        Wrapper for InventorView getCursorPos()
+        """
+
+        return self.view.getCursorPos()
+
+    @staticmethod
+    def getMainWindow():
+        """
+        Return reference to main window
+        """
+        top = QtGui.QApplication.topLevelWidgets()
+
+        for item in top:
+            if item.metaObject().className() == 'Gui::MainWindow':
+                return item
+
+        raise RuntimeError('No main window found')
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        for _evt_cls in self.callbacks:
+            for _cb in self.callbacks[_evt_cls]:
+                self.remove_event_cb(_cb, _evt_cls)

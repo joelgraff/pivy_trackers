@@ -21,43 +21,15 @@
 #*                                                                     *
 #***********************************************************************
 """
-Mouse services for Tracker objects
+Drag tracker for providing drag support to other trackers
 """
 
-class Mouse():
+from .trait.base import Base
+from .trait.style import Style
+from .trait.event import Event
+
+class DragTracker(Base, Style, Event):
     """
-    Mouse services for Tracker objects
+    Drag tracker for providing drag support to other trackers
     """
 
-    #view_state is provided in Base
-    view_state = None
-
-    def __init__(self):
-        """
-        Constructor
-        """
-
-        if not self.view_state:
-            return
-
-        self.mouse_cb = self.view_state.addEventCallback(
-            'SoLocation2Event', self.mouse_event)
-
-        self.button_cb = self.view_state.addEventCallback(
-            'SoMouseButtonEvent', self.button_event)
-
-        super().__init__()
-
-    def mouse_event(self, arg):
-        """
-        Base mouse event implementation
-        """
-
-        pass
-
-    def button_event(self, arg):
-        """
-        Base button event implementation
-        """
-
-        pass

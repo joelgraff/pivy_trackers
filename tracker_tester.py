@@ -24,70 +24,48 @@
 Tracker for alignment editing
 """
 
-from pivy import coin
-
 from FreeCAD import Vector
 
 import FreeCADGui as Gui
 
-from .base_tracker import BaseTracker
+#from ..support.publisher import PublisherEvents as Events
 
-from ..support.mouse_state import MouseState
-from ..support.view_state import ViewState
-from ..support.publisher import PublisherEvents as Events
+from .marker_tracker import MarkerTracker
+from .line_tracker import LineTracker
+from .trait.base import Base
+from .trait.event import Event
+from .trait.select import Select
 
-from ..support.drag_state import DragState
-
-from .node_tracker import NodeTracker
-from .wire_tracker import WireTracker
-
-class AlignmentBaseTestTracker(BaseTracker):
+class TrackerTester(Base, Event, Select):
     """
     Tracker class for alignment design
     """
 
-    def __init__(self, doc, object_name, alignment, is_linked, datum=Vector()):
+    def __init__(self, doc, object_name, alignment, is_linked, parent,
+                 datum=Vector()):
         """
         Constructor
         """
 
+        super().__init__(
+            name='.'.join([doc.Name, object_name, 'TRACKER_TESTER']),
+            parent=parent
+        )
+
         self.alignment = alignment
         self.doc = doc
-        self.names = [doc.Name, object_name, 'ALIGNMENT_TRACKER']
         self.user_dragging = False
         self.status_bar = Gui.getMainWindow().statusBar()
         self.pi_list = []
         self.datum = alignment.model.data['meta']['Start']
 
-        self.drag = DragState()
+        #don't handle events, as this is a global-level tracker
+        self.handle_events = False
 
         #base (placement) transformation for the alignment
-        self.transform = coin.SoTransform()
         self.transform.translation.setValue(
             tuple(alignment.model.data['meta']['Start'])
         )
-        super().__init__(names=self.names, children=[self.transform])
-
-        #scenegraph node structure for editing and dragging operations
-        self.groups = {
-            'EDIT': coin.SoGroup(),
-            'DRAG': coin.SoGroup(),
-            'SELECTED': coin.SoSeparator(),
-            'PARTIAL': coin.SoSeparator(),
-        }
-
-        self.drag_transform = coin.SoTransform()
-
-        #add two nodes to the drag group - the transform and a dummy node
-        #which provides a way to access the transform matrix
-        self.groups['SELECTED'].addChild(self.drag_transform)
-        self.groups['SELECTED'].addChild(coin.SoSeparator())
-
-        self.groups['DRAG'].addChild(self.groups['SELECTED'])
-        self.groups['DRAG'].addChild(self.groups['PARTIAL'])
-
-        self.node.addChild(self.groups['EDIT'])
-        self.node.addChild(self.groups['DRAG'])
 
         #generate initial node trackers and wire trackers for mouse interaction
         #and add them to the scenegraph
@@ -95,32 +73,28 @@ class AlignmentBaseTestTracker(BaseTracker):
         self.build_trackers(is_linked)
 
         _trackers = []
+
         for _v in self.trackers.values():
             _trackers.extend(_v)
 
         for _v in _trackers:
-            self.insert_node(_v.switch, self.groups['EDIT'])
+            self.insert_group(_v)
 
-        #insert in the scenegraph root
-        self.insert_node(self.switch)
+        #selection state for de-selection / unhighlighting
+        self.add_mouse_event(self.select_mouse_event)
+        self.add_button_event(self.select_button_event)
 
-        self.select_cb = \
-            ViewState().view.addEventCallback(
-                'SoMouseButtonEvent', self.post_select_event)
+        #self.add_mouse_event(self.mouse_event)
+        self.set_visibility(True)
 
     def _update_status_bar(self):
         """
         Update the status bar with the latest mouseover data
         """
 
-        self.status_bar.showMessage(
-            MouseState().component + ' ' + str(tuple(MouseState().coordinates))
-        )
-
-    def mouse_event(self, arg):
-        """
-        Manage mouse actions affecting multiple nodes / wires
-        """
+        #self.status_bar.showMessage(
+        #   MouseState().component + ' ' + str(tuple(MouseState().coordinates))
+        #)
 
         pass
 
@@ -129,18 +103,12 @@ class AlignmentBaseTestTracker(BaseTracker):
         Event to force wires to re-test selection state on button down
         """
 
-        if MouseState().button1.state == 'UP':
-            return
+        pass
+        #if MouseState().button1.state == 'UP':
+        #    return
 
         #for _v in self.trackers['Tangents']:
         #    _v.validate_selection()
-
-    def button_event(self, arg):
-        """
-        Override base button actions
-        """
-
-        pass
 
     def build_trackers(self, is_linked):
         """
@@ -161,19 +129,23 @@ class AlignmentBaseTestTracker(BaseTracker):
         _nodes += [_model['meta']['End']]
 
         #build the trackers
-        _names = self.names[:2]
         _result = {'Nodes': [], 'Tangents': [], 'Curves': []}
 
         #node trackers
         for _i, _pt in enumerate(_nodes):
 
-            _tr = NodeTracker(names=_names + ['NODE-' + str(_i)], point=_pt)
-            _result['Nodes'].append(_tr)
+            _v = MarkerTracker(
+                name='.'.join(self.names[0:2] + ['MARKER-'+str(_i)]),
+                point=_pt,
+                parent=self.base
+            )
+
+            _result['Nodes'].append(_v)
 
         _result['Nodes'][0].is_end_node = True
         _result['Nodes'][-1].is_end_node = True
 
-        #wire trackers - Tangents
+        #line trackers - Tangents
         for _i in range(0, len(_result['Nodes']) - 1):
 
             _nodes = _result['Nodes'][_i:_i + 2]
@@ -185,13 +157,20 @@ class AlignmentBaseTestTracker(BaseTracker):
                 _nodes = None
 
             _result['Tangents'].append(
-                self._build_wire_tracker(
-                    wire_name=_names + ['WIRE-' + str(_i)],
-                    nodes=_nodes,
+                LineTracker(
+                    name='.'.join(self.names[0:2] + ['LINE'+str(_i)]), 
                     points=_points,
-                    select=True
+                    parent=self.base
                 )
             )
+
+        #        self._build_wire_tracker(
+        #            wire_name=_names + ['WIRE-' + str(_i)],
+        #            nodes=_nodes,
+        #            points=_points,
+        #            select=True
+        #        )
+        #    )
 
         self.trackers = _result
 
@@ -200,19 +179,20 @@ class AlignmentBaseTestTracker(BaseTracker):
         Convenience function for WireTracker construction
         """
 
-        _wt = WireTracker(names=wire_name)
+        pass
+        #_wt = WireTracker(names=wire_name)
 
-        _wt.set_selectability(select)
-        _wt.set_points(points, nodes)
-        _wt.update()
+        #_wt.set_selectability(select)
+        #_wt.set_points(points, nodes)
+        #_wt.update()
 
-        if nodes:
-            for _n in nodes:
-                _n.register(_wt, Events.NODE.EVENTS)
+        #if nodes:
+        #    for _n in nodes:
+        #        _n.register(_wt, Events.NODE.EVENTS)
 
-        return _wt
+        #return _wt
 
-    def finalize(self):
+    def finalize(self, node=None, parent=None):
         """
         Cleanup the tracker
         """
@@ -222,13 +202,4 @@ class AlignmentBaseTestTracker(BaseTracker):
             for _u in _t:
                 _u.finalize()
 
-        self.remove_node(self.groups['EDIT'], self.node)
-        self.remove_node(self.groups['DRAG'], self.node)
-
-        if self.callbacks:
-            for _k, _v in self.callbacks.items():
-                ViewState().view.removeEventCallback(_k, _v)
-
-            self.callbacks.clear()
-
-        super().finalize()
+        super().finalize(node, parent)

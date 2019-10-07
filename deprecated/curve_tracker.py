@@ -37,7 +37,7 @@ from ..support.publisher import PublisherEvents as Events
 
 from .node_tracker import NodeTracker
 from .wire_tracker import WireTracker
-from .coin_styles import CoinStyles
+from .trait.coin.coin_styles import CoinStyles
 
 class CurveTracker(WireTracker):
     """
@@ -140,6 +140,7 @@ class CurveTracker(WireTracker):
         Base implementation override
         """
 
+        return
         super().notify(event, message)
 
         if event == Events.NODE.UPDATED:
@@ -241,6 +242,7 @@ class CurveTracker(WireTracker):
         Override base implementation
         """
 
+        return
         if not self.is_selected():
             return
 
@@ -249,7 +251,7 @@ class CurveTracker(WireTracker):
         #reference the SoDrawStyle and SoBaseColor nodes of copied drag nodes
         self.drag_style = self.drag_copy.getChild(1)
         self.drag_color = self.drag_copy.getChild(2)
-        
+
         self.event_type = Events.CURVE.UPDATED
 
         #abort if PI nodes are being dragged
@@ -277,6 +279,7 @@ class CurveTracker(WireTracker):
         Override base implementation
         """
 
+        return
         if self.select_state != 'MANUAL':
             return
 
@@ -378,6 +381,7 @@ class CurveTracker(WireTracker):
         Override base function
         """
 
+        return
         super().end_drag()
 
         if not DragState().abort:
@@ -652,4 +656,4 @@ class CurveTracker(WireTracker):
         Cleanup the tracker
         """
 
-        super().finalize()
+        pass

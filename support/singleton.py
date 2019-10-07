@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
+#***********************************************************************
 #*                                                                     *
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
@@ -20,62 +20,32 @@
 #* USA                                                                 *
 #*                                                                     *
 #***********************************************************************
+
 """
-Style support for Tracker objects
+Singleton class definition
 """
 
-from pivy import coin
-
-from ...coin_style import CoinStyles
-
-class Style():
+class Singleton(type):
     """
-    Style support for Tracker objects
+    Singleton implementation
     """
+    _instances = {}
 
-    #members added by Base
-    base_node = None
-
-    def __init__(self):
+    def __call__(cls, *args, **kwargs):
         """
-        Constructor
+        Class __call__() method
         """
+        if cls not in cls._instances:
+            cls._instances[cls] = \
+                super(Singleton, cls).__call__(*args, **kwargs)
 
-        if not self.base_node:
-            return
+        return cls._instances[cls]
 
-        self.color = coin.SoBaseColor()
-        self.draw_style = coin.SoDrawStyle()
-
-        self.base_node.addChild(self.draw_style)
-        self.base_node.addChild(self.color)
-
-        self.coin_style = CoinStyles.DEFAULT
-        self.active_style = None
-
-        super().__init__()
-
-    def set_style(self, style=None, draw=None, color=None):
+    def instance_of(cls):
         """
-        Update the tracker style
+        Test for instance match
         """
+        if cls in cls._instances:
+            return cls._instances[cls]
 
-        if self.active_style == style:
-            return
-
-        if not draw:
-            draw = self.draw_style
-
-        if not color:
-            color = self.color
-
-        if not style:
-            style = self.coin_style
-
-        draw.lineWidth = style.line_width
-        draw.style = style.style
-        draw.linePattern = style.line_pattern
-
-        color.rgb = style.color
-
-        self.active_style = style
+        return None

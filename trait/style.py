@@ -21,67 +21,66 @@
 #*                                                                     *
 #***********************************************************************
 """
-Geometry nodes for Tracker objects
+Style support for Tracker objects
 """
 
-from pivy import coin
+from .coin.coin_group import CoinGroup
+from .coin.coin_enums import NodeTypes as Nodes
+from .coin.coin_styles import CoinStyles
 
-from ..coin_styles import CoinStyles
-
-class Geometry():
+class Style():
     """
-    Geometry nodes for Tracker objects
+    Style support for Tracker objects
     """
 
-    #members provided by Base, Style
-    base_node = None
-    active_style = None
-    def set_visibility(self, visible=True): pass
-    def set_style(self, style=None, draw=None, color=None): pass
+    #members added by Base
+    base = None
+    name = ''
 
     def __init__(self):
         """
         Constructor
         """
 
-        if not (self.active_style and self.base_node):
+        if not self.base:
             return
 
-        self.geo_node = coin.SoSeparator()
-        self.coordinate = coin.SoCoordinate3()
+        self.style = CoinGroup(
+            is_separator=False, is_switched=False,
+            parent=self.base, name=self.name +'__STYLE')
 
-        self.geo_node.addChild(self.coordinate)
-        self.base_node.addChild(self.geo_node)
+        self.style.draw_style = self.style.add_node(Nodes.DRAW_STYLE)
+        self.style.color = self.style.add_node(Nodes.COLOR)
 
-        self.set_style(self, CoinStyles.DEFAULT)
-        self.set_visibility()
+        self.coin_style = CoinStyles.BASE
+        self.active_style = CoinStyles.BASE
 
         super().__init__()
 
-    def update(self, coordinates):
+    def set_style(self, style=None, draw=None, color=None):
         """
-        Update the SoCoordinate3 with the passed coordinates
-        Assumes coordinates is a list of 3-float tuples
-        """
-
-        self.coordinate.point.setValues(coordinates)
-
-    def get(self, _dtype=tuple):
-        """
-        Return the coordinates as the specified iterable type
+        Update the tracker style
         """
 
-        return [
-            _dtype(_v.getValue()) for _v in self.coordinate.point.getValues()
-        ]
+        if style is None:
+            style = self.coin_style
 
-    #def set_style(self, style=None, draw=None, color=None):
-    #    """
-    #    Update the tracker style, overriding Style.set_style
-    #    """
+        if self.active_style == style:
+            return
 
-    #    Style.set_style(style, draw, color)
+        if not draw:
+            draw = self.style.draw_style
 
-        #set the shape style for geometry
-    #    self.marker.markerIndex = \
-    #        Gui.getMarkerIndex(self.active_style.shape, self.active_style.size)
+        if not color:
+            color = self.style.color
+
+        if not style:
+            style = self.coin_style
+
+        draw.lineWidth = style.line_width
+        draw.style = style.style
+        draw.linePattern = style.line_pattern
+
+        color.rgb = style.color
+
+        self.active_style = style

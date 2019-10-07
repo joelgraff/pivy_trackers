@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #**************************************************************************
 #*                                                                     *
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
@@ -21,37 +21,47 @@
 #*                                                                     *
 #***********************************************************************
 """
-Support class for managing Coin3D SoGroup nodes
+Mouse button state tracking
 """
 
-from pivy import coin
-
-from .coin_styles import CoinStyles
-
-class CoinGroup():
+class ButtonState():
     """
-    Local class to facilitate tracking nodes in groups
+    Internal class to track button state
     """
 
-    def __init__(self, marker=False, line=False, color=False, style=False):
+    def __init__(self):
         """
-        Constructor
+        ButtonState constructor
+        """
+        self.pressed = False
+        self.screen_position = ()
+        self.world_position = ()
+        self.dragging = False
+        self.drag_start = ()
+
+    def reset(self):
+        """
+        Reset button parameters
         """
 
-        self.group = coin.SoGroup()
-        self.coord = coin.SoCoordinate3()
-        self.marker = coin.SoMarkerSet()
-        self.line = coin.SoLineSet()
-        self.color = coin.SoBaseColor()
+        self.__init__()
 
-        self.style = CoinStyles.DEFAULT
+    def __str__(self):
+        """
+        Button string representation
+        """
 
-        self.group.addChild(self.coord)
-        self.group.addChild(self.color)
+        return self.__repr__()
 
-        if marker:
-            self.group.addChild(self.marker)
+    def __repr__(self):
+        """
+        Button string representation
+        """
 
-        self.group.addChild(self.line)
-
-        #self.group.setName(node_id)
+        return str({
+            'pressed': self.pressed,
+            'screen position': self.screen_position,
+            'world position': self.world_position,
+            'dragging': self.dragging,
+            'drag start': self.drag_start
+            })

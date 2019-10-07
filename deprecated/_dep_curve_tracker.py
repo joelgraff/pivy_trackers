@@ -37,7 +37,7 @@ from ..support.publisher import PublisherEvents as Events
 
 from .node_tracker import NodeTracker
 from .wire_tracker import WireTracker
-from .coin_styles import CoinStyles
+from .coin.coin_styles import CoinStyles
 
 class CurveTracker(WireTracker):
     """
@@ -140,7 +140,6 @@ class CurveTracker(WireTracker):
         Base implementation override
         """
 
-        return
         super().notify(event, message)
 
         if event == Events.NODE.UPDATED:
@@ -242,7 +241,6 @@ class CurveTracker(WireTracker):
         Override base implementation
         """
 
-        return
         if not self.is_selected():
             return
 
@@ -279,7 +277,6 @@ class CurveTracker(WireTracker):
         Override base implementation
         """
 
-        return
         if self.select_state != 'MANUAL':
             return
 
@@ -381,7 +378,6 @@ class CurveTracker(WireTracker):
         Override base function
         """
 
-        return
         super().end_drag()
 
         if not DragState().abort:
