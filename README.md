@@ -1,6 +1,8 @@
 # pivy_trackers
 
-pivy_trackers is a 2D geometry library built on [pivy](https://github.com/FreeCAD/pivy), the python bindings library for Coin3D that is a part of the [FreeCAD](https://github.com/FreeCAD/FreeCAD) project.  A "tracker" tracks with the user as they interact with a tool to give dynamic visual feedback.  A good example may be generating a "rubber band box" as a user clicks and drags over an area to select objects to provide a visual representation of the limits of their selection.
+pivy_trackers is a 2D geometry library built on [pivy](https://github.com/FreeCAD/pivy), the python bindings library for Coin3D that is a part of the [FreeCAD](https://github.com/FreeCAD/FreeCAD) project.  
+
+A "tracker" is simply geometry which "tracks with" the user as they interact with a tool to provide dynamic visual feedback.  A good example may be generating a "rubber band box" as a user clicks and drags over an area to select objects to provide a visual representation of the limits of their selection.
 
 At the moment, pivy_trackers is tied to the FreeCAD API, though it may be adapted for another Coin3D application which implements pivy.
 
