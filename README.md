@@ -1,53 +1,75 @@
-# pivy-trackers
+# pivy_trackers
 
-pivy-trackers is a 2D geometry library built on [pivy](https://github.com/FreeCAD/pivy), the python bindings library for Coin3D that is a part of the [FreeCAD](https://github.com/FreeCAD/FreeCAD) project.  Pivy must be installed before using pivy-trackers
+pivy_trackers is a 2D geometry library built on [pivy](https://github.com/FreeCAD/pivy), the python bindings library for Coin3D that is a part of the [FreeCAD](https://github.com/FreeCAD/FreeCAD) project.  A "tracker" tracks with the user as they interact with a tool to give dynamic visual feedback.  A good example may be generating a "rubber band box" as a user clicks and drags over an area to select objects to provide a visual representation of the limits of their selection.
 
-## Features or Example
+At the moment, pivy_trackers is tied to the FreeCAD API, though it may be adapted for another Coin3D application which implements pivy.
 
-Given a Coin3D project with a valid pivy installation, a tracker can be generated quite easily.
+## Example
 
-Specifically:
+A tracker can be generated quite easily.  Specifically:
 
-    import pivy-trackers
+    import pivy_trackers
 
+    class MyTracker(Base):
     
-Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+        def __init__(self):
+	
+            self.marker = pivy_trackers.MarkerTracker(name='my marker', point=(0.0, 0.0, 0.0), parent=self.base)
+            self.line = pivy_trackers.LineTracker(name='my line', points=[(0.0, 0.0, 0.0), (100.0, 0.0, 0.0)], parent=self.base)
+    
+    	    self.set_visbility(True)
+	    self.insert_into_scenegraph()
+	    
+This code will generate a scenegraph structure which renders a marker (point) at the origin and a line extending from the origin 100 units along the x-axis.  Both the marker and line are individually selectable, may be multi-selected with **CTRL+Left Click**, and may be dragged, both individually and as a multiple selection.
+
+In addition, the style of each tracker may be individually customizable.  It's selection and dragging behaviors (among others) may be overrideen in a customized Python class inheriting the base pivy_trackers classes.
 
 ## Motivation
 
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+Creating custom tools and workbenches in FreeCAD is greatly facilitated by the nearly one-to-one exposure of it's C++ API in Python, with the pivy Python bindings exposing to the underlying Coin3D scenegraph C++ API.
+
+However, creating custom tools in FreeCAD that provide intuitive, visual feedback to the user poses a challenge as developers are forced to interact with the Coin3D scenegraph directly through pivy.  
+
+Pivy_trackers eases this process and provdies several basic features which are valuable to most any 3D modelling tool, like selection / multi-selection, dragging, and rotation, insulating the developer from most of the inner workings of the scenegraaph while still allowing for full customization of the tracker behaviors.
 
 ## Requirements
 
-This section is optional if there isn't any special dependencies. Else a bulletlist will suffice, e.g.,
-+ [Node.js](https://nodejs.org/)
-+ [React](https://facebook.github.io/react/)
-+ Others
+While pivy_trackers aims to be dependent only on pivy (and, by extension, Coin3D), it is currently tied to FreeCAD's object libraries.
 
-## Installation or Getting Started
+Specifically:
++ [FreeCAD/pivy](https://github.com/FreeCAD/pivy)
++ [FreeCAD/FreeCAD View3DViewerPy](https://github.com/FreeCAD/FreeCAD/blob/1995f9d0bac63820c5c42ac0075c91a49cbad119/src/Gui/View3DViewerPy.h)
++ [PySide QTimer](https://pypi.org/project/PySide2/)
 
-Provide code examples and explanations of how to get the project, e.g.,
+**note:** The PySide dependency for FreeCAD, specifically, is a unqiue package maintained via the FreeCAD-Daily ppa.
 
-	git clone https://github.com/Jasonnor/README.md.git
-    cd README.md
-    npm install README.md
-    npm start
+## Getting Started
+
+Clone the project into a path visible through your project's top-level module
+
+    cd /my/project/top/module/path
+    git clone https://github.com/joelgraff/pivy_trackers.git
 
 ## Usage
 
-Show how to use the project or library.
+Pivy_trackers should be visible as a top-level module.  Thus, pivy_tracker classes can be imported directly as:
+
+    from pivy_trackers.trait.base import Base
     
 ## Reference
 
-+ [jxson](https://gist.github.com/jxson) - [README.md](https://gist.github.com/jxson/1784669)
-+ [gistfrojd](https://gist.github.com/gistfrojd) - [README.md](https://gist.github.com/gistfrojd/5fcd3b70949ac6376f66)
++ [pivy](https://grey.colorado.edu/coin3d/index.html)
++ [pivy_trackers](https://github.com/joelgraff/pivy_trackers/wiki)
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+Note that while the pivy API is not directly documented, it is a one-to-one exposure of the Coin3D API.  Thus, reviewing the Coin3D documentation will provide the user with most relevant implementation details.  
+
+Additional support can be found at the FreeCAD forums: https://forum.freecadweb.org/
+
 
 ## Contributors
 
-Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
+Take a look at the wiki and project KanBan board for more information.  Feel free to reach out to me here or through the forums.  Contributions are greatly appreciated!
 
 ## License
 
-A short snippet describing the license ([MIT](http://opensource.org/licenses/mit-license.php), [Apache](http://opensource.org/licenses/Apache-2.0), etc.)
+[GNU LGPL v2.1](https://github.com/joelgraff/pivy_trackers/blob/master/LICENSE)
