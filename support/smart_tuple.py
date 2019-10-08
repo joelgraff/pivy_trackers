@@ -32,8 +32,6 @@ from operator import sub as op_sub
 from operator import add as op_add
 from operator import mul as op_mul
 
-from FreeCAD import Vector
-
 class SmartTuple():
     """
     A smart tuple object with type conversion and math functions
@@ -48,15 +46,10 @@ class SmartTuple():
     _multiply = \
         lambda scalar: tuple(map)
 
-    Iterables = (Iterable, Vector)
-
-    def __init__(self, data: Iterables):
+    def __init__(self, data):
         """
         Constructor
         """
-
-        assert(isinstance(data, SmartTuple.Iterables)),\
-            'Non-iterable data type passed.  Expected Iterable.'
 
         self._tuple = tuple(data)
 
@@ -92,7 +85,7 @@ class SmartTuple():
 
         _tpl = ()
 
-        if isinstance(args, SmartTuple.Iterables):
+        if isinstance(args, Iterable):
 
             if isinstance(args[0], SmartTuple):
                 _tpl = args[0]._tuple
@@ -101,10 +94,17 @@ class SmartTuple():
                 _tpl = SmartTuple(args)._tuple
 
         else:
-            assert(len(args) == len(self._tuple)),\
-                'Length mismatch. {} values expected.'.format(len(self._tuple))
 
-            _tpl = SmartTuple.from_values(args)._tuple
+            try:
+                _tpl = SmartTuple(args)._tuple
+
+            except:
+
+                assert(len(args) == len(self._tuple)),\
+                    'Length mismatch. {} values expected.'\
+                        .format(len(self._tuple))
+
+                _tpl = SmartTuple.from_values(args)._tuple
 
         return _tpl
 

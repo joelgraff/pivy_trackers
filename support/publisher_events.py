@@ -28,7 +28,7 @@ import types
 
 from inspect import getmro
 
-from ...support.const import Const
+from ..support.const import Const
 
 class _EVT(Const):
 

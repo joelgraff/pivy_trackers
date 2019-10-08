@@ -27,11 +27,7 @@ View state class
 from pivy import coin
 from PySide import QtGui
 
-from FreeCAD import Vector
-
-import FreeCADGui as Gui
-
-from ...support.singleton import Singleton
+from ..support.singleton import Singleton
 from .smart_tuple import SmartTuple
 
 class ViewStateGlobalCallbacks():
@@ -58,15 +54,19 @@ class ViewState(metaclass=Singleton):
     Class to track the current state of the active or specified view
     """
 
+    view = None
+
     def __init__(self, view=None):
         """
         ViewState constructor
         """
 
-        if not view:
-            view = Gui.ActiveDocument.ActiveView
+        assert(ViewState.view or view), \
+            'ViewState.__init__(): Reference to 3DInventor view undefined.'
 
-        self.view = view
+        if view:
+            self.view = view
+
         self.viewport = \
             view.getViewer().getSoRenderManager().getViewportRegion()
 
@@ -153,8 +153,19 @@ class ViewState(metaclass=Singleton):
         if isinstance(points[0], coin.SbVec3f):
             points = [_v.getValue() for _v in points]
 
-        elif isinstance(points[0], Vector):
-            points = [tuple(_v) for _v in points]
+        else:
+
+            try:
+                points = [SmartTuple(_v)._multiply for _v in points]
+
+            except:
+
+                print("""
+                    ViewState().transform_points():
+                        Unable to convert points to tuple
+                """)
+
+                return
 
         #append fourth point to each coordinate
         _pts = [_v + (1.0,) for _v in points]

@@ -30,7 +30,7 @@ from pivy import coin
 
 from DraftGui import todo
 
-from ...support.singleton import Singleton
+from ..support.singleton import Singleton
 from ...support.utils import Constants as C
 from ....geometry import support
 

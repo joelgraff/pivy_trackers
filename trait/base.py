@@ -66,7 +66,7 @@ class Base(Publisher, Subscriber):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def __init__(self, name, parent=None):
+    def __init__(self, name, view=None, parent=None):
         """
         Constructor
         """
@@ -81,7 +81,7 @@ class Base(Publisher, Subscriber):
             self.names += ['']*(3-len(self.names))
 
         if not Base.view_state:
-            Base.view_state = ViewState()
+            Base.view_state = ViewState(view)
 
         if not Base.mouse_state:
             Base.mouse_state = MouseState()
