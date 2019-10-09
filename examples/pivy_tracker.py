@@ -50,9 +50,6 @@ class PivyTracker(Base, Event, Select):
         self.trackers = []
         self.build_trackers()
 
-        for _v in self.trackers:
-            self.insert_group(_v)
-
         #selection state for de-selection / unhighlighting
         self.add_mouse_event(self.select_mouse_event)
         self.add_button_event(self.select_button_event)
