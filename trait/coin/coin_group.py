@@ -160,15 +160,6 @@ class CoinGroup(object):
 
         utils.remove_child(node, self.top)
 
-    def get_path(self, node, parent=None):
-        """
-        Return the path of a child node of the current parent
-        """
-        if not parent:
-            parent = self.root
-
-        return utils.get_child_path(node, parent)
-
     def copy(self):
         """
         Return a copy of the group root node
@@ -194,6 +185,6 @@ class CoinGroup(object):
             _parent = self.parent
 
         if not _parent:
-            _parent = CoinGroup.scenegraph_root
+            return
 
         utils.remove_child(self.root, _parent)

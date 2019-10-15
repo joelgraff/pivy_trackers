@@ -30,13 +30,6 @@ from DraftGui import todo
 
 from .coin_enums import MarkerStyles
 
-def dump_path(path, indent=''):
-    """
-    Dump a formatted output of path structure to console
-    """
-
-    pass
-
 def describe(node):
     """
     Returns a string describing the node and selected attributes

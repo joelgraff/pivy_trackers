@@ -110,13 +110,6 @@ class Base(Publisher, Subscriber):
 
         super().__init__()
 
-    def get_base(self):
-        """
-        Return the base node (for trait node construction)
-        """
-
-        return self.base
-
     def insert_into_scenegraph(self, verbose=False):
         """
         Insert the base node into the scene graph and trigger notifications
@@ -152,10 +145,6 @@ class Base(Publisher, Subscriber):
     def insert_group(self, coin_group):
         """Wrapper"""
         self.base.insert_node(coin_group.root)
-
-    def get_path(self, node, parent=None):
-        """Wrapper"""
-        return self.base.get_path(node, parent)
 
     def copy(self):
         """Wrapper"""

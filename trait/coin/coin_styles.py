@@ -80,23 +80,50 @@ class CoinStyles(Const):
         Style internal class for CoinStyles class
         """
 
-        def __init__(self, style_id, style=coin.SoDrawStyle.FILLED,
-                     shape='CIRCLE_FILLED', line_wdith=0.0, point_size=0.0,
-                     line_pattern=0xffff, size=9, color=(1.0, 1.0, 1.0),
-                     select=True):
+        def __init__(self, style_id, base_style=None,
+                     style=coin.SoDrawStyle.FILLED,
+                     shape='CIRCLE_FILLED', line_wdith=0.0,
+                     line_pattern=0xffff, size=9, color=(1.0, 1.0, 1.0)):
 
             """
             Style constructor
             """
-            self.id = style_id
-            self.style = style
-            self.shape = shape
-            self.line_width = line_wdith
-            self.point_size = point_size
-            self.line_pattern = line_pattern
-            self.size = size
-            self.color = color
-            self.select = select
+
+            if base_style:
+                self.style = base_style.style
+                self.shape = base_style.shape
+                self.line_width = base_style.line_wdith
+                self.line_pattern = base_style.line_pattern
+                self.size = base_style.size
+                self.color = base_style.color
+
+                if style != coin.SoDrawStyle.FILLED:
+                    self.style = style
+
+                if shape != 'CIRCLE_FILLED':
+                    self.shape = shape
+
+                if line_wdith:
+                    self.line_width = line_wdith
+
+                if line_pattern != 0xffff:
+                    self.line_pattern = line_pattern
+
+                if size != 9:
+                    self.size = size
+
+                if color != (1.0, 1.0, 1.0):
+                    self.color = color
+
+            else:
+                self.id = style_id
+                self.style = style
+                self.shape = shape
+                self.line_width = line_wdith
+                self.line_pattern = line_pattern
+                self.size = size
+                self.color = color
+
 
         def __str__(self):
             """
@@ -111,7 +138,7 @@ class CoinStyles(Const):
 
     BASE = Style('base')
     DEFAULT = Style('default', color=Color.GRAY_75)
-    DASHED = Style('dashed', line_pattern=0x0f0f, select=False)
+    DASHED = Style('dashed', line_pattern=0x0f0f)
 
     PARTIAL_SELECTED =\
         Style('partial selected', line_pattern=0x0fff,

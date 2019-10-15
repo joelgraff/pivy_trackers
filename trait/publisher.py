@@ -122,7 +122,7 @@ class Publisher:
             if not self.event_callbacks[_e]:
                 del self.event_callbacks[_e]
 
-    def dispatch(self, event, message=None, verbose=False):
+    def dispatch(self, event, message, verbose=False):
         """
         Message dispatch
         """

@@ -44,7 +44,6 @@ class Event():
     view_state = None
     mouse_state = None
     name = ''
-    def get_path(self, node, parent=None): """prototype"""; pass
 
     _self_weak_list = []
     _default_callback_node = None
