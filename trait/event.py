@@ -27,10 +27,10 @@ import weakref
 
 from ..support.smart_tuple import SmartTuple
 
-from .coin.coin_group import CoinGroup
-from .coin.coin_enums import NodeTypes as Nodes
-from .coin.coin_enums import MouseEvents as MouseEvents
-from .coin import coin_utils
+from ..coin.coin_group import CoinGroup
+from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_enums import MouseEvents as MouseEvents
+from ..coin import coin_utils
 
 #from ..support.publisher_events import PublisherEvents as SignalEvents
 

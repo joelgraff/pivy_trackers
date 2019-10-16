@@ -21,53 +21,29 @@
 #*                                                                     *
 #***********************************************************************
 """
-Marker tracker class for tracker objects
+Line tracker class for tracker objects
 """
 
-from .support.smart_tuple import SmartTuple
+from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_styles import CoinStyles
 from .geometry_tracker import GeometryTracker
 
-class MarkerTracker(GeometryTracker):
+class LineTracker(GeometryTracker):
     """
-    Tracker object for nodes
+    Tracker object for SoLineSet
     """
 
-    def __init__(self, name, point, parent):
+    def __init__(self, name, points, parent):
         """
         Constructor
         """
 
         super().__init__(name=name, parent=parent)
 
-        self.is_end_node = False
-        self.point = tuple(point)
-        self.drag_point = self.point
-
         #build node structure for the node tracker
+        self.line = self.geometry.add_node(Nodes.LINE_SET, name)
 
-        self.add_marker_set()
+        self.set_style(CoinStyles.DEFAULT)
 
-        #self.base_path_node = self.marker_node
-        self.set_style()
         self.set_visibility(True)
-        self.update(self.point)
-
-    def update(self, coordinates=None):
-        """
-        Update the coordinate position
-        """
-
-        _c = coordinates
-
-        if not _c:
-            _c = self.point
-        else:
-            self.point = SmartTuple(_c)._tuple
-
-        self.drag_point = self.point
-
-        super().update(_c)
-
-        #if self.do_publish:
-        #    self.dispatch(Events.NODE.UPDATED, (self.name, coordinates),
-        #False)
+        self.update(points)

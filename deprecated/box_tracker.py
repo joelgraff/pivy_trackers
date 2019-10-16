@@ -32,7 +32,7 @@ from FreeCAD import Vector
 
 #from .base_tracker import BaseTracker
 #from .wire_tracker import WireTracker
-from .trait.coin.coin_styles import CoinStyles
+from .coin.coin_styles import CoinStyles
 
 from ..support.drag_state import DragState
 from ..support.mouse_state import MouseState

@@ -26,13 +26,13 @@ Base class for Tracker objects
 
 from DraftGui import todo
 
-from .coin.coin_group import CoinGroup
+from ..coin.coin_group import CoinGroup
 from .publisher import Publisher
 from .subscriber import Subscriber
 from .event import Event
 from ..support.view_state import ViewState
 from ..support.mouse_state import MouseState
-from .coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_enums import NodeTypes as Nodes
 
 #from ...containers import TrackerContainer
 
@@ -40,14 +40,6 @@ class Base(Publisher, Subscriber):
     """
     Base class for Tracker objects
     """
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #'virtual' function declarations overriden by class inheritance
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    #Style
-    def set_style(self, style=None, draw=None, color=None):
-        """prototype"""; pass
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class statics

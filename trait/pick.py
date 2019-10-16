@@ -24,8 +24,8 @@
 Picking traits for trackers
 """
 
-from .coin.coin_enums import NodeTypes as Nodes
-from .coin.coin_enums import PickStyles as Styles
+from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_enums import PickStyles as Styles
 
 class Pick():
     """

@@ -24,12 +24,12 @@
 Tracker for alignment editing
 """
 
-from pivy_trackers.marker_tracker import MarkerTracker
-from pivy_trackers.line_tracker import LineTracker
-from pivy_trackers.trait.base import Base
-from pivy_trackers.trait.event import Event
-from pivy_trackers.trait.pick import Pick
-from pivy_trackers.trait.select import Select
+from ..tracker.marker_tracker import MarkerTracker
+from ..tracker.line_tracker import LineTracker
+from ..trait.base import Base
+from ..trait.event import Event
+from ..trait.pick import Pick
+from ..trait.select import Select
 
 class PivyTracker(Base, Event, Pick, Select):
     """

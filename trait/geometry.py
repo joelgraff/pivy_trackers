@@ -26,8 +26,8 @@ Geometry nodes for Tracker objects
 
 from ..support.smart_tuple import SmartTuple
 
-from .coin.coin_group import CoinGroup
-from .coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_group import CoinGroup
+from ..coin.coin_enums import NodeTypes as Nodes
 
 class Geometry():
     """
@@ -56,6 +56,8 @@ class Geometry():
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
+        self.prev_coordinates = None
+
         super().__init__()
 
     def update(self, coordinates):
@@ -81,6 +83,7 @@ class Geometry():
         #ensure coordinate points are tuples
         coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
 
+        self.prev_coordinates = self.get()
         self.geometry.coordinate.point.setValues(coordinates)
 
     def get(self, _dtype=tuple):

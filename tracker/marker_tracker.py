@@ -21,30 +21,66 @@
 #*                                                                     *
 #***********************************************************************
 """
-Line tracker class for tracker objects
+Marker tracker class for tracker objects
 """
 
-from .trait.coin.coin_styles import CoinStyles
+from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_enums import MarkerStyles
+from ..support.smart_tuple import SmartTuple
 from .geometry_tracker import GeometryTracker
 
-class LineTracker(GeometryTracker):
+class MarkerTracker(GeometryTracker):
     """
-    Tracker object for SoLineSet
+    Tracker object for nodes
     """
 
-    def __init__(self, name, points, parent):
+    def __init__(self, name, point, parent, view=None):
         """
         Constructor
         """
 
-        super().__init__(name=name, parent=parent)
+        super().__init__(name=name, parent=parent, view=view)
+
+        self.point = tuple(point)
 
         #build node structure for the node tracker
-        self.add_line_set('LINE_SET')
+        self.marker = self.geometry.add_node(Nodes.MARKER_SET, name)
 
-        self.set_style(CoinStyles.DEFAULT)
-
-        #self.base_path_node = self.line_node
-
+        self.add_node_events(self.marker)
+        self.set_style()
         self.set_visibility(True)
-        self.update(points)
+        self.update(self.point)
+
+    def update(self, coordinates=None):
+        """
+        Update the coordinate position
+        """
+
+        _c = coordinates
+
+        if not _c:
+            _c = self.point
+        else:
+            self.point = SmartTuple(_c)._tuple
+
+        self.drag_point = self.point
+
+        super().update(_c)
+
+        #if self.do_publish:
+        #    self.dispatch(Events.NODE.UPDATED, (self.name, coordinates),
+        #False)
+
+    def set_style(self, style=None, draw=None, color=None):
+        """
+        Override style implementation
+        """
+
+        print(self.name, style)
+        super().set_style(style, draw, color)
+
+        if style is None:
+            style = self.active_style
+
+        print(self.name, 'setting style to ', style.id)
+        self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)

@@ -21,22 +21,49 @@
 #*                                                                     *
 #***********************************************************************
 """
-Task-level Singleton tracker for providing state at the task level
+Geometry tracker base class
 """
 
-from .support.singleton import Singleton
-from .trait.base import Base
+from ..trait.base import Base
+from ..trait.style import Style
+from ..trait.event import Event
+from ..trait.pick import Pick
+from ..trait.select import Select
+from ..trait.geometry import Geometry
 
-class TaskTracker(Base, metaclass=Singleton):
+from ..coin.coin_styles import CoinStyles
+from ..coin.coin_enums import NodeTypes as Nodes
+
+class GeometryTracker(Base, Style, Event, Pick, Select, Geometry):
     """
-    Task-level Singleton tracker for providing state at the task level
+    Geometry tracker base class
     """
 
-    def __init__(self):
+    def __init__(self, name, parent, view=None):
         """
         Constructor
         """
 
-        super().__init__('Task Tracker')
+        super().__init__(name=name, parent=parent, view=view)
 
-        self.set_visibility(True)
+        self.coin_style = CoinStyles.DEFAULT
+
+    def add_node_events(self, node=None, add_callback=False, pathed=True):
+        """
+        Set up node events for the passed node
+        """
+
+        #optionally create a separate callback node for new geometry
+        if add_callback:
+            pathed = True
+            self.add_event_callback_node()
+
+        #events are added to the last-added event callback node
+        self.add_mouse_event(self.select_mouse_event)
+        self.add_button_event(self.select_button_event)
+
+        if pathed:
+
+            assert(node is not None), """pivy_trackers::GeometryTracker.add_node_events() - Node is NoneType.  Cannot apply event path"""
+
+            self.path_nodes.append(node)

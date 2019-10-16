@@ -26,7 +26,7 @@ Provides SoFCSelection support for Tracker classes
 
 from pivy import coin
 
-from .coin.coin_styles import CoinStyles
+from ..coin.coin_styles import CoinStyles
 
 #from ..support.publisher_events import PublisherEvents as Events
 
@@ -41,21 +41,17 @@ class Select():
     base = None
     mouse_state = None
     coin_style = None
-    active_style = None
-    event_class = None
     event = None
 
     def set_style(self, style=None, draw=None, color=None):
         """prototype"""; pass
 
-    def add_event_callback(self, event_type, callback, node=None, index=-1):
-        """prototype"""; pass
-
-    def add_mouse_event(self, callback): """prototype"""; pass
-    def add_button_event(self, callback): """prototype"""; pass
-
     #class static for global selection
+
+    #Reference to the node that is currently highlighted.
     highlight_node = None
+
+    #List of currently selected elements.
     selected = []
 
     def __init__(self):
@@ -160,6 +156,7 @@ class Select():
         Manage tracker single selection
         """
 
+        print(self.name, self.handle_events, self.mouse_state.component)
         #event is consumed and a component is under the mouse
         if self.handle_events and self.mouse_state.component:
 

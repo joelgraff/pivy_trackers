@@ -32,9 +32,9 @@ import FreeCADGui as Gui
 
 from .marker_tracker import MarkerTracker
 from .line_tracker import LineTracker
-from .trait.base import Base
-from .trait.event import Event
-from .trait.select import Select
+from ..trait.base import Base
+from ..trait.event import Event
+from ..trait.select import Select
 
 class TrackerTester(Base, Event, Select):
     """
