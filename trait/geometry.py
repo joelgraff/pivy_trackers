@@ -63,7 +63,7 @@ class Geometry():
         Update implementation
         """
 
-        pass
+        self.set_coordinates(coordinates)
 
     def set_coordinates(self, coordinates=None):
         """
@@ -82,8 +82,6 @@ class Geometry():
         coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
 
         self.geometry.coordinate.point.setValues(coordinates)
-
-        return coordinates
 
     def get(self, _dtype=tuple):
         """

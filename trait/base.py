@@ -117,18 +117,18 @@ class Base(Publisher, Subscriber):
 
         _fn = lambda _x: Base.view_state.sg_root.insertChild(_x, 0)
 
-        if verbose:
-            self.base.dump()
+        todo.delay(self._do_insert, verbose)
 
-        todo.delay(self._do_insert, None)
-
-    def _do_insert(self):
+    def _do_insert(self, verbose):
         """
         todo.delay callback for node insertion into scenegraph
         """
 
         Base.view_state.sg_root.insertChild(self.base.root, 0)
         Event.set_paths()
+
+        if verbose:
+            self.base.dump()
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Wrappers for CoinGroup methods to expose them at the tracker level

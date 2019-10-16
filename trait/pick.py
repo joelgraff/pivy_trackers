@@ -41,6 +41,8 @@ class Pick():
         """
 
         self.pick = self.base.add_node(Nodes.PICK_STYLE, 'Pick_Style')
+        self.set_pick_style(True)
+        super().__init__()
 
     def set_pick_style(self, is_pickable):
         """
