@@ -64,8 +64,7 @@ class ViewState(metaclass=Singleton):
         assert(ViewState.view or view), \
             'ViewState.__init__(): Reference to 3DInventor view undefined.'
 
-        if view:
-            self.view = view
+        self.view = view
 
         self.viewport = \
             view.getViewer().getSoRenderManager().getViewportRegion()
@@ -123,17 +122,6 @@ class ViewState(metaclass=Singleton):
         self.active_task_panel = _form
 
         return _form
-
-    def valid_matrix(self):
-        """
-        Returns whether or not the matrix has been updated by the
-        scenegraph by testing for the bottom-right value == 1.0
-        """
-
-        if not self._matrix:
-            return False
-
-        return self._matrix.getValue()[3][3] == 1.0
 
     def transform_points(self, points, node=None, refresh=True):
         """

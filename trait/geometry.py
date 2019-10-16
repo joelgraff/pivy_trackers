@@ -56,8 +56,6 @@ class Geometry():
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
-        self.last_coordinates = []
-
         super().__init__()
 
     def update(self, coordinates):
@@ -65,7 +63,7 @@ class Geometry():
         Update implementation
         """
 
-        self.last_coordinates = self.set_coordinates(coordinates)
+        pass
 
     def set_coordinates(self, coordinates=None):
         """

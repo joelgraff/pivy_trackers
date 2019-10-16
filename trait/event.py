@@ -128,20 +128,20 @@ class Event():
 
         self.callbacks.append({})
 
-    def remove_event_callback_node(self, node):
+    def remove_event_callback_node(self, index):
         """
         Remove an event callback node from the current group
         """
+
+        node = self.event.callbacks[index]
 
         if node not in self.event.callbacks:
             return
 
         self.event.remove_node(node)
 
-        _index = self.event.callbacks.index(node)
-
-        del self.event.callbacks[_index]
-        del self.callbacks[_index]
+        del self.event.callbacks[index]
+        del self.callbacks[index]
 
     def set_event_paths(self):
         """
@@ -151,12 +151,21 @@ class Event():
         if not self.path_nodes:
             return
 
-        if len(self.event.callbacks) < len(self.path_nodes):
-            return
+        _path_nodes = self.path_nodes[:]
 
-        for _i, _node in enumerate(self.path_nodes):
-            _node = self.path_nodes[_i]
+        _len_cb = len(self.event.callbacks)
+        _len_pn = len(self.path_nodes)
+
+        #if too few path nodes exist, pad the path_nodes list with the last
+        #element.
+        if _len_cb > _len_pn:
+            _path_nodes += [_path_nodes[-1]]*(_len_cb - _len_pn)
+
+        for _i, _node in enumerate(self.callbacks):
+
+            _node = _path_nodes[_i]
             _sa = coin_utils.search(_node, self.view_state.sg_root)
+
             self.event.callbacks[_i].setPath(_sa.getPath())
 
     def add_event_callback(self, event_type, callback, index=-1):
@@ -167,7 +176,6 @@ class Event():
         #if none exist, add a new one
         #otherwise default behavior reuses last-created SoEventCb node
         if not self.event.callbacks:
-            print(self.name, 'adding event cb node')
             self.add_event_callback_node()
 
         _et = event_type.getName().getString()
@@ -202,6 +210,9 @@ class Event():
             event_type, _cbs[callback])
 
         del _cbs[callback]
+
+        if not _cbs:
+            self.remove_event_callback_node(index)
 
     def add_mouse_event(self, callback):
         """
@@ -250,17 +261,3 @@ class Event():
 
         else:
             self.event.whichChild = 0
-
-    def set_event_path(self, event_type, message, verbose=False, node=None):
-        """
-        Add / remove path for event callbacks
-        """
-
-        if node is None:
-            node = self.base.path_node
-
-        if node is None:
-            self.event.callback.setPath(self.base.path_node)
-            return
-
-        self.event.callback.setPath(self.base.path_node(node))

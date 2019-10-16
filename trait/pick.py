@@ -40,7 +40,7 @@ class Pick():
         Constructor
         """
 
-        self.picker = self.base.add_node(Nodes.PICK_STYLE, 'Pick_Style')
+        self.pick = self.base.add_node(Nodes.PICK_STYLE, 'Pick_Style')
 
     def set_pick_style(self, is_pickable):
         """
@@ -52,11 +52,11 @@ class Pick():
         if is_pickable:
             _state = Styles.SHAPE
 
-        self.picker.style.setValue(_state)
+        self.pick.style.setValue(_state)
 
     def is_pickable(self):
         """
         Return a bool indicating whether or not the node may be selected
         """
 
-        return self.picker.style.getValue() != Styles.UNPICKABLE
+        return self.pick.style.getValue() != Styles.UNPICKABLE

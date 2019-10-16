@@ -51,7 +51,7 @@ class CoinGroup(object):
         self.parent = None
         self.group = None
         self.callback = None
-        self.picker = None
+        self.pick = None
         self.draw_style = None
         self.transform = None
         self.coordinate = None
