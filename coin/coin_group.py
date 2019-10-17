@@ -165,6 +165,14 @@ class CoinGroup(object):
 
         return self.root.copy()
 
+    def remove_all_children(self):
+        """
+        Remove all children under the top node.
+        """
+
+        print(self.name, 'removing all children from', str(self.top.getName()))
+        self.top.removeAllChildren()
+
     def dump(self):
         """
         Convenience function to dump contents of CoinGroup

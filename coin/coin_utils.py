@@ -30,6 +30,8 @@ from DraftGui import todo
 
 from .coin_enums import MarkerStyles
 
+from ..support.smart_tuple import SmartTuple
+
 def describe(node):
     """
     Returns a string describing the node and selected attributes

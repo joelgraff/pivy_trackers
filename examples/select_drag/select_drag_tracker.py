@@ -28,7 +28,9 @@ from ...tracker.context_tracker import ContextTracker
 from ...tracker.marker_tracker import MarkerTracker
 from ...tracker.line_tracker import LineTracker
 
-class SelectDragTracker(ContextTracker):
+from ...trait.drag import Drag
+
+class SelectDragTracker(ContextTracker, Drag):
     """
     Select Drag Tracker example
     """

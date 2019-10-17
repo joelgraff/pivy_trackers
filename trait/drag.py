@@ -24,48 +24,60 @@
 Drag traits for Tracker objects
 """
 
-from .base import Base
-from .style import Style
-from .geometry import Geometry
-from .coin.coin_enums import NodeTypes as Nodes
-from .coin.coin_styles import CoinStyles
-from .coin.coin_group import CoinGroup
+from ..trait.select import Select
+from ..tracker.drag_tracker import DragTracker
 
 class Drag():
     """
     Drag traits for tracker classes
     """
 
-    #Prototypes
+    #prototypes from Base, Select, and Event
     base = None
+    name = ''
+    mouse_state = None
+    select = None
 
-    #must be defined in the tracker object
-    drag_tracker = None
+    def is_selected(self): """prototype"""; pass
+    def add_mouse_event(self, callback): """prototype"""; pass
+    def add_button_event(self, callback): """prototype"""; pass
+
+    #Class static reference to global DragTracker
+    tracker = None
 
     def __init__(self):
         """
         Constructor
         """
 
+        assert(self.select is not None), \
+            """
+            Select must precede Drag in method resolution order
+            """
+
+        #instances singleton DragTracker on first inherit
+        if not Drag.tracker:
+            Drag.tracker = DragTracker(self.base)
+
+        self.add_mouse_event(self.drag_mouse_event)
+        #self.add_button_event(self.drag_button_event)
+
         super().__init__()
 
-        #build node structure for the drag nodes
-        self.drag = CoinGroup(
-            is_separator=True, is_switched=True,
-            parent=self.base, name=self.name + '__DRAG'
-        )
-
-        self.drag.transform = self.drag.add_node(Nodes.TRANSFORM)
-
-        self.set_style(CoinStyles.DEFAULT)
-
-        #self.base_path_node = self.marker_node
-
-        self.base.set_visibility(True)
-
-    def set_as_global(self):
+    def drag_mouse_event(self, user_data, event_cb):
         """
-        Set the current tracker's drag tracker as the global tracker
+        Drag mouse movement event callback
         """
 
-        self.global_tracker = self.drag_tracker
+        if not self.is_selected() or not self.mouse_state.button1.dragging:
+            return
+
+        Drag.tracker.insert_full_drag(self.base.copy())
+
+#    def select_button_event(self, user_data, event_cb):
+#        """
+#        Select event override
+#        """
+
+#        Select.select_button_event(self, user_data, event_cb)
+
