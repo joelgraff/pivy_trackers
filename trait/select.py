@@ -156,7 +156,6 @@ class Select():
         Manage tracker single selection
         """
 
-        print(self.name, self.handle_events, self.mouse_state.component)
         #event is consumed and a component is under the mouse
         if self.handle_events and self.mouse_state.component:
 

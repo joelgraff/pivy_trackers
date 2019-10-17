@@ -102,8 +102,6 @@ class CoinGroup(object):
             assert (isinstance(self.parent, Nodes.NODE)),\
                 'CoinGroup parent not of CoinGroup or SoNode type'
 
-        print(self.name, type(self.parent))
-
         utils.insert_child(self.root, self.parent)
 
     def set_visibility(self, visible=True):

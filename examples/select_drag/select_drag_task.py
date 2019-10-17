@@ -85,7 +85,7 @@ class SelectDragTask():
 
             self.position = position
             self.height = height
-            self.bound_box = SelectDragTrackerTask.BoundBox(box_corners)
+            self.bound_box = SelectDragTask.BoundBox(box_corners)
 
         def __str__(self):
             return 'position: {}\nheight: {}\nbox: {}\n'.format(

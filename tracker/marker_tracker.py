@@ -76,11 +76,9 @@ class MarkerTracker(GeometryTracker):
         Override style implementation
         """
 
-        print(self.name, style)
         super().set_style(style, draw, color)
 
         if style is None:
             style = self.active_style
 
-        print(self.name, 'setting style to ', style.id)
         self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)
