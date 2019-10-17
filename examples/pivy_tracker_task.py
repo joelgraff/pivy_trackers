@@ -32,11 +32,9 @@ import FreeCADGui as Gui
 
 import DraftTools
 
-from pivy_trackers.trait.base import Base
-
 from .pivy_tracker import PivyTracker
 
-class PivyTrackerTask(Base):
+class PivyTrackerTask():
     """
     Task to manage alignment editing
     """
@@ -95,11 +93,10 @@ class PivyTrackerTask(Base):
 
     def __init__(self):
 
-        super().__init__('PivyTrackerTask', Gui.ActiveDocument.ActiveView)
+        self.view = Gui.ActiveDocument.ActiveView
+        self.pivy_tracker = PivyTracker(Gui.ActiveDocument.ActiveView)
 
-        #self.panel = None
-
-        _camera = self.view_state.view.getCameraNode()
+        _camera = self.view.getCameraNode()
 
         self.camera_state = self.CameraState(
             position=(0.0, 0.0, 0.0),
@@ -107,10 +104,9 @@ class PivyTrackerTask(Base):
             box_corners=(-120.0, -120.0, 120.0, 120.0)
             )
 
-        self.pivy_tracker = PivyTracker()
         self.pivy_tracker.insert_into_scenegraph(True)
 
-        DraftTools.redraw3DView()
+        #DraftTools.redraw3DView()
 
         self._zoom_camera()
 
@@ -119,7 +115,7 @@ class PivyTrackerTask(Base):
         Fancy routine to smooth zoom the camera
         """
 
-        _camera = self.view_state.view.getCameraNode()
+        _camera = self.view.getCameraNode()
 
         _start_pos = Vector(_camera.position.getValue().getValue())
         _start_ht = _camera.height.getValue()
@@ -174,11 +170,11 @@ class PivyTrackerTask(Base):
         for _v in _steps:
 
             #set the camera
-            self.view_state.view.getCameraNode().position.setValue(
+            self.view.getCameraNode().position.setValue(
                 tuple(_start_pos + (_d_pos * _v))
             )
 
-            self.view_state.view.getCameraNode().height.setValue(
+            self.view.getCameraNode().height.setValue(
                 _start_ht + (_d_ht * _v)
             )
 
@@ -233,8 +229,6 @@ class PivyTrackerTask(Base):
 
         #close dialog
         Gui.Control.closeDialog()
-
-        self.view_state.finish()
 
         if self.pivy_tracker:
             self.pivy_tracker.finalize()

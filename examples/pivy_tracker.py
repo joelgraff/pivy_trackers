@@ -24,36 +24,26 @@
 Tracker for alignment editing
 """
 
+from ..tracker.base_tracker import BaseTracker
 from ..tracker.marker_tracker import MarkerTracker
 from ..tracker.line_tracker import LineTracker
-from ..trait.base import Base
-from ..trait.event import Event
-from ..trait.pick import Pick
-from ..trait.select import Select
 
-class PivyTracker(Base, Event, Pick, Select):
+class PivyTracker(BaseTracker):
     """
     Pivy Tracker example
     """
 
-    def __init__(self):
+    def __init__(self, view):
         """
         Constructor
         """
 
-        super().__init__(name='dcoument.object.tracker')
-
-        #don't handle events, as this is a global-level tracker
-        self.handle_events = False
+        super().__init__(name='dcoument.object.tracker', view=view)
 
         #generate initial node trackers and wire trackers for mouse interaction
         #and add them to the scenegraph
         self.trackers = []
         self.build_trackers()
-
-        #selection state for de-selection / unhighlighting
-        self.add_mouse_event(self.select_mouse_event)
-        self.add_button_event(self.select_button_event)
 
         self.set_visibility(True)
 

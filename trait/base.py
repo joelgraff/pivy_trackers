@@ -147,4 +147,12 @@ class Base(Publisher, Subscriber):
         Node destruction / cleanup
         """
 
+        if self.view_state:
+            self.view_state.finish()
+            self.view_state = None
+
+        #if self.mouse_state:
+        #    self.mouse_state.finish()
+        #    self.mouse_state = None
+
         self.base.finalize()

@@ -48,7 +48,7 @@ class CoinGroup(object):
             self.name = 'CoinGroup'
 
         self.top = None
-        self.parent = None
+        self.parent = parent
         self.group = None
         self.callback = None
         self.pick = None
@@ -92,10 +92,8 @@ class CoinGroup(object):
 
             self.root.addChild(self.top)
 
-        if not parent:
+        if not self.parent:
             return
-
-        self.parent = parent
 
         if isinstance(self.parent, CoinGroup):
             self.parent = self.parent.top
@@ -103,6 +101,8 @@ class CoinGroup(object):
         else:
             assert (isinstance(self.parent, Nodes.NODE)),\
                 'CoinGroup parent not of CoinGroup or SoNode type'
+
+        print(self.name, type(self.parent))
 
         utils.insert_child(self.root, self.parent)
 
