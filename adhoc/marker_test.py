@@ -1,11 +1,10 @@
 import FreeCADGui as Gui
-import DraftTools
 
-from ..tracker.base_tracker import BaseTracker
+from ..tracker.context_tracker import ContextTracker
 from ..tracker.marker_tracker import MarkerTracker
 
 
-class MyMarkerTracker(BaseTracker):
+class MyMarkerTracker(ContextTracker):
 
     def __init__(self):
 

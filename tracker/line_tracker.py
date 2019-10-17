@@ -33,17 +33,17 @@ class LineTracker(GeometryTracker):
     Tracker object for SoLineSet
     """
 
-    def __init__(self, name, points, parent):
+    def __init__(self, name, points, parent, view=None):
         """
         Constructor
         """
 
-        super().__init__(name=name, parent=parent)
+        super().__init__(name=name, parent=parent, view=view)
 
         #build node structure for the node tracker
         self.line = self.geometry.add_node(Nodes.LINE_SET, name)
 
-        self.set_style(CoinStyles.DEFAULT)
-
+        self.add_node_events(self.line)
+        self.set_style()
         self.set_visibility(True)
         self.update(points)

@@ -22,8 +22,9 @@
 #***********************************************************************
 
 """
-Task to edit an alignment
+FreeCAD Task class for tracker selection / dragging
 """
+
 import math
 
 from FreeCAD import Vector
@@ -32,9 +33,9 @@ import FreeCADGui as Gui
 
 import DraftTools
 
-from .pivy_tracker import PivyTracker
+from .select_drag_tracker import SelectDragTracker
 
-class PivyTrackerTask():
+class SelectDragTask():
     """
     Task to manage alignment editing
     """
@@ -84,7 +85,7 @@ class PivyTrackerTask():
 
             self.position = position
             self.height = height
-            self.bound_box = PivyTrackerTask.BoundBox(box_corners)
+            self.bound_box = SelectDragTrackerTask.BoundBox(box_corners)
 
         def __str__(self):
             return 'position: {}\nheight: {}\nbox: {}\n'.format(
@@ -94,7 +95,7 @@ class PivyTrackerTask():
     def __init__(self):
 
         self.view = Gui.ActiveDocument.ActiveView
-        self.pivy_tracker = PivyTracker(Gui.ActiveDocument.ActiveView)
+        self.tracker = SelectDragTracker(Gui.ActiveDocument.ActiveView)
 
         _camera = self.view.getCameraNode()
 
@@ -104,10 +105,7 @@ class PivyTrackerTask():
             box_corners=(-120.0, -120.0, 120.0, 120.0)
             )
 
-        self.pivy_tracker.insert_into_scenegraph(True)
-
-        #DraftTools.redraw3DView()
-
+        self.tracker.insert_into_scenegraph(True)
         self._zoom_camera()
 
     def _zoom_camera(self, use_bound_box=True):
@@ -230,9 +228,9 @@ class PivyTrackerTask():
         #close dialog
         Gui.Control.closeDialog()
 
-        if self.pivy_tracker:
-            self.pivy_tracker.finalize()
-            self.pivy_tracker = None
+        if self.tracker:
+            self.tracker.finalize()
+            self.tracker = None
 
         if self.camera_state:
             self._zoom_camera(False)

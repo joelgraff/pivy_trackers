@@ -21,16 +21,16 @@
 #*                                                                     *
 #***********************************************************************
 """
-Tracker for alignment editing
+Example selection / dragging tracker
 """
 
-from ..tracker.base_tracker import BaseTracker
-from ..tracker.marker_tracker import MarkerTracker
-from ..tracker.line_tracker import LineTracker
+from ...tracker.context_tracker import ContextTracker
+from ...tracker.marker_tracker import MarkerTracker
+from ...tracker.line_tracker import LineTracker
 
-class PivyTracker(BaseTracker):
+class SelectDragTracker(ContextTracker):
     """
-    Pivy Tracker example
+    Select Drag Tracker example
     """
 
     def __init__(self, view):

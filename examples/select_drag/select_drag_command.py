@@ -21,7 +21,7 @@
 # *                                                                        *
 # **************************************************************************
 """
-BaseTracker test class
+FreeCAD Command class for tracker selection / dragging
 """
 
 import FreeCAD as App
@@ -29,11 +29,11 @@ import FreeCADGui as Gui
 
 from DraftTools import Modifier
 
-from .pivy_tracker_task import PivyTrackerTask
+from .select_drag_task import SelectDragTask
 
-from . import resources
+from .. import resources
 
-class PivyTrackerCommand(Modifier):
+class SelectDragCommand(Modifier):
     """
     Command Description
     """
@@ -66,11 +66,11 @@ class PivyTrackerCommand(Modifier):
 
         icon_path = resources.__path__[0] + '/icons/template_resource.svg'
 
-        _tool_tip = 'Test pivy_trackers objects'
+        _tool_tip = 'Test pivy_trackers selection / dragging'
 
         return {'Pixmap'  : icon_path,
-                'Accel'   : 'Ctrl+Shift+D',
-                'MenuText': 'Pivy Tracker Test',
+                'Accel'   : '',
+                'MenuText': 'Pivy Tracker Selection / Dragging Test',
                 'ToolTip' : _tool_tip,
                 'CmdType' : 'ForEdit'}
 
@@ -79,8 +79,8 @@ class PivyTrackerCommand(Modifier):
         Command activation method
         """
         #create alignment editing task
-        self.task = PivyTrackerTask()
+        self.task = SelectDragTask()
 
-        Modifier.Activated(self, 'PivyTrackerCommand')
+        Modifier.Activated(self, 'SelectDragCommand')
 
-Gui.addCommand('PivyTrackerCommand', PivyTrackerCommand())
+Gui.addCommand('SelectDragCommand', SelectDragCommand())

@@ -21,14 +21,15 @@
 #*                                                                     *
 #***********************************************************************
 """
-Base tracker for selection / event-enabled trackers
+Context tracker provides a 'negative' (de-selection / unhighlighting) context
+for selection / event-enabled trackers
 """
 
 from ..trait.base import Base
 from ..trait.event import Event
 from ..trait.select import Select
 
-class BaseTracker(Base, Event, Select):
+class ContextTracker(Base, Event, Select):
 
     def __init__(self, name, view, parent=None):
 
