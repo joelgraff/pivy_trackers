@@ -6,25 +6,9 @@ A "tracker" is simply geometry which "tracks with" the user as they interact wit
 
 At the moment, pivy_trackers is tied to the FreeCAD API, though it may be adapted for another Coin3D application which implements pivy.
 
-## Example
+## Examples
 
-A tracker can be generated quite easily.  Specifically:
-
-    import pivy_trackers
-
-    class MyTracker(Base):
-    
-        def __init__(self):
-	
-            self.marker = pivy_trackers.MarkerTracker(name='my marker', point=(0.0, 0.0, 0.0), parent=self.base)
-            self.line = pivy_trackers.LineTracker(name='my line', points=[(0.0, 0.0, 0.0), (100.0, 0.0, 0.0)], parent=self.base)
-    
-    	    self.set_visbility(True)
-	    self.insert_into_scenegraph()
-	    
-This code will generate a scenegraph structure which renders a marker (point) at the origin and a line extending from the origin 100 units along the x-axis.  Both the marker and line are individually selectable, may be multi-selected with **CTRL+Left Click**, and may be dragged, both individually and as a multiple selection.
-
-In addition, the style of each tracker may be individually customizable.  It's selection and dragging behaviors (among others) may be overrideen in a customized Python class inheriting the base pivy_trackers classes.
+Check out the wiki for [tracker examples](https://github.com/joelgraff/pivy_trackers/wiki/Examples)
 
 ## Motivation
 
