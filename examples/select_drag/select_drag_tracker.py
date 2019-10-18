@@ -40,7 +40,7 @@ class SelectDragTracker(ContextTracker, Drag):
         Constructor
         """
 
-        super().__init__(name='dcoument.object.tracker', view=view)
+        super().__init__(name='dcoument.object.select_drag_tracker', view=view)
 
         #generate initial node trackers and wire trackers for mouse interaction
         #and add them to the scenegraph

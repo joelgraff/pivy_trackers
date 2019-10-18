@@ -105,11 +105,25 @@ class Select():
         """
 
         if self.mouse_state.button1.pressed:
-
+            print(self.name, 'mouse down select')
             if self.mouse_state.ctrl_down:
+                print('\n\tmulti-select')
                 self.do_multi_select()
 
+            #Do not perform single-select if in a multi-select state,
+            #assuming mouse down occurred over a selected item
+            elif len(Select.selected) > 1:
+                print('\n\tmultiple selections')
+
+                if self.mouse_state.component==self.name and not self.is_selected():
+                    print('\t\tclick over another node')
+                    self.do_single_select()
+                elif not self.mouse_state.component:
+                    print('\t\tclick over nothing')
+                    self.do_single_select()
+
             else:
+                print('\n\tsingle select')
                 self.do_single_select()
 
         if self.handle_events:

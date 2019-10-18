@@ -72,8 +72,8 @@ class Drag():
         if not self.is_selected() or not self.mouse_state.button1.dragging:
             return
 
-        Drag.tracker.insert_full_drag(self.base.copy())
-
+        for _v in Select.selected:
+           Drag.tracker.insert_full_drag(_v.base.copy())
 #    def select_button_event(self, user_data, event_cb):
 #        """
 #        Select event override

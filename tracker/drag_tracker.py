@@ -71,6 +71,8 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         self.add_mouse_event(self.drag_mouse_event)
         self.add_button_event(self.drag_button_event)
 
+        self.dragging = False
+
     def insert_full_drag(self, node):
         """
         Insert a graph to be fully transformed by dragging
@@ -93,7 +95,9 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         Drag mouse event callback
         """
 
-        if not self.mouse_state.button1.dragging:
+        self.dragging = self.mouse_state.button1.dragging
+
+        if not self.dragging:
             return
 
         self.translate(
@@ -105,7 +109,8 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         Drag button event callback
         """
 
-        if not self.mouse_state.button1.dragging:
+        #end of drag state
+        if not self.mouse_state.button1.dragging and self.dragging:
             self.drag.full.group.removeAllChildren()
             self.drag.part.remove_all_children()
 
