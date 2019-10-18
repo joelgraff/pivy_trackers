@@ -28,6 +28,9 @@ from ..support.smart_tuple import SmartTuple
 from ..support.singleton import Singleton
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_styles import CoinStyles as Styles
+
+from ..coin import coin_utils 
 
 from ..trait.base import Base
 from ..trait.style import Style
@@ -84,6 +87,11 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.geometry.line = \
             self.geometry.add_node(Nodes.LINE_SET, 'drag line')
 
+        self.coin_style = Styles.Style(
+            'drag_line', Styles.DASHED, color=Styles.Color.BLUE)
+
+        self.set_style()
+        self.geometry.set_visibility()
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
 
     def insert_full_drag(self, node):

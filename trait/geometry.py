@@ -46,12 +46,10 @@ class Geometry():
     switch_first = None
 
     @staticmethod
-    def init_graph(is_switched=False, is_separated=False, switch_first=False):
+    def init_graph(is_switched=False, is_separated=False, switch_first=True):
         Geometry.is_switched = is_switched
         Geometry.is_separated = is_separated
         Geometry.switch_first = switch_first
-
-    init_graph()
 
     def __init__(self):
         """
@@ -113,3 +111,5 @@ class Geometry():
             _dtype(_v.getValue()) \
                 for _v in self.geometry.coordinate.point.getValues()
         ]
+
+Geometry.init_graph()

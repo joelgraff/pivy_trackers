@@ -65,8 +65,6 @@ class Base(Publisher, Subscriber):
         Base.is_separated = is_separated
         Base.switch_first = switch_first
 
-    init_graph()
-
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -172,3 +170,6 @@ class Base(Publisher, Subscriber):
         #    self.mouse_state = None
 
         self.base.finalize()
+
+Base.init_graph()
+

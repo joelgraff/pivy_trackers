@@ -92,7 +92,7 @@ class CoinStyles(Const):
             if base_style:
                 self.style = base_style.style
                 self.shape = base_style.shape
-                self.line_width = base_style.line_wdith
+                self.line_width = base_style.line_width
                 self.line_pattern = base_style.line_pattern
                 self.size = base_style.size
                 self.color = base_style.color

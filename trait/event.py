@@ -68,8 +68,6 @@ class Event():
         Event.is_separated = is_separated
         Event.switch_first = switch_first
 
-    init_graph()
-
     def __init__(self):
         """
         Constructor
@@ -277,3 +275,5 @@ class Event():
 
         else:
             self.event.whichChild = 0
+
+Event.init_graph()

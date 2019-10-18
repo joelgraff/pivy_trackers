@@ -42,12 +42,10 @@ class Style():
     switch_first = None
 
     @staticmethod
-    def init_graph(is_switched=False, is_separated=False, switch_first=False):
+    def init_graph(is_switched=False, is_separated=False, switch_first=True):
         Style.is_switched = is_switched
         Style.is_separated = is_separated
         Style.switch_first = switch_first
-
-    init_graph()
 
     def __init__(self):
         """
@@ -100,3 +98,5 @@ class Style():
         color.rgb = style.color
 
         self.active_style = style
+
+Style.init_graph()
