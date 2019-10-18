@@ -26,6 +26,7 @@ Line tracker class for tracker objects
 
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_styles import CoinStyles
+
 from .geometry_tracker import GeometryTracker
 
 class LineTracker(GeometryTracker):

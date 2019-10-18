@@ -41,22 +41,40 @@ class Geometry():
 
     def set_visibility(self, visible=True): """prototype"""; pass
 
+    is_switched = None
+    is_separated = None
+    switch_first = None
+
+    @staticmethod
+    def init_graph(is_switched=False, is_separated=False, switch_first=False):
+        Geometry.is_switched = is_switched
+        Geometry.is_separated = is_separated
+        Geometry.switch_first = switch_first
+
+    init_graph()
+
     def __init__(self):
         """
         Constructor
         """
 
-        if not (self.active_style and self.base):
-            return
+        assert(all([self.active_style, self.base])),"""
+        Geometry trait initialization failed - missing required traits.
+        """
 
         self.geometry = CoinGroup(
-            is_separator=False, is_switched=False,
+            is_separated=Geometry.is_separated,
+            is_switched=Geometry.is_switched,
+            switch_first=Geometry.switch_first,
             parent=self.base, name=self.name + '__GEOMETRY')
 
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
         self.prev_coordinates = None
+
+        #reset the graph node parameters
+        Geometry.init_graph()
 
         super().__init__()
 

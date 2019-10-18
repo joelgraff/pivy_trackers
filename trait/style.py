@@ -37,6 +37,18 @@ class Style():
     base = None
     name = ''
 
+    is_switched = None
+    is_separated = None
+    switch_first = None
+
+    @staticmethod
+    def init_graph(is_switched=False, is_separated=False, switch_first=False):
+        Style.is_switched = is_switched
+        Style.is_separated = is_separated
+        Style.switch_first = switch_first
+
+    init_graph()
+
     def __init__(self):
         """
         Constructor
@@ -46,7 +58,9 @@ class Style():
             return
 
         self.style = CoinGroup(
-            is_separator=False, is_switched=False,
+            is_separated=Style.is_separated,
+            is_switched=Style.is_switched,
+            switch_first=Style.switch_first,
             parent=self.base, name=self.name +'__STYLE')
 
         self.style.draw_style = self.style.add_node(Nodes.DRAW_STYLE)
@@ -54,6 +68,8 @@ class Style():
 
         self.coin_style = CoinStyles.BASE
         self.active_style = CoinStyles.BASE
+
+        Style.init_graph()
 
         super().__init__()
 

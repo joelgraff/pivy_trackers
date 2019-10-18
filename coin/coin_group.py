@@ -34,7 +34,7 @@ class CoinGroup(object):
 
     scenegraph_root = None
 
-    def __init__(self, is_separator=False, is_switched=False,
+    def __init__(self, is_separated=False, is_switched=False,
                  switch_first=True, parent=None, name=''):
 
         """
@@ -69,7 +69,7 @@ class CoinGroup(object):
 
             self.root = self.switch
 
-        if is_separator:
+        if is_separated:
             self.separator = utils.add_child(
                 Nodes.SEPARATOR, None, self.name + '__TopSeparator')
 

@@ -55,6 +55,18 @@ class Base(Publisher, Subscriber):
     #structure for all trackers.  Typically, this is the 'task-level' root node
     local_root = None
 
+    is_switched = None
+    is_separated = None
+    switch_first = None
+
+    @staticmethod
+    def init_graph(is_switched=True, is_separated=True, switch_first=True):
+        Base.is_switched = is_switched
+        Base.is_separated = is_separated
+        Base.switch_first = switch_first
+
+    init_graph()
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,7 +99,9 @@ class Base(Publisher, Subscriber):
         self.callbacks = {}
 
         self.base = CoinGroup(
-            is_separator=True, is_switched=True,
+            is_separated=Base.is_separated,
+            is_switched=Base.is_switched,
+            switch_first=Base.switch_first,
             name=self.name + '_base', parent=parent)
 
         self.path_node = None
@@ -99,6 +113,8 @@ class Base(Publisher, Subscriber):
         #First-created tracker provides the local root node reference
         if not Base.local_root:
             Base.local_root = self.root
+
+        Base.init_graph()
 
         super().__init__()
 

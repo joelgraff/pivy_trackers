@@ -58,13 +58,27 @@ class Event():
         for _v in Event._self_weak_list:
             _v().set_event_paths()
 
+    is_switched = None
+    is_separated = None
+    switch_first = None
+
+    @staticmethod
+    def init_graph(is_switched=True, is_separated=False, switch_first=True):
+        Event.is_switched = is_switched
+        Event.is_separated = is_separated
+        Event.switch_first = switch_first
+
+    init_graph()
+
     def __init__(self):
         """
         Constructor
         """
 
         self.event = CoinGroup(
-            switch_first=True, is_separator=False, is_switched=True,
+            switch_first=Event.switch_first,
+            is_separated=Event.is_separated,
+            is_switched=Event.is_switched,
             parent=self.base, name=self.name + '__EVENTS')
 
         self.event.callbacks = []
@@ -82,6 +96,8 @@ class Event():
         self.event.set_visibility(True)
 
         Event._self_weak_list.append(weakref.ref(self))
+
+        Event.init_graph()
 
         super().__init__()
 

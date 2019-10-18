@@ -30,10 +30,12 @@ from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
 
 from ..trait.base import Base
+from ..trait.style import Style
 from ..trait.event import Event
 from ..trait.pick import Pick
+from ..trait.geometry import Geometry
 
-class DragTracker(Base, Event, Pick, metaclass=Singleton):
+class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
     """
     Drag tracker for providing drag support to other trackers
     """
@@ -43,12 +45,15 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         Constructor
         """
 
+        #Alter the geometry trait graph before initialization
+        Geometry.init_graph(True, True)
+
         super().__init__('DragTracker', None, parent)
 
-        self.drag = CoinGroup(is_switched=True, is_separator=True,
+        self.drag = CoinGroup(is_switched=True, is_separated=True,
         parent=self.base, name='drag_tracker')
 
-        self.drag.full = CoinGroup(is_switched=True, is_separator=True,
+        self.drag.full = CoinGroup(is_switched=True, is_separated=True,
         parent=self.drag, name='drag_tracker_full')
 
         self.drag.full.transform = \
@@ -56,7 +61,7 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         
         self.drag.full.group = self.drag.full.add_node(Nodes.GROUP, 'group')
 
-        self.drag.part = CoinGroup(is_switched=True, is_separator=True,
+        self.drag.part = CoinGroup(is_switched=True, is_separated=True,
         parent=self.drag, name='drag_tracker_part')
 
         self.drag.part.set_visibility()
@@ -72,6 +77,14 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         self.add_button_event(self.drag_button_event)
 
         self.dragging = False
+
+        #initialize the drag line
+        self.show_drag_line = True
+
+        self.geometry.line = \
+            self.geometry.add_node(Nodes.LINE_SET, 'drag line')
+
+        self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
 
     def insert_full_drag(self, node):
         """
@@ -95,14 +108,26 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
         Drag mouse event callback
         """
 
+        if self.mouse_state.button1.dragging and not self.dragging:
+            if self.show_drag_line:
+                self.geometry.set_visibility(True)
+
         self.dragging = self.mouse_state.button1.dragging
 
         if not self.dragging:
             return
 
-        self.translate(
-            self.mouse_state.button1.drag_start, 
-            self.mouse_state.world_position)
+        _coords = [
+            self.mouse_state.button1.drag_start,
+            self.mouse_state.world_position
+        ]
+
+        #update the transform
+        self.translate(_coords[0], _coords[1])
+
+        #update the drag line
+        if self.show_drag_line:
+            self.update(_coords)
 
     def drag_button_event(self, user_data, event_cb):
         """
@@ -111,8 +136,10 @@ class DragTracker(Base, Event, Pick, metaclass=Singleton):
 
         #end of drag state
         if not self.mouse_state.button1.dragging and self.dragging:
+
             self.drag.full.group.removeAllChildren()
             self.drag.part.remove_all_children()
+            self.geometry.set_visibility(False)
 
 ##########################
 ## Transformation routines

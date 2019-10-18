@@ -105,27 +105,9 @@ class Select():
         """
 
         if self.mouse_state.button1.pressed:
-            print(self.name, 'mouse down select')
-            if self.mouse_state.ctrl_down:
-                print('\n\tmulti-select')
-                self.do_multi_select()
+            self.do_selection()
 
-            #Do not perform single-select if in a multi-select state,
-            #assuming mouse down occurred over a selected item
-            elif len(Select.selected) > 1:
-                print('\n\tmultiple selections')
-
-                if self.mouse_state.component==self.name and not self.is_selected():
-                    print('\t\tclick over another node')
-                    self.do_single_select()
-                elif not self.mouse_state.component:
-                    print('\t\tclick over nothing')
-                    self.do_single_select()
-
-            else:
-                print('\n\tsingle select')
-                self.do_single_select()
-
+        #sink / consume events
         if self.handle_events:
             event_cb.setHandled()
 
@@ -164,6 +146,32 @@ class Select():
             self.set_style(CoinStyles.SELECTED)
 
             Select.highlight_node = self
+
+    def do_selection(self):
+        """
+        Perform selection
+        """
+
+        #multi-select mode
+        if self.mouse_state.ctrl_down:
+            self.do_multi_select()
+
+        #single-select cases when multiple items are selected
+        elif len(Select.selected) > 1:
+
+            #select an unselected node
+            if (self.mouse_state.component == self.name) \
+                and not self.is_selected():
+
+                self.do_single_select()
+
+            #Select over nothing
+            elif not self.mouse_state.component:
+                self.do_single_select()
+
+        #single-select mode
+        else:
+            self.do_single_select()
 
     def do_single_select(self):
         """
