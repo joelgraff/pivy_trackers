@@ -16,7 +16,7 @@ Creating custom tools and workbenches in FreeCAD is greatly facilitated by the n
 
 However, creating custom tools in FreeCAD that provide intuitive, visual feedback to the user poses a challenge as developers are forced to interact with the Coin3D scenegraph directly through pivy.  
 
-Pivy_trackers eases this process and provdies several basic features which are valuable to most any 3D modelling tool, like selection / multi-selection, dragging, and rotation, insulating the developer from most of the inner workings of the scenegraaph while still allowing for full customization of the tracker behaviors.
+Pivy_trackers eases this process and provides several basic features which are valuable to most any 3D modelling tool, like selection / multi-selection, dragging, and rotation, insulating the developer from most of the inner workings of the scenegraph while still allowing for full customization of the tracker behaviors.
 
 ## Requirements
 
@@ -27,21 +27,25 @@ Specifically:
 + [FreeCAD/FreeCAD View3DViewerPy](https://github.com/FreeCAD/FreeCAD/blob/1995f9d0bac63820c5c42ac0075c91a49cbad119/src/Gui/View3DViewerPy.h)
 + [PySide QTimer](https://pypi.org/project/PySide2/)
 
-**note:** The PySide dependency for FreeCAD, specifically, is a unqiue package maintained via the FreeCAD-Daily ppa.
+**Note:** The PySide dependency for FreeCAD, specifically, is a unique package maintained via the [FreeCAD-Daily PPA](https://launchpad.net/~freecad-maintainers/+archive/ubuntu/freecad-daily).
 
 ## Getting Started
 
 Clone the project into a path visible through your project's top-level module
 
-    cd /my/project/top/module/path
-    git clone https://github.com/joelgraff/pivy_trackers.git
+```bash
+cd /my/project/top/module/path
+git clone https://github.com/joelgraff/pivy_trackers.git
+```
 
 ## Usage
 
 Pivy_trackers should be visible as a top-level module.  Thus, pivy_tracker classes can be imported directly as:
 
-    from pivy_trackers.trait.base import Base
-    
+```python
+from pivy_trackers.trait.base import Base
+```
+
 ## Reference
 
 + [pivy](https://grey.colorado.edu/coin3d/index.html)
@@ -51,11 +55,10 @@ Note that while the pivy API is not directly documented, it is a one-to-one expo
 
 Additional support can be found at the FreeCAD forums: https://forum.freecadweb.org/
 
-
 ## Contributors
 
 Take a look at the wiki and project KanBan board for more information.  Feel free to reach out to me here or through the forums.  Contributions are greatly appreciated!
 
 ## License
 
-[GNU LGPL v2.1](https://github.com/joelgraff/pivy_trackers/blob/master/LICENSE)
+[GNU LGPL v2.1](LICENSE)
