@@ -69,7 +69,7 @@ class Select():
         Select.__init__(): No event node defined.  Is Event inherited?
         """
 
-        self.handle_events = True
+        self.handle_select_events = True
 
         self.select = coin.SoType.fromName("SoFCSelection").createInstance()
 
@@ -96,7 +96,7 @@ class Select():
 
         self.update_highlight()
 
-        if self.handle_events:
+        if self.handle_select_events:
             event_cb.setHandled()
 
     def select_button_event(self, user_data, event_cb):
@@ -108,7 +108,7 @@ class Select():
             self.do_selection()
 
         #sink / consume events
-        if self.handle_events:
+        if self.handle_select_events:
             event_cb.setHandled()
 
     def update_highlight(self):
@@ -127,7 +127,7 @@ class Select():
 
             #and this is a event-consuming tracker or no component was found
             #under the mouse
-            if self.handle_events or _no_component:
+            if self.handle_select_events or _no_component:
 
                 if not  Select.highlight_node.is_selected():
 
@@ -141,7 +141,7 @@ class Select():
         if self.is_selected() or _no_component:
             return
 
-        if self.handle_events:
+        if self.handle_select_events:
             #highlight and set current node as highlighted node
             self.set_style(CoinStyles.SELECTED)
 
@@ -179,7 +179,7 @@ class Select():
         """
 
         #event is consumed and a component is under the mouse
-        if self.handle_events and self.mouse_state.component:
+        if self.handle_select_events and self.mouse_state.component:
 
             self.set_style(CoinStyles.SELECTED)
 
@@ -205,7 +205,7 @@ class Select():
         """
 
         #requires event consumer and non-empty mouse component
-        if not (self.handle_events and self.mouse_state.component):
+        if not (self.handle_select_events and self.mouse_state.component):
             return
 
         _style = self.coin_style
