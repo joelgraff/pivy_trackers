@@ -73,19 +73,8 @@ class MouseState(metaclass=Singleton):
         _btn = self.buttons[int(arg['Button'][-1]) - 1]
         _btn.pressed = arg['State'] == 'DOWN'
 
-        #continue drag unless button is released
-        if _btn.dragging:
-            _btn.dragging = _btn.pressed
-
-        #if button is still pressed and the position has changed,
-        #begin drag operation
-        elif _btn.pressed and (self.screen_position != _btn.screen_position):
-
-            _btn.dragging = True
-            _btn.drag_start = self.world_position
-
-        else:
-            _btn.drag_start = ()
+        if not _btn.pressed:
+            _btn.dragging = False
 
         _btn.screen_position = self.screen_position
         _btn.world_position = self.world_position
@@ -105,6 +94,22 @@ class MouseState(metaclass=Singleton):
 
         if self.vector != self.world_position:
             self.vector = SmartTuple._sub(self.vector, self.world_position)
+
+        #continue drag unless button is released
+        if self.button1.dragging:
+            self.button1.dragging = self.button1.pressed
+
+        #if button is still pressed and the position has changed,
+        #begin drag operation
+        elif self.button1.pressed:
+
+            if self.button1.screen_position != self.screen_position:
+
+                self.button1.dragging = True
+                self.button1.drag_start = self.button1.world_position
+
+        else:
+            self.button1.drag_start = ()
 
     def _update_component_state(self, info):
         """
@@ -164,13 +169,16 @@ class MouseState(metaclass=Singleton):
     def set_mouse_position(self, view_state, coord):
         """
         Update the mouse cursor position independently
+        coord - position in world coordinates
         """
 
         _new_pos = view_state.getPointOnScreen(coord)
 
+        print('MouseState.set_mouse_position:', coord, _new_pos)
         #set the mouse position at the updated screen coordinate
         _delta_pos = SmartTuple(_new_pos).sub(self.screen_position)
 
+        print(_delta_pos)
         #get screen position by adding offset to the new window position
         _pos = SmartTuple.from_values(_delta_pos[0], -_delta_pos[1])\
             .add(QCursor.pos().toTuple())
