@@ -53,7 +53,8 @@ class SmartTuple():
 
         self._tuple = tuple(data)
 
-    def from_values(self, *args):
+    @staticmethod
+    def from_values(*args):
         """
         Build tuple from individual values
         """
@@ -71,12 +72,16 @@ class SmartTuple():
                 elif isinstance(_v, str):
                     _type = float
 
+            _w = _v
+
             if not isinstance(_v, _type):
-                _vals.append(_type(_v))
+                _w = _type(_v)
 
-        assert(len(_vals) != len(args)), 'Value type conversion mismatch.'
+            _vals.append(_w)
 
-        self._tuple = tuple(_vals)
+        assert(len(_vals) == len(args)), 'Value type mismatch.'
+
+        return SmartTuple(_vals)
 
     def _validate(self, args):
         """
