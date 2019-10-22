@@ -28,6 +28,18 @@ from pivy import coin
 
 from ..support.const import Const
 
+class Axis(Const):
+    """
+    Tuple definitions of unit axes
+    """
+
+    X = (1.0, 0.0, 0.0)
+    Y = (0.0, 1.0, 0.0)
+    Z = (0.0, 0.0, 1.0)
+    XY = (1.0, 1.0, 0.0)
+    YZ = (0.0, 1.0, 1.0)
+    XZ = (1.0, 0.0, 1.0)
+
 class MouseEvents(Const):
     """
     Mouse state event constant enumerants
