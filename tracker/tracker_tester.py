@@ -60,7 +60,7 @@ class TrackerTester(Base, Event, Select):
         self.datum = alignment.model.data['meta']['Start']
 
         #don't handle events, as this is a global-level tracker
-        self.handle_events = False
+        self.handle_select_events = False
 
         #base (placement) transformation for the alignment
         self.transform.translation.setValue(
