@@ -32,6 +32,8 @@ from ..trait.select import Select
 from ..trait.drag import Drag
 from ..trait.geometry import Geometry
 
+from ..trait import enums
+
 from ..coin.coin_styles import CoinStyles
 from ..coin.coin_enums import NodeTypes as Nodes
 
@@ -39,6 +41,9 @@ class GeometryTracker(Base, Style, Event, Pick, Select, Drag, Geometry):
     """
     Geometry tracker base class
     """
+
+    #static alias for DragStyle class
+    DragStyle = enums.DragStyle
 
     def __init__(self, name, parent, view=None):
         """
