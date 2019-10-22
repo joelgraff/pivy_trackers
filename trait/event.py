@@ -84,6 +84,8 @@ class Event():
 
         self.path_nodes = []
 
+        self.handle_events = False
+
         #create a global callback for managing mouse updates
         if not Event._default_callback_node:
 
