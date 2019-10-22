@@ -157,7 +157,7 @@ class SmartTuple():
 
     def add(self, *args):
         """
-        Tuple-based addtion
+        Tuple-based addition
         """
 
         _tpl = [self._validate(_v) for _v in args]
