@@ -25,6 +25,8 @@ Drag traits for Tracker objects
 """
 
 from ..trait.select import Select
+from ..trait.enums import DragStyle
+
 from ..tracker.drag_tracker import DragTracker
 
 class Drag():
@@ -42,8 +44,11 @@ class Drag():
     def add_mouse_event(self, callback): """prototype"""; pass
     def add_button_event(self, callback): """prototype"""; pass
 
+    #prototype to be implemented by inheriting class
+    def update_drag_center(self): """prototype"""; pass
+
     #Class static reference to global DragTracker
-    tracker = None
+    drag_tracker = None
 
     def __init__(self):
         """
@@ -55,29 +60,27 @@ class Drag():
             Select must precede Drag in method resolution order
             """
 
-        #instances singleton DragTracker on first inherit
-        if not Drag.tracker:
-            Drag.tracker = DragTracker(self.base)
-
         self.add_mouse_event(self.drag_mouse_event)
-        #self.add_button_event(self.drag_button_event)
+
+        # instances / initializes singleton DragTracker on first inherit, 
+        # and adds callback for global tracker updating
+        if not Drag.drag_tracker:
+            Drag.drag_tracker = DragTracker(self.base)
+            Drag.drag_tracker.update_center_fn = self.update_drag_center()
 
         super().__init__()
 
     def drag_mouse_event(self, user_data, event_cb):
         """
-        Drag mouse movement event callback
+        Drag mouse movement event callback, called at start of drag event
         """
 
         if not self.is_selected() or not self.mouse_state.button1.dragging:
             return
 
+        #enabling sinks mouse events at the drag tracker
+        Drag.drag_tracker.dragging = True
+        Drag.drag_tracker.drag_center = self.update_drag_center()
+
         for _v in Select.selected:
-           Drag.tracker.insert_full_drag(_v.base.copy())
-#    def select_button_event(self, user_data, event_cb):
-#        """
-#        Select event override
-#        """
-
-#        Select.select_button_event(self, user_data, event_cb)
-
+           Drag.drag_tracker.insert_full_drag(_v.base.copy())

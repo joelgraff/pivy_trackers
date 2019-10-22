@@ -26,17 +26,22 @@ Drag tracker for providing drag support to other trackers
 
 from ..support.smart_tuple import SmartTuple
 from ..support.singleton import Singleton
+
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_enums import Axis
 from ..coin.coin_styles import CoinStyles as Styles
 
 from ..coin import coin_utils 
+from ..coin import coin_math
 
 from ..trait.base import Base
 from ..trait.style import Style
 from ..trait.event import Event
 from ..trait.pick import Pick
 from ..trait.geometry import Geometry
+
+from ..trait.enums import DragStyle
 
 class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
     """
@@ -74,12 +79,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.set_pick_style(False)
         self.partial_nodes = []
-        self.partial_indices = []
+        self.partial_indices = {}
 
         self.add_mouse_event(self.drag_mouse_event)
         self.add_button_event(self.drag_button_event)
 
         self.dragging = False
+
+        self.update_center_fn = lambda: print('update_center_fn')
 
         #initialize the drag line
         self.show_drag_line = True
@@ -91,8 +98,25 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             'drag_line', Styles.DASHED, color=Styles.Color.BLUE)
 
         self.set_style()
-        self.geometry.set_visibility()
+        self.geometry.set_visibility(False)
+
+        #------------------------
+        #drag rotation attributes
+        #------------------------
+
+        #cumulative rotation value
+        self.rotation = 0.0
+
+        #current bearing of user rotation
+        self.angle = 0.0
+
+        #drag center point defined by inheriting class
+        self.drag_center = (0.0, 0.0, 0.0)
+
+        self.is_rotating = False
+
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
+
 
     def insert_full_drag(self, node):
         """
@@ -109,45 +133,69 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.part.insert_node(node)
 
         self.partial_nodes.append(node)
-        self.partial_indices.append(indices)
+
+        if not node in self.partial_indices:
+            self.partial_indices[node] = []
+
+        self.partial_indices[node].append(indices)
 
     def drag_mouse_event(self, user_data, event_cb):
         """
         Drag mouse event callback
         """
 
-        if self.mouse_state.button1.dragging and not self.dragging:
-            if self.show_drag_line:
-                self.geometry.set_visibility(True)
-
-        self.dragging = self.mouse_state.button1.dragging
-
         if not self.dragging:
             return
 
         _coords = [
-            self.mouse_state.button1.drag_start,
+            self.drag_center,
             self.mouse_state.world_position
         ]
 
         #update the transform
-        self.translate(_coords[0], _coords[1])
+        if self.mouse_state.alt_down:
+            self.rotate(_coords[0], _coords[1])
+
+        else:
+            self.translate(_coords[0], _coords[1])
 
         #update the drag line
-        if self.show_drag_line:
-            self.update(_coords)
+        #self.update(_coords)
+
+        if self.show_drag_line and not self.geometry.is_visible():
+
+            #update to prevent incorrect coordinates
+            self.update([
+                self.mouse_state.world_position,
+                self.mouse_state.world_position
+            ])
+
+            self.geometry.set_visibility(True)
+
+        event_cb.setHandled()
 
     def drag_button_event(self, user_data, event_cb):
         """
         Drag button event callback
         """
 
-        #end of drag state
-        if not self.mouse_state.button1.dragging and self.dragging:
+        if self.mouse_state.button1.dragging:
+            return
+
+        #end of drag operation
+        if self.dragging:
 
             self.drag.full.group.removeAllChildren()
             self.drag.part.remove_all_children()
             self.geometry.set_visibility(False)
+
+            self.drag.full.set_translation((0.0, 0.0, 0.0))
+            self.drag.full.set_rotation(0.0)
+            self.dragging = False
+
+        #start of drag operation
+        else:
+            self.update([self.drag_center, self.drag_center])
 
 ##########################
 ## Transformation routines
@@ -158,48 +206,63 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Manage drag geometry translation
         """
 
+        if self.is_rotating:
+
+            self.is_rotating = False
+
+            _world_pos = SmartTuple._add(
+                self.drag.full.get_translation(), self.drag_center
+            )
+
+            self.mouse_state.set_mouse_position(self.view_state, _world_pos)
+
+            return
+
         #accumulate the movement from the previous mouse position
         _delta = SmartTuple._sub(end_coord, start_coord)
-        self.drag.full.transform.translation.setValue(_delta)
 
-#    def rotate(self, coord):
-#        """
-#        Manage rotation during dragging
-#        coord - coordinates for the rotation update
-#        """
+        self.drag.full.set_translation(_delta)
 
-#        if not self.update_rotate:
-#            return
+        if self.show_drag_line:
+            self.update([start_coord, end_coord])
 
-#        _angle = 0.0
+    def rotate(self, center_coord, radius_coord):
+        """
+        Manage rotation during dragging
+        coords - pair of coordinates for the rotation update in tuple form
+        """
 
-#        if self.rotation_center:
-#            _angle = support.get_bearing(
-#                SmartTuple._sub(coord, self.rotation_center))
+        _angle = 0.0
 
-#        else:
+        #if already rotating get the updated bearing from the center
+        if self.is_rotating:
 
-#            _dx_vec = SmartTuple._sub(
-#                coord, self.drag.full.transform.translation.getValue())
+            _center = self.drag.full.get_center()
+            _offset = self.drag.full.get_translation()
 
-#            self.drag.full.transform.center.setValue(coin.SbVec3f(_dx_vec))
+            _start = SmartTuple._add(_center, _offset)
+            _vec = SmartTuple._sub(radius_coord, _start)
 
-#            self.rotation_center = coord
-#            self.rotation = 0.0
-#            self.angle = 0.0
+            _angle = coin_math.get_bearing(_vec)
 
+            #_start = SmartTuple._add(_offset, self.drag_center)
 
-#        _delta = self.angle - _angle
+            if self.show_drag_line:
+                self.update([_start, radius_coord])
 
-#        if _delta < -math.pi:
-#            _delta += C.TWO_PI
+        #otherwise, initiate rotation.  Set centerpoint according to values
+        #defined by inheriting class
+        else:
 
-#        elif _delta > math.pi:
-#            _delta -= C.TWO_PI
+            self.drag.full.set_center(self.drag_center)
 
-#        self.rotation += _delta
-#        self.angle = _angle
+            self.rotation = 0.0
+            self.angle = 0.0
+
+            self.is_rotating = True
+
+        self.rotation += (self.angle - _angle)
+        self.angle = _angle
 
         #update the +z axis rotation for the transformation
-#        self.drag.full.transform.rotation =\
-#            coin.SbRotation(coin.SbVec3f(0.0, 0.0, 1.0), self.rotation)
+        self.drag.full.set_rotation (Axis.Z, self.rotation)
