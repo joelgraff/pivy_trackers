@@ -35,7 +35,7 @@ class ContextTracker(Base, Event, Select):
 
         super().__init__(name, view, parent)
 
-        self.handle_events = False
+        self.handle_select_events = False
 
         self.add_mouse_event(self.select_mouse_event)
         self.add_button_event(self.select_button_event)
