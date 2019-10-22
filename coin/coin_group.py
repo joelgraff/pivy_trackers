@@ -194,3 +194,54 @@ class CoinGroup(object):
             return
 
         utils.remove_child(self.root, _parent)
+
+    def get_center(self):
+        """
+        Return the center of the group SoTransform node as a tuple
+        """
+
+        if not self.transform:
+            return
+
+        return self.transform.center.getValue()
+
+    def get_translation(self):
+        """
+        Return the translation of the gou SoTransform node as a tuple
+        """
+
+        if not self.transform:
+            return
+
+        return self.transform.translation.getValue().getValue()
+
+    def set_translation(self, point):
+        """
+        Set the translation of the group SoTransform node
+        """
+
+        if not self.transform:
+            return
+
+        self.transform.translation.setValue(point)
+
+    def set_center(self, point):
+        """
+        Set the center point of the group SoTransform node
+        point - center point as a tuple
+        """
+
+        if not self.transform:
+            return
+
+        self.transform.center.setValue(point)
+
+    def set_rotation(self, angle, center=(0.0, 0.0, 0.0)):
+        """
+        Set the rotation of the group SoTransform node
+        """
+
+        if not self.transform:
+            return
+
+        self.transform.rotation = utils.get_rotation(center, angle)
