@@ -63,13 +63,18 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = SmartTuple(_c)._tuple
 
-        self.drag_point = self.point
-
         super().update(_c)
 
         #if self.do_publish:
         #    self.dispatch(Events.NODE.UPDATED, (self.name, coordinates),
         #False)
+
+    def update_drag_center(self):
+        """
+        Override of Drag base function
+        """
+
+        return self.point
 
     def set_style(self, style=None, draw=None, color=None):
         """
