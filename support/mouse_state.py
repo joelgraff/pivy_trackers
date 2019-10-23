@@ -45,6 +45,7 @@ class MouseState(metaclass=Singleton):
 
         self.screen_position = ()
         self.world_position = ()
+        self.prev_position = ()
 
         self.button1 = ButtonState()
         self.button2 = ButtonState()
@@ -84,16 +85,17 @@ class MouseState(metaclass=Singleton):
         Update the positions and key states
         """
 
+        self.prev_position = self.world_position
         self.screen_position = arg['Position']
+
         self.world_position = view_state.getPoint(self.screen_position)
-        self.vector = self.world_position
+
+        self.vector = SmartTuple._sub(
+            self.world_position, self.prev_position)
 
         self.alt_down = arg['AltDown']
         self.ctrl_down = arg['CtrlDown']
         self.shift_down = arg['ShiftDown']
-
-        if self.vector != self.world_position:
-            self.vector = SmartTuple._sub(self.vector, self.world_position)
 
         #continue drag unless button is released
         if self.button1.dragging:
@@ -166,24 +168,23 @@ class MouseState(metaclass=Singleton):
         self._update_component_state(
             view_state.getObjectInfo(self.screen_position))
 
-    def set_mouse_position(self, view_state, coord):
+    def set_mouse_position(self, view_state, coord=None):
         """
         Update the mouse cursor position independently
         coord - position in world coordinates
         """
 
+        if not coord:
+            coord = self.world_position
+
         _new_pos = view_state.getPointOnScreen(coord)
 
-        print('MouseState.set_mouse_position:', coord, _new_pos)
         #set the mouse position at the updated screen coordinate
-        _delta_pos = SmartTuple(_new_pos).sub(self.screen_position)
+        _delta = SmartTuple._sub(_new_pos, self.screen_position)
 
-        print(_delta_pos)
         #get screen position by adding offset to the new window position
-        _pos = SmartTuple.from_values(_delta_pos[0], -_delta_pos[1])\
-            .add(QCursor.pos().toTuple())
+        _pos = SmartTuple._add((_delta[0], -_delta[1]), QCursor.pos().toTuple())
 
         QCursor.setPos(_pos[0], _pos[1])
 
-        self.screen_position = _pos
         self.world_position = coord

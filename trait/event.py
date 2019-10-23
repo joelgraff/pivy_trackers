@@ -106,25 +106,16 @@ class Event():
         Default mouse location event
         """
 
-        _last_pos = SmartTuple(self.mouse_state.world_position)
-
         self.mouse_state.update(event_cb, self.view_state)
 
         if not (self.mouse_state.shift_down and \
             self.mouse_state.button1.dragging):
 
-        #    self.mouse_state.shift_down \
-        #    and _last_pos._tuple \
-        #    and self.mouse_state.vector.Length \
-        #    and self.mouse_state.button1.dragging):
-
             return
 
-        _vec = SmartTuple(self.mouse_state.vector).normalize(0.10)
-        _new_pos = _last_pos.add(_vec)._tuple
-
-        self.mouse_state.set_mouse_position(self.view_state, _new_pos)
-
+        _vec = SmartTuple._scl(self.mouse_state.vector, 0.10)
+        _pos = SmartTuple._add(self.mouse_state.prev_position, _vec)
+        self.mouse_state.set_mouse_position(self.view_state, _pos)
 
     def _event_button_event(self, data, event_cb):
         """

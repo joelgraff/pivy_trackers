@@ -40,6 +40,7 @@ class SmartTuple():
     _sub = lambda lhs, rhs: tuple(map(op_sub, lhs, rhs))
     _add = lambda lhs, rhs: tuple(map(op_add, lhs, rhs))
     _mul = lambda lhs, rhs: tuple(map(op_mul, lhs, rhs))
+    _scl = lambda tpl, scl: tuple([_v * scl for _v in tpl])
 
     _length = \
         lambda tpl: math.sqrt(tpl[0]*tpl[0] + tpl[1]*tpl[1] + tpl[2]*tpl[2])
@@ -119,20 +120,6 @@ class SmartTuple():
         """
 
         return SmartTuple._mul(self, (factor,)*len(self._tuple))
-
-    def normalize(self, factor=1.0):
-        """
-        Tuple normalization
-        """
-
-        _mag = 0
-
-        for _v in self._tuple:
-            _mag += _v * _v
-
-        _mag = factor / math.sqrt(_mag)
-
-        return SmartTuple._mul(self, (_mag)*len(self._tuple))
 
     def length(self):
         """

@@ -65,7 +65,7 @@ def get_rotation_angle(from_vector, to_vector):
     _rot = coin.SbRotation(_from, _to)
     return _rot.getAxisAngle()[1]
 
-def get_bearing(vector, reference=Axis.Z):
+def get_bearing(vector, reference=Axis.Y):
     """
     Returns the absolute bearing of the passed vector.
 
@@ -75,8 +75,6 @@ def get_bearing(vector, reference=Axis.Z):
 
     rot_dir = get_rotation_dir(reference, vector)
     angle = rot_dir * get_rotation_angle(reference, vector)
-
-    print(angle)
 
     if angle < 0.0:
         angle += _COIN_MATH_TWO_PI

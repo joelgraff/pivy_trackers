@@ -244,4 +244,4 @@ class CoinGroup(object):
         if not self.transform:
             return
 
-        self.transform.rotation = utils.get_rotation(center, angle)
+        self.transform.rotation = utils.get_rotation(angle, center)

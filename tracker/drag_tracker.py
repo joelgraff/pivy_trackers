@@ -154,10 +154,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #update the transform
         if self.mouse_state.alt_down:
-            self.rotate(_coords[0], _coords[1])
+            self.rotate(_coords[0], _coords[1], self.mouse_state.shift_down)
 
         else:
-            self.translate(_coords[0], _coords[1])
+            self.translate(_coords[0], _coords[1], self.mouse_state.shift_down)
 
         #update the drag line
         #self.update(_coords)
@@ -201,7 +201,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 ## Transformation routines
 ##########################
 
-    def translate(self, start_coord, end_coord):
+    def translate(self, start_coord, end_coord, micro):
         """
         Manage drag geometry translation
         """
@@ -221,18 +221,20 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #accumulate the movement from the previous mouse position
         _delta = SmartTuple._sub(end_coord, start_coord)
 
+        #scale the tuple for microdragging
+        #if micro:
+        #    _delta = SmartTuple._scl(_delta, 0.10)
+
         self.drag.full.set_translation(_delta)
 
         if self.show_drag_line:
             self.update([start_coord, end_coord])
 
-    def rotate(self, center_coord, radius_coord):
+    def rotate(self, center_coord, radius_coord, micro):
         """
         Manage rotation during dragging
         coords - pair of coordinates for the rotation update in tuple form
         """
-
-        _angle = 0.0
 
         #if already rotating get the updated bearing from the center
         if self.is_rotating:
@@ -244,8 +246,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _vec = SmartTuple._sub(radius_coord, _start)
 
             _angle = coin_math.get_bearing(_vec)
+            _delta = self.angle - _angle
 
-            #_start = SmartTuple._add(_offset, self.drag_center)
+            self.rotation += _delta
+            self.angle = _angle
 
             if self.show_drag_line:
                 self.update([_start, radius_coord])
@@ -255,14 +259,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         else:
 
             self.drag.full.set_center(self.drag_center)
-
             self.rotation = 0.0
-            self.angle = 0.0
-
             self.is_rotating = True
 
-        self.rotation += (self.angle - _angle)
-        self.angle = _angle
-
         #update the +z axis rotation for the transformation
-        self.drag.full.set_rotation (Axis.Z, self.rotation)
+        self.drag.full.set_rotation (self.rotation, Axis.Z)
