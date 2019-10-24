@@ -49,7 +49,7 @@ class MarkerTracker(GeometryTracker):
         self.add_node_events(self.marker)
         self.set_style()
         self.set_visibility(True)
-        self.update(self.point)
+        self.update(tuple(point))
 
     def update(self, coordinates=None):
         """

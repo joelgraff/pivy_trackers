@@ -25,6 +25,7 @@ Geometry tracker base class
 """
 
 from ..trait.base import Base
+from ..trait.message import Message
 from ..trait.style import Style
 from ..trait.event import Event
 from ..trait.pick import Pick
@@ -37,7 +38,9 @@ from ..trait import enums
 from ..coin.coin_styles import CoinStyles
 from ..coin.coin_enums import NodeTypes as Nodes
 
-class GeometryTracker(Base, Style, Event, Pick, Select, Drag, Geometry):
+class GeometryTracker(
+    Base, Message, Style, Event, Pick, Select, Drag, Geometry):
+
     """
     Geometry tracker base class
     """

@@ -25,7 +25,6 @@ Publisher base class
 """
 
 from collections.abc import Iterable
-from ..support.publisher_events import PublisherEvents
 
 class Publisher:
     """
@@ -63,12 +62,7 @@ class Publisher:
 
         for _e in events:
 
-            #add subscribers to all events for this event's group
-            for _evt in PublisherEvents.enum._VALUES:
-                if _e & _evt and self.event_callbacks.get(_evt):
-                    _result += self.event_callbacks[_evt].values()
-
-            #append subscribes to the specific event
+            #append subscribers to the specific event
             if self.event_callbacks.get(_e):
                 _result += self.event_callbacks[_e].values()
 

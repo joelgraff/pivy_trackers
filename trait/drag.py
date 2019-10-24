@@ -66,7 +66,7 @@ class Drag():
         # and adds callback for global tracker updating
         if not Drag.drag_tracker:
             Drag.drag_tracker = DragTracker(self.base)
-            Drag.drag_tracker.update_center_fn = self.update_drag_center()
+            Drag.drag_tracker.update_center_fn = self.update_drag_center
 
         super().__init__()
 

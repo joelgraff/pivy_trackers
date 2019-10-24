@@ -26,17 +26,15 @@ Base class for Tracker objects
 
 from DraftGui import todo
 
+from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_group import CoinGroup
-from .publisher import Publisher
-from .subscriber import Subscriber
-from .event import Event
+
 from ..support.view_state import ViewState
 from ..support.mouse_state import MouseState
-from ..coin.coin_enums import NodeTypes as Nodes
 
-#from ...containers import TrackerContainer
+from .event import Event
 
-class Base(Publisher, Subscriber):
+class Base():
     """
     Base class for Tracker objects
     """
