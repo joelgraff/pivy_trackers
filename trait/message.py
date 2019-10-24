@@ -67,22 +67,30 @@ class Message(Publisher, Subscriber):
             '{}.notify_ui() message = {}'.format(self.name, str(message))
         )
 
-    def register_geometry(self, who):
+    def register_geometry(self, who, duplex=False):
         """
         Register a python object for geometry messages.
         Must implement notify_geometry()
+        Duplex - True = register self and who as subscribers to each other
         """
 
         self.register(who, Messages.INTERNAL.GEOMETRY, who.notify_geometry)
 
-    def register_user_interface(self, who):
+        if duplex:
+            who.register(self, Messages.INTERNAL.GEOMETRY, who.notify_geometry)
+    def register_user_interface(self, who, duplex=False):
         """
         Register a python object for geometry messages.
         Must implement notify_geometry()
+        Duplex - True = register self and who as subscribers to each other
         """
 
         self.register(
             who, Messages.INTERNAL.USER_INTERFACE, who.notify_geometry)
+
+        if duplex:
+            who.register(
+                self, Messages.INTERNAL.USER_INTERFACE, who.notify_geometry)
 
     def unregister_geometry(self, who):
         """
