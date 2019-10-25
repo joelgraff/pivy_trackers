@@ -55,7 +55,7 @@ class Message(Publisher, Subscriber):
         """
 
         print(
-            '{}.notify_geometry() message = {}'.format(self.name, str(message))
+            '{}.Message..notify_geometry() message = {}'.format(self.name, str(message))
         )
 
     def notify_ui(self, message):
@@ -64,7 +64,7 @@ class Message(Publisher, Subscriber):
         """
 
         print(
-            '{}.notify_ui() message = {}'.format(self.name, str(message))
+            '{}.Message.notify_ui() message = {}'.format(self.name, str(message))
         )
 
     def register_geometry(self, who, duplex=False):
@@ -78,6 +78,7 @@ class Message(Publisher, Subscriber):
 
         if duplex:
             who.register(self, Messages.INTERNAL.GEOMETRY, who.notify_geometry)
+
     def register_user_interface(self, who, duplex=False):
         """
         Register a python object for geometry messages.

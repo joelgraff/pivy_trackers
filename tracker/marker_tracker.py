@@ -87,3 +87,15 @@ class MarkerTracker(GeometryTracker):
             style = self.active_style
 
         self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)
+
+    def notify_geometry(self, message):
+        """
+        Geometry message notification override
+        """
+        super().notify_geometry(message)
+
+    def notify_ui(self, message):
+        """
+        UI message notification override
+        """
+        super().notify_ui(message)
