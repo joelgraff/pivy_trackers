@@ -83,7 +83,7 @@ class Geometry():
 
         self.set_coordinates(coordinates)
 
-    def set_coordinates(self, coordinates=None):
+    def set_coordinates(self, coordinates):
         """
         Update the SoCoordinate3 with the passed coordinates
         Assumes coordinates is a list of 3-float tuples
@@ -99,10 +99,10 @@ class Geometry():
         #ensure coordinate points are tuples
         coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
 
-        self.prev_coordinates = self.get()
+        self.prev_coordinates = self.get_coordinates()
         self.geometry.coordinate.point.setValues(coordinates)
 
-    def get(self, _dtype=tuple):
+    def get_coordinates(self, _dtype=tuple):
         """
         Return the coordinates as the specified iterable type
         """

@@ -35,7 +35,7 @@ class Select():
     Provides SoFCSelection support for Tracker classes
     """
 
-    #Base, Style and Event prototypes
+    #Base, Style, Event, and Geometry prototypes
     name = None
     names = []
     base = None
@@ -46,7 +46,11 @@ class Select():
     def set_style(self, style=None, draw=None, color=None):
         """prototype"""; pass
 
-    #class static for global selection
+    #geometry prototypes for updating trackers after drag operations
+    geometry = None
+
+    def get_coordinates(self, _dtype=tuple): """prototype"""; pass
+    def update(self, coordinates): """prototype"""; print('selectupdate'); pass
 
     #Reference to the node that is currently highlighted.
     highlight_node = None

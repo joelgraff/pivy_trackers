@@ -39,7 +39,7 @@ from ..coin.coin_styles import CoinStyles
 from ..coin.coin_enums import NodeTypes as Nodes
 
 class GeometryTracker(
-    Base, Message, Style, Event, Pick, Select, Drag, Geometry):
+    Base, Message, Style, Geometry, Event, Pick, Select, Drag):
 
     """
     Geometry tracker base class
@@ -76,3 +76,19 @@ class GeometryTracker(
             assert(node is not None), """pivy_trackers::GeometryTracker.add_node_events() - Node is NoneType.  Cannot apply event path"""
 
             self.path_nodes.append(node)
+
+    def update(self, coordinates):
+        """
+        Override of Geometry method to provide messaging support
+        """
+
+        super().update(coordinates)
+
+        self.notify_geometry(coordinates)
+        
+    def notify_geometry(self, message):
+        """
+        Override of Message method to provide geometry update support
+        """
+
+        print(self.name + '.notify_geometry()', message)

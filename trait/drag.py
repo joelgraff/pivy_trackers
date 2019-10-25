@@ -38,6 +38,7 @@ class Drag():
     base = None
     name = ''
     mouse_state = None
+    view_state = None
     select = None
 
     def is_selected(self): """prototype"""; pass
@@ -61,12 +62,15 @@ class Drag():
             """
 
         self.add_mouse_event(self.drag_mouse_event)
+        self.add_button_event(self.drag_button_event)
 
         # instances / initializes singleton DragTracker on first inherit, 
         # and adds callback for global tracker updating
         if not Drag.drag_tracker:
             Drag.drag_tracker = DragTracker(self.base)
             Drag.drag_tracker.update_center_fn = self.update_drag_center
+
+        self.drag_copy = None
 
         super().__init__()
 
@@ -83,4 +87,27 @@ class Drag():
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Select.selected:
-           Drag.drag_tracker.insert_full_drag(_v.base.copy())
+            _v.drag_copy = _v.geometry.copy()
+            Drag.drag_tracker.insert_full_drag(_v.drag_copy)
+
+    def drag_button_event(self, user_data, event_cb):
+        """
+        Drag button event callback
+        """
+
+        #only trap button up events during a drag oepration
+        if self.mouse_state.button1.pressed:
+            return
+
+        if not self.drag_tracker.dragging:
+            return
+
+        for _v in Select.selected:
+
+            _points = self.view_state.transform_points(
+                _v.get_coordinates(), _v.drag_copy.getChild(1)
+            )
+
+            print('updating {} to {}'.format(_v.name, str(_points)))
+            _v.update(_points)
+            _v.drag_copy = None
