@@ -47,7 +47,11 @@ def describe(node):
         return _suffix
 
     if isinstance(node, coin.SoCoordinate3):
-        return 'points={}'.format(str(node.point.getNum()))
+
+        _pts = [_v.getValue() for _v in node.point.getValues()]
+
+        return 'points ({}) = {}'\
+            .format(str(node.point.getNum()), str(_pts))
 
     if isinstance(node, coin.SoDrawStyle):
         return 'style={}, size={}, width={}, pattern={}'\

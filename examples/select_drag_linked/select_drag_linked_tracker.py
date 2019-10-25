@@ -88,7 +88,6 @@ class SelectDragLinkedTracker(ContextTracker, Drag):
                     )
                 )
 
-
             _prev = _v
 
         #connect back to the start
@@ -96,7 +95,6 @@ class SelectDragLinkedTracker(ContextTracker, Drag):
             LineTracker(
                 name='LINE-4', points=[_model[0], _model[3]], parent=self.base)
         )
-
 
         #link the nodes with their corresponding lines.
         _marker_idx = 0

@@ -83,6 +83,9 @@ class Publisher:
         if not callback:
             callback = getattr(who, 'notify')
 
+        if who is self:
+            return
+
         for _e in events:
 
             #new event in the dictionary

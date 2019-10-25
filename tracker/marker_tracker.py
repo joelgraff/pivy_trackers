@@ -60,14 +60,11 @@ class MarkerTracker(GeometryTracker):
 
         if not _c:
             _c = self.point
+
         else:
             self.point = SmartTuple(_c)._tuple
 
         super().update(_c)
-
-        #if self.do_publish:
-        #    self.dispatch(Events.NODE.UPDATED, (self.name, coordinates),
-        #False)
 
     def update_drag_center(self):
         """

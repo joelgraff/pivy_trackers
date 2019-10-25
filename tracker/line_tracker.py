@@ -61,6 +61,7 @@ class LineTracker(GeometryTracker):
         """
 
         self.points = points
+
         super().update(points)
 
     def update_drag_center(self):
