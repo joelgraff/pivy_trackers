@@ -117,12 +117,9 @@ class GeometryTracker(
 
         self.dispatch_geometry(coordinates, True)
 
-    def notify_geometry(self, message):
+    def notify_geometry(self, event, message):
         """
         Override of Message method to provide geometry update support
         """
 
-        super().notify_geometry(message)
-
-        if not self.is_valid_notify:
-            return
+        super().notify_geometry(event, message)

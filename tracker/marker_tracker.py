@@ -90,7 +90,7 @@ class MarkerTracker(GeometryTracker):
 
         self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)
 
-    def notify_geometry(self, message):
+    def notify_geometry(self, event, message):
         """
         Geometry message notification override
         """
@@ -110,8 +110,8 @@ class MarkerTracker(GeometryTracker):
         self.update(self.point)
         del self.excluded_subscribers[-1]
 
-    def notify_ui(self, message):
+    def notify_user_interface(self, event, message):
         """
         UI message notification override
         """
-        super().notify_ui(message)
+        super().notify_ui(event, message)
