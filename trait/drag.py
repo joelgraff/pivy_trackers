@@ -108,6 +108,5 @@ class Drag():
                 _v.get_coordinates(), _v.drag_copy.getChild(1)
             )
 
-            print('updating {} to {}'.format(_v.name, str(_points)))
             _v.update(_points)
             _v.drag_copy = None
