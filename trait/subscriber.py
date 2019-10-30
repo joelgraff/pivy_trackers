@@ -42,15 +42,6 @@ class Subscriber:
         self.sub_id = Subscriber.counter
         Subscriber.counter += 1
 
-    def notify_all(self, event_type, message, verbose=False):
-        """
-        Global method for unregistered notifications
-        """
-
-        if verbose:
-            print('{} (#{}) got event {} message "{}"'\
-                .format(self.name, self.sub_id, event_type, message))
-
     def notify(self, event_type, message, verbose=False):
         """
         Default message update method

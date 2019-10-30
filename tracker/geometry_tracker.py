@@ -38,6 +38,8 @@ from ..trait import enums
 from ..coin.coin_styles import CoinStyles
 from ..coin.coin_enums import NodeTypes as Nodes
 
+from ..support import message_data
+
 class GeometryTracker(
     Base, Message, Style, Geometry, Event, Pick, Select, Drag):
 
@@ -77,18 +79,50 @@ class GeometryTracker(
 
             self.path_nodes.append(node)
 
-    def update(self, coordinates):
+    def update(self, coordinates, notify=True):
         """
         Override of Geometry method to provide messaging support
         """
 
+        if not coordinates:
+            return
+
+        _c = coordinates
+
+        if not isinstance(_c, list):
+            _c = [_c]
+
+        is_unique = len(self.prev_coordinates) != len(_c)
+
+        if not is_unique:
+
+            for _i, _v in enumerate(self.prev_coordinates):
+
+                if _v != _c[_i]:
+                    is_unique = True
+                    break
+
+        if not is_unique:
+            return
+
         super().update(coordinates)
 
-        self.notify_geometry(coordinates)
-        
+        self.prev_coordinates = _c[:]
+
+        if not notify:
+            return
+
+        if not isinstance(coordinates, list):
+            coordinates = [coordinates]
+
+        self.dispatch_geometry(coordinates, True)
+
     def notify_geometry(self, message):
         """
         Override of Message method to provide geometry update support
         """
 
-        print(self.name + '.notify_geometry()', message)
+        super().notify_geometry(message)
+
+        if not self.is_valid_notify:
+            return

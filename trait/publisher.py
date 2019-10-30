@@ -41,30 +41,41 @@ class Publisher:
 
         self.pub_id = Publisher.counter
         self.event_callbacks = {}
+        self.excluded_subscribers = []
 
         Publisher.counter += 1
 
         super().__init__()
 
-    def get_subscribers(self, events=0):
+    def get_subscribers(self, events=None):
         """
         Return subscribers registered for selected event
         """
 
         _result = []
 
+        #no events specified returns all subscribers
+        if not events:
+
+            for _e in self.event_callbacks:
+                _result += _e.values()
+
+            return _result
+
         if not isinstance(events, list):
             events = [events]
 
-        #add subscribers to all events
-        if 0 in self.event_callbacks:
-            _result = self.event_callbacks[0].values()
-
         for _e in events:
 
-            #append subscribers to the specific event
-            if self.event_callbacks.get(_e):
-                _result += self.event_callbacks[_e].values()
+            _subs = self.event_callbacks.get(_e)
+
+            #filter excluded subscribers
+            if _subs:
+
+                _result += [
+                    _c for _s, _c in _subs.items()\
+                        if _s not in self.excluded_subscribers
+                ]
 
         return _result
 
@@ -77,14 +88,14 @@ class Publisher:
         #subscriber under the index value of the event. No checks are performed
         #to ensure the event is a valid publisher event.
 
+        if who is self:
+            return
+
         if not isinstance(events, list):
             events = [events]
 
         if not callback:
             callback = getattr(who, 'notify')
-
-        if who is self:
-            return
 
         for _e in events:
 
@@ -119,20 +130,10 @@ class Publisher:
             if not self.event_callbacks[_e]:
                 del self.event_callbacks[_e]
 
-    def dispatch(self, event, message, verbose=False):
+    def dispatch(self, message, event=None, verbose=False):
         """
         Message dispatch
         """
-
-        if not isinstance(message, tuple):
-
-            if isinstance(message, Iterable):
-                message = tuple(message)
-            else:
-                message = (message,)
-
-        if len(message) == 1:
-            message = (self.pub_id,) + message
 
         #don't send empty messages
         if not message:
@@ -140,10 +141,9 @@ class Publisher:
 
         _cb_list = self.get_subscribers(event)
 
+        if verbose:
+            print('\n{} (#{}): dispatching message \n{}\n'\
+                .format(self.name, self.pub_id, message))
+
         for _cb in _cb_list:
-
-            if verbose:
-                print('\n{} (#{}): dispatching message {} on event {}'\
-                    .format(self.name, self.pub_id, message, event))
-
             _cb(event, message)

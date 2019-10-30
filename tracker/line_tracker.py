@@ -31,6 +31,8 @@ from ..coin.coin_styles import CoinStyles
 
 from .geometry_tracker import GeometryTracker
 
+from ..support import message_data
+
 class LineTracker(GeometryTracker):
     """
     Tracker object for SoLineSet
@@ -52,17 +54,30 @@ class LineTracker(GeometryTracker):
         self.drag_style = self.DragStyle.CURSOR
 
         self.points = points
+        self.linked_markers = {}
 
-        self.update(points)
+        self.update(points, False)
 
-    def update(self, points):
+    def update(self, points, notify=True):
         """
         Override of Geometry method
         """
 
         self.points = points
 
-        super().update(points)
+        super().update(points, notify)
+
+    def link_marker(self, marker, index):
+        """
+        Link a marker node to the line for automatic updates
+        """
+
+        #register the line and marker with each other
+        self.register_geometry(marker, True)
+
+        #save the index of the coordinate the marker updates
+        if marker not in self.linked_markers:
+            self.linked_markers[marker] = index
 
     def update_drag_center(self):
         """
@@ -112,6 +127,20 @@ class LineTracker(GeometryTracker):
         Geometry message notification override
         """
         super().notify_geometry(message)
+
+        #if this is an update from a marker, test to see if it is linked.
+        if len (message.data) != len(self.points):
+
+            if message.sender in self.linked_markers:
+
+                self.points[self.linked_markers[message.sender]] \
+                    = message.data[0]
+
+        #Add sender to the excluded subscribers list, call update and
+        #dispatch messages, then remove the sender
+        self.excluded_subscribers.append(message.sender)
+        self.update(self.points)
+        del self.excluded_subscribers[-1]
 
     def notify_ui(self, message):
         """

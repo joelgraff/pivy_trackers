@@ -27,7 +27,9 @@ Marker tracker class for tracker objects
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_enums import MarkerStyles
 from ..support.smart_tuple import SmartTuple
+
 from .geometry_tracker import GeometryTracker
+from .line_tracker import LineTracker
 
 class MarkerTracker(GeometryTracker):
     """
@@ -49,9 +51,9 @@ class MarkerTracker(GeometryTracker):
         self.add_node_events(self.marker)
         self.set_style()
         self.set_visibility(True)
-        self.update(tuple(point))
+        self.update(tuple(point), False)
 
-    def update(self, coordinates=None):
+    def update(self, coordinates=None, notify=True):
         """
         Update the coordinate position
         """
@@ -61,10 +63,13 @@ class MarkerTracker(GeometryTracker):
         if not _c:
             _c = self.point
 
+        elif isinstance(coordinates[0], tuple):
+            self.point = coordinates[0]
+
         else:
             self.point = SmartTuple(_c)._tuple
 
-        super().update(_c)
+        super().update(_c, notify)
 
     def update_drag_center(self):
         """
@@ -89,7 +94,21 @@ class MarkerTracker(GeometryTracker):
         """
         Geometry message notification override
         """
+
         super().notify_geometry(message)
+
+        if isinstance(message.sender, LineTracker):
+
+            _idx = message.sender.linked_markers.get(self)
+
+            if _idx is not None:
+                self.point = message.data[_idx]
+
+        #Add sender to the excluded subscribers list, call update and
+        #dispatch messages, then remove the sender
+        self.excluded_subscribers.append(message.sender)
+        self.update(self.point)
+        del self.excluded_subscribers[-1]
 
     def notify_ui(self, message):
         """

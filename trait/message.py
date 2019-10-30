@@ -24,9 +24,12 @@
 Message services for Python object intercommunication
 """
 
+from ..support.message_types import MessageTypes as Messages
+
 from .publisher import Publisher
 from .subscriber import Subscriber
-from ..support.message_types import MessageTypes as Messages
+
+from ..support import message_data
 
 class Message(Publisher, Subscriber):
     """
@@ -38,33 +41,58 @@ class Message(Publisher, Subscriber):
         Constructor
         """
         
+        self.is_valid_notify = False
+
         super().__init__()
 
-    def notify(self, message):
+    def dispatch_geometry(self, data, verbose=False):
+        """
+        Dispatch a geometry update using the passed data
+        """
+
+        self.dispatch(
+            message_data.geometry_message(self, data),
+            Messages.INTERNAL._GEOMETRY, verbose
+        )
+
+    def dispatch_user_interface(self, data, verbose=False):
+        """
+        Dispatch a geometry update using the passed data
+        """
+
+        _message = data
+
+        if not isinstance(data, message_data.MessageData):
+            _message = message_data.ui_message(self, data)
+
+        self.dispatch(_message, Messages.INTERNAL._USER_INTERFACE, verbose)
+
+    def notify(self, event, message):
         """
         Generic overridable motification callback
         """
 
+        #abort if recieving it's own message
+        self.is_valid_notify = message.sender is not self
+
         print(
-            '{}.notify() message = {}'.format(self.name, str(message))
+            '{}.notify() - valid? {} - message = \n{}\n'.format(self.name, str(self.is_valid_notify), str(message))
         )
 
-    def notify_geometry(self, message):
+    def notify_geometry(self, event, message):
         """
         Overrideable notification callback for geometry udpates
         """
 
-        print(
-            '{}.Message..notify_geometry() message = {}'.format(self.name, str(message))
-        )
+        self.notify(message)
 
-    def notify_ui(self, message):
+    def notify_user_interface(self, event, message):
         """
         Overrideable notification callback for user interface updates
         """
 
         print(
-            '{}.Message.notify_ui() message = {}'.format(self.name, str(message))
+            '{}.Message.notify_user_interface() message = {}'.format(self.name, str(message))
         )
 
     def register_geometry(self, who, duplex=False):
@@ -74,10 +102,11 @@ class Message(Publisher, Subscriber):
         Duplex - True = register self and who as subscribers to each other
         """
 
-        self.register(who, Messages.INTERNAL.GEOMETRY, who.notify_geometry)
+        self.register(who, Messages.INTERNAL._GEOMETRY, who.notify_geometry)
 
         if duplex:
-            who.register(self, Messages.INTERNAL.GEOMETRY, who.notify_geometry)
+            who.register(
+                self, Messages.INTERNAL._GEOMETRY, self.notify_geometry)
 
     def register_user_interface(self, who, duplex=False):
         """
@@ -87,22 +116,22 @@ class Message(Publisher, Subscriber):
         """
 
         self.register(
-            who, Messages.INTERNAL.USER_INTERFACE, who.notify_geometry)
+            who, Messages.INTERNAL._USER_INTERFACE, who.notify_geometry)
 
         if duplex:
             who.register(
-                self, Messages.INTERNAL.USER_INTERFACE, who.notify_geometry)
+                self, Messages.INTERNAL._USER_INTERFACE, self.notify_geometry)
 
     def unregister_geometry(self, who):
         """
         Unregister an object from geometry messages
         """
 
-        self.unregister(who, Messages.INTERNAL.GEOMETRY)
+        self.unregister(who, Messages.INTERNAL._GEOMETRY)
 
     def unregister_user_interface(self, who):
         """
         Unregister an object from user interface messages
         """
 
-        self.unregister(who, Messages.INTERNAL.USER_INTERFACE)
+        self.unregister(who, Messages.INTERNAL._USER_INTERFACE)
