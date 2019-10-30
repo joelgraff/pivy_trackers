@@ -44,8 +44,6 @@ class SmartTuple():
 
     _length = \
         lambda tpl: math.sqrt(tpl[0]*tpl[0] + tpl[1]*tpl[1] + tpl[2]*tpl[2])
-    _multiply = \
-        lambda scalar: tuple(map)
 
     def __init__(self, data):
         """
