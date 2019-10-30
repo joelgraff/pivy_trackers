@@ -158,7 +158,7 @@ class ViewState(metaclass=Singleton):
             _mat = coin.SbMatrix(_mat_pts)
 
             for _v in _mat.multRight(_matrix).getValue()[:_last_point]:
-                _result.append(tuple(_v))
+                _result.append(tuple(_v)[0:3])
 
             _s += 4
 
