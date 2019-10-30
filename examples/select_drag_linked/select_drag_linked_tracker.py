@@ -93,21 +93,21 @@ class SelectDragLinkedTracker(ContextTracker, Drag):
         #connect back to the start
         self.trackers.append(
             LineTracker(
-                name='LINE-4', points=[_model[0], _model[3]], parent=self.base)
+                name='LINE-4', points=[_model[3], _model[0]], parent=self.base)
         )
 
         #link the nodes with their corresponding lines.
-        _marker_idx = 0
+        _tracker_idx = 0
 
         for _v in self.trackers[4:8]:
-            _v.register_geometry(self.trackers[_marker_idx], True)
+            _v.link_marker(self.trackers[_tracker_idx], 0)
 
-            _marker_idx += 1
+            _tracker_idx += 1
 
-            if _marker_idx > 3:
-                _marker_idx = 0
+            if _tracker_idx > 3:
+                _tracker_idx = 0
 
-            _v.register_geometry(self.trackers[_marker_idx], True)
+            _v.link_marker(self.trackers[_tracker_idx], 1)
 
     def finalize(self, node=None, parent=None):
         """
