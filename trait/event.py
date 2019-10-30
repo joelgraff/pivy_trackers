@@ -32,8 +32,6 @@ from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_enums import MouseEvents as MouseEvents
 from ..coin import coin_utils
 
-#from ..support.publisher_events import PublisherEvents as SignalEvents
-
 class Event():
     """
     Event Callback traits.

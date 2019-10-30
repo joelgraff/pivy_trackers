@@ -28,8 +28,6 @@ from pivy import coin
 
 from ..coin.coin_styles import CoinStyles
 
-#from ..support.publisher_events import PublisherEvents as Events
-
 class Select():
     """
     Provides SoFCSelection support for Tracker classes
