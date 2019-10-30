@@ -38,10 +38,17 @@ class MessageTypes(metaclass=Singleton):
         INTERNAL message category
         """
 
-        GEOMETRY = 2
-        USER_INTERFACE = 4
+        _GEOMETRY = 2
+        _USER_INTERFACE = 4
+
+        NAMES = {
+            _GEOMETRY: '_GEOMETRY',
+            _USER_INTERFACE: '_USER_INTERFACE'
+        }
 
     CUSTOM = types.SimpleNamespace()
+
+    NAMES = {}
 
     @staticmethod
     def create(message_type_name):
@@ -49,6 +56,14 @@ class MessageTypes(metaclass=Singleton):
         Generate a new custom message type and assign it a value
         """
 
+        if hasattr(MessageTypes.CUSTOM, message_type_name):
+            return
+
         _val = 1 + 2 **(len(list(MessageTypes.CUSTOM.keys()))+1)
 
         setattr(MessageTypes.CUSTOM, message_type_name, _val)
+        _attr = getattr(MessageTypes.CUSTOM, message_type_name)
+
+        MessageTypes.NAMES[_attr] = message_type_name
+
+MessageTypes.NAMES = MessageTypes.INTERNAL.NAMES.copy()
