@@ -211,7 +211,7 @@ class AlignmentTracker(BaseTracker, Publisher):
 
     def end_drag(self):
         """
-        Override base fucntion
+        Override base function
         """
 
         super().end_drag()
@@ -292,7 +292,7 @@ class AlignmentTracker(BaseTracker, Publisher):
 
     def _signalize_trackers(self):
         """
-        Regsiter trackers appropriately as subscribers to one another
+        Register trackers appropriately as subscribers to one another
         """
 
         #subscribe node trackers to alignment and vice-versa
