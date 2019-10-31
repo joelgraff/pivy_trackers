@@ -38,7 +38,7 @@ def get_rotation_dir(from_vector, to_vector=Axis.Z):
     Returns the rotation angle between two 3D vectors as a signed integer:
     1 = cw, -1 = ccw, 0 = fail
 
-    Vectors sepcified as tuples
+    Vectors specified as tuples
     """
 
     if len(from_vector) != 3:

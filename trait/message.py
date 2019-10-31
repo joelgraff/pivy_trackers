@@ -33,7 +33,7 @@ from ..support import message_data
 
 class Message(Publisher, Subscriber):
     """
-    Message services for Python obeject intercommunication
+    Message services for Python object intercommunication
     """
 
     def __init__(self):
@@ -77,7 +77,7 @@ class Message(Publisher, Subscriber):
         #invalid if ignoring notifications
         self.is_valid_notify = not self.ignore_notify
 
-        #abort if recieving it's own message
+        #abort if receiving it's own message
         if self.is_valid_notify:
             self.is_valid_notify = message.sender is not self
 
@@ -87,14 +87,14 @@ class Message(Publisher, Subscriber):
 
     def notify_geometry(self, event, message):
         """
-        Overrideable notification callback for geometry udpates
+        Overridable notification callback for geometry updates
         """
 
         self.notify(event, message)
 
     def notify_user_interface(self, event, message):
         """
-        Overrideable notification callback for user interface updates
+        Overridable notification callback for user interface updates
         """
 
         print(
