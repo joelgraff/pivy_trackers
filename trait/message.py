@@ -42,6 +42,7 @@ class Message(Publisher, Subscriber):
         """
         
         self.is_valid_notify = False
+        self.ignore_notify = False
 
         super().__init__()
 
@@ -50,6 +51,7 @@ class Message(Publisher, Subscriber):
         Dispatch a geometry update using the passed data
         """
 
+        print('\n\t------->>>> dispatching updates...\n\t', self.name, data)
         self.dispatch(
             message_data.geometry_message(self, data),
             Messages.INTERNAL._GEOMETRY, verbose
@@ -72,8 +74,12 @@ class Message(Publisher, Subscriber):
         Generic overridable motification callback
         """
 
+        #invalid if ignoring notifications
+        self.is_valid_notify = not self.ignore_notify
+
         #abort if recieving it's own message
-        self.is_valid_notify = message.sender is not self
+        if self.is_valid_notify:
+            self.is_valid_notify = message.sender is not self
 
         print(
             '{}.notify() - valid? {} - message = \n{}\n'.format(self.name, str(self.is_valid_notify), str(message))
@@ -84,7 +90,7 @@ class Message(Publisher, Subscriber):
         Overrideable notification callback for geometry udpates
         """
 
-        self.notify(message)
+        self.notify(event, message)
 
     def notify_user_interface(self, event, message):
         """

@@ -87,6 +87,7 @@ class Drag():
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Select.selected:
+            _v.ignore_notify = True
             _v.drag_copy = _v.geometry.copy()
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
@@ -102,6 +103,8 @@ class Drag():
         if not self.drag_tracker.dragging:
             return
 
+        #iterate selected elements, transforming points and updating,
+        #triggering notifications to linked trackers, if any
         for _v in Select.selected:
 
             _points = self.view_state.transform_points(
@@ -110,3 +113,7 @@ class Drag():
 
             _v.update(_points)
             _v.drag_copy = None
+
+        #re-enable notifications only after drag updates are complete
+        for _v in Select.selected:
+            _v.ignore_notify = False

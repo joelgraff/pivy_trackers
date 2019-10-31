@@ -95,7 +95,10 @@ class MarkerTracker(GeometryTracker):
         Geometry message notification override
         """
 
-        super().notify_geometry(message)
+        super().notify_geometry(event, message)
+
+        if not self.is_valid_notify:
+            return
 
         if isinstance(message.sender, LineTracker):
 
@@ -114,4 +117,8 @@ class MarkerTracker(GeometryTracker):
         """
         UI message notification override
         """
-        super().notify_ui(event, message)
+
+        if self.ignore_notify:
+            return
+
+        super().notify_user_interface(event, message)

@@ -126,7 +126,10 @@ class LineTracker(GeometryTracker):
         """
         Geometry message notification override
         """
-        super().notify_geometry(message)
+        super().notify_geometry(event, message)
+
+        if not self.is_valid_notify:
+            return
 
         #if this is an update from a marker, test to see if it is linked.
         if len (message.data) != len(self.points):
@@ -146,4 +149,4 @@ class LineTracker(GeometryTracker):
         """
         UI message notification override
         """
-        super().notify_ui(event, message)
+        super().notify_user_interface(event, message)
