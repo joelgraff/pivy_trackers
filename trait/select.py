@@ -161,15 +161,11 @@ class Select():
         #single-select cases when multiple items are selected
         elif len(Select.selected) > 1:
 
-            #select an unselected node
-            if (self.mouse_state.component == self.name) \
-                and not self.is_selected():
+            if self.is_selected():
+                self.do_multi_select
 
-                self.do_single_select()
-
-            #Select over nothing
-            elif not self.mouse_state.component:
-                self.do_single_select()
+            else:
+                self.do_single_select
 
         #single-select mode
         else:
