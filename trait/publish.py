@@ -21,29 +21,29 @@
 #*                                                                     *
 #***********************************************************************
 """
-Publisher base class
+Publish base class
 """
 
 from collections.abc import Iterable
 
-class Publisher():
+class Publish():
     """
     Base class for publisher classes
     """
 
     counter = 0
-    name = 'Publisher'
+    name = 'Publish'
 
     def __init__(self):
         """
         Constructor
         """
 
-        self.pub_id = Publisher.counter
+        self.pub_id = Publish.counter
         self.event_callbacks = {}
         self.excluded_subscribers = []
 
-        Publisher.counter += 1
+        Publish.counter += 1
 
         super().__init__()
 
@@ -153,6 +153,6 @@ class Publisher():
         Cleanup
         """
 
-        Publisher.counter = 0
+        Publish.counter = 0
         self.event_callbacks = {}
         self.excluded_subscribers = []

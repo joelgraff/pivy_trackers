@@ -48,7 +48,7 @@
 """
     #def notify(self, event_type, message):
         """
-        Override of Subscriber method
+        Override of Subscribe method
         """
 """
         super().notify(event_type, message, True)

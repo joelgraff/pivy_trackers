@@ -1,8 +1,8 @@
 
 import types
 
-from pivy_trackers.trait.publisher import Publisher
-from pivy_trackers.trait.subscriber import Subscriber
+from pivy_trackers.trait.publish import Publish
+from pivy_trackers.trait.subscribe import Subscribe
 
 MESSAGES = [1, 2, 4, 8]
 
@@ -19,7 +19,7 @@ def create_message(message_type, data, sender):
 
     return _result
 
-class MyPublisher(Publisher):
+class MyPublish(Publish):
 
     def __init__(self):
         """
@@ -28,7 +28,7 @@ class MyPublisher(Publisher):
 
         super().__init__()
 
-class MySubscriber(Subscriber):
+class MySubscribe(Subscribe):
 
     def __init__(self):
         """
@@ -44,11 +44,11 @@ class MySubscriber(Subscriber):
 
         super().notify(event_type, message, verbose)
 
-my_pub = MyPublisher()
+my_pub = MyPublish()
 my_subs = []
 
 for _i in range(0, 7):
-    my_subs.append(MySubscriber())
+    my_subs.append(MySubscribe())
 
 for _i in range(0, 4):
     my_pub.register(my_subs[_i], MESSAGES[_i])

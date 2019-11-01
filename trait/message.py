@@ -26,12 +26,12 @@ Message services for Python object intercommunication
 
 from ..support.message_types import MessageTypes as Messages
 
-from .publisher import Publisher
-from .subscriber import Subscriber
+from .publish import Publish
+from .subscribe import Subscribe
 
 from ..support import message_data
 
-class Message(Publisher, Subscriber):
+class Message(Publish, Subscribe):
     """
     Message services for Python object intercommunication
     """
@@ -146,6 +146,6 @@ class Message(Publisher, Subscriber):
         Cleanup
         """
 
-        Publisher.finish(self)
-        Subscriber.finish(self)
+        Publish.finish(self)
+        Subscribe.finish(self)
         Messages.finish(Messages)

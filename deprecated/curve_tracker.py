@@ -33,7 +33,7 @@ from ..support.mouse_state import MouseState
 from ..support.drag_state import DragState
 from ..support.select_state import SelectState
 from ..support.view_state import ViewState
-from ..support.publisher import PublisherEvents as Events
+from ..support.publish import PublishEvents as Events
 
 from .node_tracker import NodeTracker
 from .wire_tracker import WireTracker

@@ -21,16 +21,16 @@
 #*                                                                     *
 #***********************************************************************
 """
-Subscriber base class
+Subscribe base class
 """
 
-class Subscriber:
+class Subscribe:
     """
-    Base Subscriber class
+    Base Subscribe class
     """
 
     counter = 0
-    name = 'Subscriber'
+    name = 'Subscribe'
 
     def __init__(self):
         """
@@ -39,8 +39,8 @@ class Subscriber:
 
         super().__init__()
 
-        self.sub_id = Subscriber.counter
-        Subscriber.counter += 1
+        self.sub_id = Subscribe.counter
+        Subscribe.counter += 1
 
     def notify(self, event_type, message, verbose=False):
         """
@@ -56,4 +56,4 @@ class Subscriber:
         Cleanup
         """
 
-        Subscriber.counter = 0
+        Subscribe.counter = 0
