@@ -122,3 +122,13 @@ class MarkerTracker(GeometryTracker):
             return
 
         super().notify_user_interface(event, message)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.point = None
+        self.marker = None
+
+        super().finish()

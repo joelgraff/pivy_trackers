@@ -117,3 +117,14 @@ class Drag():
         #re-enable notifications only after drag updates are complete
         for _v in Select.selected:
             _v.ignore_notify = False
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        if not Drag.drag_tracker:
+            return
+
+        Drag.drag_tracker.finish()
+        Drag.drag_tracker = None

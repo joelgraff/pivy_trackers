@@ -50,3 +50,10 @@ class Subscriber:
         if verbose:
             print('{} (#{}) got event {} message "{}"'\
                 .format(self.name, self.sub_id, event_type, message))
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Subscriber.counter = 0

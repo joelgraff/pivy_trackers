@@ -118,6 +118,7 @@ class Select():
         Set the node currently being highlighted by the mouse
         Also clears the currently highlighted tracker
         """
+
         #quit if node is already highlighted
         if Select.highlight_node is self:
             return
@@ -131,7 +132,7 @@ class Select():
             #under the mouse
             if self.handle_select_events or _no_component:
 
-                if not  Select.highlight_node.is_selected():
+                if not Select.highlight_node.is_selected():
 
                     Select.highlight_node.set_style(
                         Select.highlight_node.coin_style)
@@ -219,3 +220,12 @@ class Select():
             _style = CoinStyles.SELECTED
 
         self.set_style(_style)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.select = None
+        Select.selected = []
+        Select.highlight_node = None

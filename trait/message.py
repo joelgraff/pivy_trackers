@@ -51,7 +51,6 @@ class Message(Publisher, Subscriber):
         Dispatch a geometry update using the passed data
         """
 
-        print('\n\t------->>>> dispatching updates...\n\t', self.name, data)
         self.dispatch(
             message_data.geometry_message(self, data),
             Messages.INTERNAL._GEOMETRY, verbose
@@ -141,3 +140,12 @@ class Message(Publisher, Subscriber):
         """
 
         self.unregister(who, Messages.INTERNAL._USER_INTERFACE)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Publisher.finish(self)
+        Subscriber.finish(self)
+        Messages.finish(Messages)

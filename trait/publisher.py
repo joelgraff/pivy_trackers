@@ -26,7 +26,7 @@ Publisher base class
 
 from collections.abc import Iterable
 
-class Publisher:
+class Publisher():
     """
     Base class for publisher classes
     """
@@ -147,3 +147,12 @@ class Publisher:
 
         for _cb in _cb_list:
             _cb(event, message)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Publisher.counter = 0
+        self.event_callbacks = {}
+        self.excluded_subscribers = []

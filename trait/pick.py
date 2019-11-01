@@ -62,3 +62,10 @@ class Pick():
         """
 
         return self.pick.style.getValue() != Styles.UNPICKABLE
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.pick = None

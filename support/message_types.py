@@ -48,7 +48,7 @@ class MessageTypes(metaclass=Singleton):
 
     CUSTOM = types.SimpleNamespace()
 
-    NAMES = {}
+    NAMES = INTERNAL.NAMES.copy()
 
     @staticmethod
     def create(message_type_name):
@@ -68,4 +68,14 @@ class MessageTypes(metaclass=Singleton):
 
         return _attr
 
-MessageTypes.NAMES = MessageTypes.INTERNAL.NAMES.copy()
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.CUSTOM = types.SimpleNamespace()
+        self.NAMES = self.INTERNAL.NAMES.copy()
+
+        Singleton.finish(MessageTypes)
+
+#MessageTypes.NAMES = MessageTypes.INTERNAL.NAMES.copy()

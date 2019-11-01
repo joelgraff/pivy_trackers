@@ -123,3 +123,15 @@ class GeometryTracker(
         """
 
         super().notify_geometry(event, message)
+
+    def finish(self):
+
+        Base.finish(self)
+        Message.finish(self)
+        Style.finish(self)
+        Geometry.finish(self)
+        Event.finish(self)
+        Pick.finish(self)
+        Select.finish(self)
+        Drag.finish(self)
+ 

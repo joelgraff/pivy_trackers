@@ -40,3 +40,11 @@ class TaskTracker(Base, metaclass=Singleton):
         super().__init__('Task Tracker')
 
         self.set_visibility(True)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Base.finish(self)
+        Singleton.finish(TaskTracker)

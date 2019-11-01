@@ -188,3 +188,38 @@ class MouseState(metaclass=Singleton):
         QCursor.setPos(_pos[0], _pos[1])
 
         self.world_position = coord
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.screen_position = None
+        self.world_position = None
+        self.prev_position = None
+
+        self.buttons = None
+
+        if self.button1:
+
+            self.button1.finish()
+            self.button1 = None
+
+            self.button2.finish()
+            self.button2 = None
+
+            self.button3.finish()
+            self.button3 = None
+
+        self.alt_down = False
+        self.ctrl_down = False
+        self.shift_down = False
+
+        self.vector = None
+
+        self.object = None
+        self.component = ''
+
+        self.state = None
+
+        Singleton.finish(MouseState)

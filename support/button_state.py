@@ -46,6 +46,15 @@ class ButtonState():
 
         self.__init__()
 
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.screen_position = None
+        self.world_position = None
+        self.drag_start = None
+
     def __str__(self):
         """
         Button string representation

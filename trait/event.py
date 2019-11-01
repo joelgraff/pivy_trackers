@@ -43,6 +43,7 @@ class Event():
     mouse_state = None
     name = ''
 
+    #class statics
     _self_weak_list = []
     _default_callback_node = None
 
@@ -266,5 +267,20 @@ class Event():
 
         else:
             self.event.whichChild = 0
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.event.finalize()
+        self.event.callbacks = []
+        self.callbacks = []
+        self.path_nodes = []
+        self.handle_events = False
+
+        Event._self_weak_list = []
+        Event._default_callback_node = None
+
 
 Event.init_graph()

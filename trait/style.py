@@ -99,4 +99,15 @@ class Style():
 
         self.active_style = style
 
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.style.finalize()
+        self.style.draw_style = None
+        self.style.color = None
+        self.coin_style = None
+        self.active_style = None
+
 Style.init_graph()

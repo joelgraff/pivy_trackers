@@ -264,3 +264,27 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #update the +z axis rotation for the transformation
         self.drag.full.set_rotation (self.rotation, Axis.Z)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Base.finish(self)
+        Style.finish(self)
+        Event.finish(self)
+        Pick.finish(self)
+        Geometry.finish(self)
+
+        self.drag.part.finalize()
+        self.drag.full.finalize()
+        self.drag.finalize()
+
+        self.partial_nodes = []
+        self.partial_indices = {}
+
+        self.update_center_fn = None
+        self.coin_style = None
+        self.drag_center = None
+
+        Singleton.finish(DragTracker)

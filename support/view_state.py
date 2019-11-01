@@ -41,13 +41,6 @@ class ViewStateGlobalCallbacks():
 
         pass
 
-    def global_view_mouse_event(self, arg):
-        """
-        Global mouse event to update view state
-        """
-
-        #clear the matrix to force a refresh at the start of every mouse event
-        ViewState()._matrix = None
 
 class ViewState(metaclass=Singleton):
     """
@@ -55,6 +48,15 @@ class ViewState(metaclass=Singleton):
     """
 
     view = None
+
+    @staticmethod
+    def global_view_mouse_event(arg):
+        """
+        Global mouse event to update view state
+        """
+
+        #clear the matrix to force a refresh at the start of every mouse event
+        ViewState()._matrix = None
 
     def __init__(self, view=None):
         """
@@ -77,7 +79,7 @@ class ViewState(metaclass=Singleton):
         self.callbacks = {}
 
         self.add_mouse_event(
-            ViewStateGlobalCallbacks().global_view_mouse_event)
+            ViewState.global_view_mouse_event)
 
     def get_matrix(self, node, parent=None, refresh=True):
         """
@@ -284,4 +286,17 @@ class ViewState(metaclass=Singleton):
 
         for _evt_cls in self.callbacks:
             for _cb in self.callbacks[_evt_cls]:
+
+                if not _cb:
+                    continue
+
                 self.remove_event_cb(_cb, _evt_cls)
+
+        self.view = None
+        self.viewport = None
+        self.sg_root = None
+        self.active_task_panel = None
+        self._matrix = None
+        self.callbacks = {}
+
+        Singleton.finish(ViewState)

@@ -150,3 +150,15 @@ class LineTracker(GeometryTracker):
         UI message notification override
         """
         super().notify_user_interface(event, message)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.line = None
+        self.drag_style = None
+        self.points = None
+        self.linked_markers = None
+
+        super().finish()

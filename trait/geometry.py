@@ -113,4 +113,14 @@ class Geometry():
                 for _v in self.geometry.coordinate.point.getValues()
         ]
 
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        self.geometry.transform = None
+        self.geometry.coordinate = None
+
+        self.geometry.finalize()
+
 Geometry.init_graph()

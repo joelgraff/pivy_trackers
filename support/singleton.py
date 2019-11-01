@@ -49,3 +49,11 @@ class Singleton(type):
             return cls._instances[cls]
 
         return None
+
+    def finish(cls):
+        """
+        Remove Singleton instance
+        """
+
+        if cls in Singleton._instances:
+            del Singleton._instances[cls]

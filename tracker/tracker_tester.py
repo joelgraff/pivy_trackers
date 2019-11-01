@@ -28,8 +28,6 @@ from FreeCAD import Vector
 
 import FreeCADGui as Gui
 
-#from ..support.publisher import PublisherEvents as Events
-
 from .marker_tracker import MarkerTracker
 from .line_tracker import LineTracker
 from ..trait.base import Base
@@ -192,7 +190,7 @@ class TrackerTester(Base, Event, Select):
 
         #return _wt
 
-    def finalize(self, node=None, parent=None):
+    def finish(self, node=None, parent=None):
         """
         Cleanup the tracker
         """
@@ -200,6 +198,8 @@ class TrackerTester(Base, Event, Select):
         for _t in self.trackers.values():
 
             for _u in _t:
-                _u.finalize()
+                _u.finish()
 
-        super().finalize(node, parent)
+        Base.finish(self)
+        Event.finish(self)
+        Select.finish(self)

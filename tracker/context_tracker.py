@@ -39,3 +39,12 @@ class ContextTracker(Base, Event, Select):
 
         self.add_mouse_event(self.select_mouse_event)
         self.add_button_event(self.select_button_event)
+
+    def finish(self):
+        """
+        Cleanup
+        """
+
+        Base.finish(self)
+        Event.finish(self)
+        Select.finish(self)

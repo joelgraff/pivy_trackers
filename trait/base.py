@@ -90,7 +90,7 @@ class Base():
         #node creation / destruction
         CoinGroup.scenegraph_root = Base.view_state.sg_root
 
-        self.sg_root = self.view_state.sg_root
+        self.sg_root = Base.view_state.sg_root
 
         self.callbacks = {}
 
@@ -131,6 +131,10 @@ class Base():
         Base.view_state.sg_root.insertChild(self.base.root, 0)
         Event.set_paths()
 
+        #assign scenegraph root as parent after insertion, rather than
+        #when creating the top-level tracker's base coin group.
+        self.base.parent = self.view_state.sg_root
+
         if verbose:
             self.base.dump()
 
@@ -154,20 +158,19 @@ class Base():
         """Wrapper"""
         return self.base.copy()
 
-    def finalize(self, node=None, parent=None):
+    def finish(self, node=None, parent=None):
         """
         Node destruction / cleanup
         """
 
-        if self.view_state:
-            self.view_state.finish()
-            self.view_state = None
+        if Base.view_state:
+            Base.view_state.finish()
+            Base.view_state = None
 
-        #if self.mouse_state:
-        #    self.mouse_state.finish()
-        #    self.mouse_state = None
+        if Base.mouse_state:
+            Base.mouse_state.finish()
+            Base.mouse_state = None
 
         self.base.finalize()
 
 Base.init_graph()
-
