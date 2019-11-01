@@ -109,14 +109,13 @@ class SelectDragLinkedTracker(ContextTracker, Drag):
 
             _v.link_marker(self.trackers[_tracker_idx], 1)
 
-    def finalize(self, node=None, parent=None):
+    def finish(self, node=None, parent=None):
         """
         Cleanup the tracker
         """
 
         for _t in self.trackers:
+            _t.finalize()
 
-            for _u in _t:
-                _u.finalize()
-
-        super().finalize(node, parent)
+        ContextTracker.finish(self)
+        Drag.finish(self)

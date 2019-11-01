@@ -190,9 +190,6 @@ class CoinGroup(object):
         if not _parent:
             _parent = self.parent
 
-        if not _parent:
-            return
-
         utils.remove_child(self.root, _parent)
 
     def get_center(self):

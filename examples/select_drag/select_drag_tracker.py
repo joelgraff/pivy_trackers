@@ -96,14 +96,14 @@ class SelectDragTracker(ContextTracker, Drag):
                 name='LINE-4', points=[_model[0], _model[3]], parent=self.base)
         )
 
-    def finalize(self, node=None, parent=None):
+    def finish(self, node=None, parent=None):
         """
         Cleanup the tracker
         """
 
+        ContextTracker.finish(self)
+
         for _t in self.trackers:
+            _t.finish()
 
-            for _u in _t:
-                _u.finalize()
-
-        super().finalize(node, parent)
+        Drag.finish(self)
