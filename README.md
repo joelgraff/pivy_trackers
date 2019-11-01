@@ -49,7 +49,7 @@ from pivy_trackers.trait.base import Base
 ## Reference
 
 + [pivy](https://grey.colorado.edu/coin3d/index.html)
-+ [pivy_trackers](https://github.com/joelgraff/pivy_trackers/wiki)
++ [pivy_trackers wiki](https://github.com/joelgraff/pivy_trackers/wiki)
 
 Note that while the pivy API is not directly documented, it is a one-to-one exposure of the Coin3D API.  Thus, reviewing the Coin3D documentation will provide the user with most relevant implementation details.  
 

@@ -97,7 +97,7 @@ class CurveTracker(WireTracker):
         Override base event
         """
 
-        #internal tracker visiblity criteria:
+        #internal tracker visibility criteria:
         # 1. curve must be the mouse component
         # 2. selection state must be manual
 
@@ -159,7 +159,7 @@ class CurveTracker(WireTracker):
 
     def _set_internal_visiblity(self, is_visible):
         """
-        Set the visiblity of the internal curve geometry
+        Set the visibility of the internal curve geometry
         """
 
         self.wire_tracker.set_visibility(is_visible)
@@ -610,7 +610,7 @@ class CurveTracker(WireTracker):
     def validate(self, lt_tan=0.0, rt_tan=0.0):
         """
         Validate the arc's tangents against it's PI's
-        points - the corodinates of the three PI nodes
+        points - the coordinates of the three PI nodes
         lt_tan, rt_tan - the length of the tangents of adjoining curves
         """
 
