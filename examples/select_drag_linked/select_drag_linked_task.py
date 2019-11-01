@@ -31,8 +31,6 @@ from FreeCAD import Vector
 
 import FreeCADGui as Gui
 
-import DraftTools
-
 from .select_drag_linked_tracker import SelectDragLinkedTracker
 
 class SelectDragLinkedTask():
@@ -96,8 +94,6 @@ class SelectDragLinkedTask():
 
         self.view = Gui.ActiveDocument.ActiveView
         self.tracker = SelectDragLinkedTracker(Gui.ActiveDocument.ActiveView)
-
-        _camera = self.view.getCameraNode()
 
         self.camera_state = self.CameraState(
             position=(0.0, 0.0, 0.0),
@@ -229,7 +225,7 @@ class SelectDragLinkedTask():
         Gui.Control.closeDialog()
 
         if self.tracker:
-            self.tracker.finalize()
+            self.tracker.finish()
             self.tracker = None
 
         if self.camera_state:

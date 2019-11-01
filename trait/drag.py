@@ -25,7 +25,6 @@ Drag traits for Tracker objects
 """
 
 from ..trait.select import Select
-from ..trait.enums import DragStyle
 
 from ..tracker.drag_tracker import DragTracker
 

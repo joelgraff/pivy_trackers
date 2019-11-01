@@ -36,9 +36,6 @@ from ..trait.geometry import Geometry
 from ..trait import enums
 
 from ..coin.coin_styles import CoinStyles
-from ..coin.coin_enums import NodeTypes as Nodes
-
-from ..support import message_data
 
 class GeometryTracker(
     Base, Message, Style, Geometry, Event, Pick, Select, Drag):

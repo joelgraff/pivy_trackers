@@ -31,7 +31,7 @@ from .subscribe import Subscribe
 
 from ..support import message_data
 
-class Message(Publish, Subscribe):
+class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/conflicting-attributes]
     """
     Message services for Python object intercommunication
     """

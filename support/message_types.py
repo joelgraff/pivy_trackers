@@ -26,8 +26,6 @@ MessageTypes class
 
 import types
 
-from inspect import getmro
-
 from ..support.const import Const
 from ..support.singleton import Singleton
 

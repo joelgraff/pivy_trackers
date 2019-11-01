@@ -181,7 +181,7 @@ class MarkerStyles(Const):
     SHIP_FILLED_9 = coin.SoMarkerSet.SHIP_FILLED_9_9
 
     #no @staticmethod decorator or self argument for Const object methods
-    def get(shape, size):
+    def get(shape, size): # lgtm[py/not-named-self]
         """
         Convenience function to get marker index using shape / size arguments
         """
@@ -189,7 +189,7 @@ class MarkerStyles(Const):
 
         return MarkerStyles.__dict__.get(shape.upper() + '_' + str(size))
 
-    def get_by_value(value):
+    def get_by_value(value): # lgtm[py/not-named-self]
         """
         Return the marker name using the markerIndex value
         """

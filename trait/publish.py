@@ -24,8 +24,6 @@
 Publish base class
 """
 
-from collections.abc import Iterable
-
 class Publish():
     """
     Base class for publisher classes

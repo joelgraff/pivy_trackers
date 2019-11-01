@@ -32,7 +32,6 @@ from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_enums import Axis
 from ..coin.coin_styles import CoinStyles as Styles
 
-from ..coin import coin_utils 
 from ..coin import coin_math
 
 from ..trait.base import Base
@@ -112,6 +111,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #drag center point defined by inheriting class
         self.drag_center = (0.0, 0.0, 0.0)
+
+        self.drag_style = DragStyle.CURSOR
 
         self.is_rotating = False
 

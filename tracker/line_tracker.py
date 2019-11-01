@@ -27,11 +27,8 @@ Line tracker class for tracker objects
 from ..support.smart_tuple import SmartTuple
 
 from ..coin.coin_enums import NodeTypes as Nodes
-from ..coin.coin_styles import CoinStyles
 
 from .geometry_tracker import GeometryTracker
-
-from ..support import message_data
 
 class LineTracker(GeometryTracker):
     """

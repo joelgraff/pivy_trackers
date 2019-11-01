@@ -59,10 +59,8 @@ def get_rotation_angle(from_vector, to_vector):
 
     _from = coin.SbVec3f(from_vector)
     _to = coin.SbVec3f(to_vector)
-
-    _angle = 0.0
-
     _rot = coin.SbRotation(_from, _to)
+
     return _rot.getAxisAngle()[1]
 
 def get_bearing(vector, reference=Axis.Y):

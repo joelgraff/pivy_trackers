@@ -183,7 +183,7 @@ class ViewState(metaclass=Singleton):
 
         self.view.removeEventCallbackPivy(event_class.getClassTypeId(), _cb)
 
-        del _cb
+        del _cbs[callback]
 
     def add_event_cb(self, callback, event_class):
         """

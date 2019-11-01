@@ -102,7 +102,7 @@ class SmartTuple():
             try:
                 _tpl = SmartTuple(args)._tuple
 
-            except:
+            except Exception:
 
                 assert(len(args) == len(self._tuple)),\
                     'Length mismatch. {} values expected.'\

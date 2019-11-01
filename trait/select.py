@@ -47,8 +47,8 @@ class Select():
     #geometry prototypes for updating trackers after drag operations
     geometry = None
 
-    def get_coordinates(self, _dtype=tuple): """prototype"""; pass
-    def update(self, coordinates): """prototype"""; print('selectupdate'); pass
+    def get_coordinates(self, _dtype=tuple): """prototype"""
+    def update(self, coordinates): """prototype"""
 
     #Reference to the node that is currently highlighted.
     highlight_node = None

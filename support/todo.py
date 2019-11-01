@@ -59,7 +59,7 @@ class todo:
                     else:
                         f()
 
-                except:
+                except Exception:
                     print (traceback.format_exc(),
                     "\n[Draft.todo.tasks] Unexpected error:", \
                         sys.exc_info()[0], "in ", f, "(", arg, ")"
@@ -80,7 +80,7 @@ class todo:
                 try:
                     func()
 
-                except:
+                except Exception:
 
                     print (
                         traceback.format_exc(),
@@ -100,7 +100,7 @@ class todo:
                 else:
                     f()
 
-            except:
+            except Exception:
 
                 print (traceback.format_exc(),
                     "\n[Draft.todo.tasks] Unexpected error:", \

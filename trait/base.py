@@ -119,8 +119,6 @@ class Base():
         Insert the base node into the scene graph and trigger notifications
         """
 
-        _fn = lambda _x: Base.view_state.sg_root.insertChild(_x, 0)
-
         todo.delay(self._do_insert, verbose)
 
     def _do_insert(self, verbose):
