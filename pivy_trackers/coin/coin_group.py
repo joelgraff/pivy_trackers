@@ -202,6 +202,13 @@ class CoinGroup(object):
 
         return self.transform.center.getValue()
 
+    def get_rotation(self):
+        """
+        Return the angle of rotation in radians
+        """
+
+        return self.transform.rotation.getValue().getAxisAngle()
+
     def get_translation(self):
         """
         Return the translation of the gou SoTransform node as a tuple
