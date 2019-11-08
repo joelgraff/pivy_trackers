@@ -233,12 +233,15 @@ class CoinGroup(object):
 
         self.transform.center.setValue(point)
 
-    def set_rotation(self, angle, center=(0.0, 0.0, 0.0)):
+    def set_rotation(self, angle, center=None):
         """
         Set the rotation of the group SoTransform node
         """
 
         if not self.transform:
             return
+
+        if not center:
+            center = self.get_center
 
         self.transform.rotation = utils.get_rotation(angle, center)
