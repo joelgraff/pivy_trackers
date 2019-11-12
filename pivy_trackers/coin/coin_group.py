@@ -204,10 +204,12 @@ class CoinGroup(object):
 
     def get_rotation(self):
         """
-        Return the angle of rotation in radians
+        Return the axis as a tuple and angle of rotation in radians
         """
 
-        return self.transform.rotation.getValue().getAxisAngle()
+        _result = self.transform.rotation.getValue().getAxisAngle()
+
+        return [_result[0].getValue(), _result[1]]
 
     def get_translation(self):
         """
