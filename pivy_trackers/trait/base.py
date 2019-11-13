@@ -121,6 +121,16 @@ class Base():
 
         todo.delay(self._do_insert, verbose)
 
+    def transform_points(self, points, node):
+        """
+        Transform points by the transformation matrix
+        points = a list / tuple of 3D coordinates in tuple form
+        """
+
+        #no node, use the coordinate node local to this group
+        return self.view_state.transform_points(
+            points, self.geometry.coordinate, True)
+
     def _do_insert(self, verbose):
         """
         todo.delay callback for node insertion into scenegraph
