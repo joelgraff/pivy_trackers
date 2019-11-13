@@ -253,4 +253,5 @@ class CoinGroup(object):
         if not center:
             center = self.get_center
 
-        self.transform.rotation = utils.get_rotation(angle, center)
+        self.transform.rotation = utils.get_rotation(angle)
+        self.transform.rotation.center = center
