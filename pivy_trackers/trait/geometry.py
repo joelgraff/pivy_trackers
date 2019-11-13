@@ -83,14 +83,18 @@ class Geometry():
 
         self.set_coordinates(coordinates)
 
-    def transform_points(self):
+    def transform_points(self, points=None):
         """
-        Transform selected points by the transformation matrix
+        Transform points by the transformation matrix
+        points = a list / tuple of 3D coordinates in tuple form
         """
+
+        if points is None:
+            points = self.get_coordinates()
 
         #no node, use the coordinate node local to this group
         return self.view_state.transform_points(
-            self.get_coordinates(), self.geometry.coordinate, True)
+            points, self.geometry.coordinate, True)
 
     def set_coordinates(self, coordinates):
         """
