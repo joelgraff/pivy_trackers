@@ -37,11 +37,11 @@ class MessageTypes(metaclass=Singleton):
         """
 
         _GEOMETRY = 2
-        _USER_INTERFACE = 4
+        _WIDGET = 4
 
         NAMES = {
             _GEOMETRY: '_GEOMETRY',
-            _USER_INTERFACE: '_USER_INTERFACE'
+            _WIDGET: '_WIDGET'
         }
 
     CUSTOM = types.SimpleNamespace()

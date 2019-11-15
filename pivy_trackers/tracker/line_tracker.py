@@ -142,11 +142,11 @@ class LineTracker(GeometryTracker):
         self.update(self.points)
         del self.excluded_subscribers[-1]
 
-    def notify_user_interface(self, event, message):
+    def notify_widget(self, event, message):
         """
         UI message notification override
         """
-        super().notify_user_interface(event, message)
+        super().notify_widget(event, message)
 
     def finish(self):
         """

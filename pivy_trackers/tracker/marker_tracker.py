@@ -113,15 +113,15 @@ class MarkerTracker(GeometryTracker):
         self.update(self.point)
         del self.excluded_subscribers[-1]
 
-    def notify_user_interface(self, event, message):
+    def notify_widget(self, event, message):
         """
-        UI message notification override
+        Widget message notification override
         """
 
         if self.ignore_notify:
             return
 
-        super().notify_user_interface(event, message)
+        super().notify_widget(event, message)
 
     def finish(self):
         """

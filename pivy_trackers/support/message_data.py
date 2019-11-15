@@ -37,10 +37,10 @@ def geometry_message(sender, data):
 
 def ui_message(sender, data):
     """
-    Factory method for user_interface message types
+    Factory method for widget message types
     """
 
-    return MessageData(sender, Messages.INTERNAL._USER_INTERFACE, data)
+    return MessageData(sender, Messages.INTERNAL._WIDGET, data)
 
 class MessageData():
     """
