@@ -111,6 +111,7 @@ class todo:
 
     @staticmethod
     def delay (f, arg):
+
         if todo.itinerary == []:
             QtCore.QTimer.singleShot(0, todo.doTasks)
 
