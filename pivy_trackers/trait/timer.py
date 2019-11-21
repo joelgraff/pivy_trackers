@@ -65,6 +65,8 @@ class Timer():
 
         super().__init__()
 
+        print(self.name, 'timer constructed')
+
     def add_timer(self, interval, data,
                   callback=None, timer_id=None, start=True):
 
@@ -124,6 +126,18 @@ class Timer():
             return
 
         _t.schedule()
+
+    def set_timer_interval(self, timer_id, value):
+        """
+        Set the interval of the specified timer
+        """
+
+        _t = self.timers.get(timer_id)
+
+        if not _t:
+            return
+
+        _t.setInterval(value)
 
     def finish(self):
         """
