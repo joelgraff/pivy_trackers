@@ -65,8 +65,6 @@ class Timer():
 
         super().__init__()
 
-        print(self.name, 'timer constructed')
-
     def add_timer(self, interval, data,
                   callback=None, timer_id=None, start=True):
 

@@ -290,7 +290,9 @@ class ViewState(metaclass=Singleton):
                 if not _cb:
                     continue
 
-                self.remove_event_cb(_cb, _evt_cls)
+                self.view.removeEventCallbackPivy(
+                    _evt_cls.getClassTypeId(), _cb)
+
 
         self.view = None
         self.viewport = None
