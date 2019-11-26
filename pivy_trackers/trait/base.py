@@ -139,8 +139,10 @@ class Base():
         """
 
         #no node, use the coordinate node local to this group
-        return self.view_state.transform_points(
-            points, self.geometry.coordinate, True)
+        if not node:
+            node = self.geometry.coordinate
+
+        return self.view_state.transform_points(points, node, True)
 
     def _do_insert(self, verbose):
         """
