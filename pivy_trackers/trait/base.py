@@ -57,6 +57,8 @@ class Base():
     is_separated = None
     switch_first = None
 
+    is_inserted = False
+
     @staticmethod
     def init_graph(is_switched=True, is_separated=True, switch_first=True):
         """
@@ -160,6 +162,8 @@ class Base():
             self.base.dump()
 
         self.on_insert()
+
+        self.is_inserted = True
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Wrappers for CoinGroup methods to expose them at the tracker level

@@ -65,7 +65,7 @@ class Widget():
 
         self.widgets[tracker].append(widget)
 
-    def add_formatter(self, widget, formatter=Widget.formatter_default)
+    def add_formatter(self, widget, formatter=Widget.formatter_default):
         """
         Add a widget and corresponding formatter function
         """

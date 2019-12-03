@@ -1,7 +1,5 @@
 import FreeCADGui as Gui
 
-from pivy import coin
-
 from pivy_trackers.trait.base import Base
 from pivy_trackers.trait.timer import Timer
 

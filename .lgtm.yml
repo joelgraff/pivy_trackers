@@ -2,3 +2,8 @@ path_classifiers:
 
   legacy:
     - pivy_trackers/deprecated
+
+queries:
+- exclude: py/missing-call-to-init
+- exclude: py/inheritance/incorrect-overridden-signature
+- exclude: py/conflicting-attributes
