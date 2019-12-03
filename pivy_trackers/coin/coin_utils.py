@@ -137,12 +137,11 @@ def add_child(event_class, parent, name=''):
 
     return _node
 
-def get_rotation(angle, center):
+def get_rotation(angle, axis=(0.0, 0.0, 1.0)):
     """
     Return a coin SbRotation object based on the passed center and angle.
     center - the center point as a tuple
     angle - then angle in radians
     """
 
-    print('coin_utils.get_rotation():', center, angle)
-    return coin.SbRotation(coin.SbVec3f(center), angle)
+    return coin.SbRotation(coin.SbVec3f(axis), angle)

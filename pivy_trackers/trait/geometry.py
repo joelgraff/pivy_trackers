@@ -83,6 +83,19 @@ class Geometry():
 
         self.set_coordinates(coordinates)
 
+    def transform_points(self, points=None):
+        """
+        Transform points by the transformation matrix
+        points = a list / tuple of 3D coordinates in tuple form
+        """
+
+        if points is None:
+            points = self.get_coordinates()
+
+        #no node, use the coordinate node local to this group
+        return self.view_state.transform_points(
+            points, self.geometry.coordinate, True)
+
     def set_coordinates(self, coordinates):
         """
         Update the SoCoordinate3 with the passed coordinates

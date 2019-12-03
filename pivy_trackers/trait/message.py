@@ -56,9 +56,9 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
             Messages.INTERNAL._GEOMETRY, verbose
         )
 
-    def dispatch_user_interface(self, data, verbose=False):
+    def dispatch_widget(self, data, verbose=False):
         """
-        Dispatch a geometry update using the passed data
+        Dispatch a widget update using the passed data
         """
 
         _message = data
@@ -66,7 +66,7 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
         if not isinstance(data, message_data.MessageData):
             _message = message_data.ui_message(self, data)
 
-        self.dispatch(_message, Messages.INTERNAL._USER_INTERFACE, verbose)
+        self.dispatch(_message, Messages.INTERNAL._WIDGET, verbose)
 
     def notify(self, event, message):
         """
@@ -91,13 +91,13 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
 
         self.notify(event, message)
 
-    def notify_user_interface(self, event, message):
+    def notify_widget(self, event, message):
         """
         Overridable notification callback for user interface updates
         """
 
         print(
-            '{}.Message.notify_user_interface() message = {}'.format(self.name, str(message))
+            '{}.Message.notify_widget() message = {}'.format(self.name, str(message))
         )
 
     def register_geometry(self, who, duplex=False):
@@ -113,7 +113,7 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
             who.register(
                 self, Messages.INTERNAL._GEOMETRY, self.notify_geometry)
 
-    def register_user_interface(self, who, duplex=False):
+    def register_widget(self, who, duplex=False):
         """
         Register a python object for geometry messages.
         Must implement notify_geometry()
@@ -121,11 +121,11 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
         """
 
         self.register(
-            who, Messages.INTERNAL._USER_INTERFACE, who.notify_geometry)
+            who, Messages.INTERNAL._WIDGET, who.notify_geometry)
 
         if duplex:
             who.register(
-                self, Messages.INTERNAL._USER_INTERFACE, self.notify_geometry)
+                self, Messages.INTERNAL._WIDGET, self.notify_geometry)
 
     def unregister_geometry(self, who):
         """
@@ -134,12 +134,12 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
 
         self.unregister(who, Messages.INTERNAL._GEOMETRY)
 
-    def unregister_user_interface(self, who):
+    def unregister_widget(self, who):
         """
         Unregister an object from user interface messages
         """
 
-        self.unregister(who, Messages.INTERNAL._USER_INTERFACE)
+        self.unregister(who, Messages.INTERNAL._WIDGET)
 
     def finish(self):
         """

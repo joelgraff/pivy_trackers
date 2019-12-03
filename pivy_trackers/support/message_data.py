@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-#***********************************************************************
+#**************************************************************************
 #*                                                                     *
-#* Copyright (c) 2018 Joel Graff <monograff76@gmail.com>               *
+#* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
 #* it under the terms of the GNU Lesser General Public License (LGPL)  *
@@ -21,59 +21,61 @@
 #*                                                                     *
 #***********************************************************************
 """
-MessageTypes class
+Message data class for the Message trait
 """
 
-import types
+from ..support.message_types import MessageTypes as Messages
 
-from ..support.const import Const
-from ..support.singleton import Singleton
+def geometry_message(sender, data):
+    """
+    Factory method for geometry message types
+    """
 
-class MessageTypes(metaclass=Singleton):
+    return MessageData(sender, Messages.INTERNAL._GEOMETRY, data)
 
-    class INTERNAL(Const):
+def ui_message(sender, data):
+    """
+    Factory method for widget message types
+    """
+
+    return MessageData(sender, Messages.INTERNAL._WIDGET, data)
+
+class MessageData():
+    """
+    Message data class for the Message trait
+    """
+
+    def __init__(self, sender, message_type, data):
         """
-        INTERNAL message category
-        """
-
-        _GEOMETRY = 2
-        _USER_INTERFACE = 4
-
-        NAMES = {
-            _GEOMETRY: '_GEOMETRY',
-            _USER_INTERFACE: '_USER_INTERFACE'
-        }
-
-    CUSTOM = types.SimpleNamespace()
-
-    NAMES = INTERNAL.NAMES.copy()
-
-    @staticmethod
-    def create(message_type_name):
-        """
-        Generate a new custom message type and assign it a value
+        Constructor
         """
 
-        if hasattr(MessageTypes.CUSTOM, message_type_name):
-            return
+        self.sender = sender
+        self.message_type = message_type
+        self.data = data
 
-        _val = 1 + 2 **(len(list(MessageTypes.CUSTOM.__dict__.keys()))+1)
-
-        setattr(MessageTypes.CUSTOM, message_type_name, _val)
-        _attr = getattr(MessageTypes.CUSTOM, message_type_name)
-
-        MessageTypes.NAMES[_attr] = message_type_name
-
-        return _attr
-
-    def finish(self):
+    def __str__(self):
         """
-        Cleanup
+        Stringify
         """
 
-        self.CUSTOM = types.SimpleNamespace()
-        self.NAMES = self.INTERNAL.NAMES.copy()
+        _type = self.message_type
 
-        Singleton.finish(MessageTypes)
+        if not isinstance(_type, list):
+            _type = [_type]
 
-#MessageTypes.NAMES = MessageTypes.INTERNAL.NAMES.copy()
+        _type = '[' + ', '.join([Messages.NAMES[_v] for _v in _type]) + ']'
+
+        return 'sender: {}\ntype(s): {}\ndata: {}'\
+            .format(
+                self.sender.name,
+                _type,
+                str(self.data)
+            )
+
+    def __repr__(self):
+        """
+        Repr
+        """
+
+        return self.__str__()

@@ -129,7 +129,7 @@ class CoinGroup(object):
 
         return self.switch.whichChild.getValue() == 0
 
-    def insert_node(self, node, parent=None):
+    def insert_node(self, node, parent=None, index=-1):
         """
         Insert a node into the current group default node
         """
@@ -137,7 +137,7 @@ class CoinGroup(object):
         if parent is None:
             parent = self.top
 
-        utils.insert_child(node, parent)
+        utils.insert_child(node, parent, index)
 
     def add_node(self, event_class, name=''):
         """
@@ -202,6 +202,15 @@ class CoinGroup(object):
 
         return self.transform.center.getValue()
 
+    def get_rotation(self):
+        """
+        Return the axis as a tuple and angle of rotation in radians
+        """
+
+        _result = self.transform.rotation.getValue().getAxisAngle()
+
+        return [_result[0].getValue(), _result[1]]
+
     def get_translation(self):
         """
         Return the translation of the gou SoTransform node as a tuple
@@ -233,7 +242,7 @@ class CoinGroup(object):
 
         self.transform.center.setValue(point)
 
-    def set_rotation(self, angle, center=(0.0, 0.0, 0.0)):
+    def set_rotation(self, angle, center=None):
         """
         Set the rotation of the group SoTransform node
         """
@@ -241,4 +250,8 @@ class CoinGroup(object):
         if not self.transform:
             return
 
-        self.transform.rotation = utils.get_rotation(angle, center)
+        if not center:
+            center = self.get_center
+
+        self.transform.rotation = utils.get_rotation(angle)
+        self.transform.rotation.center = center
