@@ -60,7 +60,7 @@ class LineTracker(GeometryTracker):
         Override of Geometry method
         """
 
-        super().update(coordinates, notify)
+        super().update(points, notify)
 
         if groups is None:
             return
