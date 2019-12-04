@@ -69,6 +69,7 @@ class Geometry():
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
+        self.coordinates = ()
         self.prev_coordinates = ()
 
         #reset the graph node parameters
@@ -113,8 +114,8 @@ class Geometry():
         coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
 
         self.prev_coordinates = self.get_coordinates()
-
         self.geometry.coordinate.point.setValues(coordinates)
+        self.coordinates = coordinates
 
     def get_coordinates(self, _dtype=tuple):
         """

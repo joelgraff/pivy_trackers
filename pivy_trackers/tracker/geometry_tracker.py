@@ -104,7 +104,7 @@ class GeometryTracker(
 
         super().update(coordinates)
 
-        self.prev_coordinates = _c[:]
+        self.coordinates = coordinates
 
         if not notify:
             return

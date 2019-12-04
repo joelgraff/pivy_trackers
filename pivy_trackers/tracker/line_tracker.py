@@ -44,25 +44,30 @@ class LineTracker(GeometryTracker):
 
         #build node structure for the node tracker
         self.line = self.geometry.add_node(Nodes.LINE_SET, name)
+        self.groups = []
 
         self.add_node_events(self.line)
         self.set_style()
         self.set_visibility(True)
         self.drag_style = self.DragStyle.CURSOR
 
-        self.points = points
         self.linked_markers = {}
 
         self.update(points, False)
 
-    def update(self, points, notify=True):
+    def update(self, points, groups=None, notify=True):
         """
         Override of Geometry method
         """
 
-        self.points = points
+        super().update(coordinates, notify)
 
-        super().update(points, notify)
+        if groups is None:
+            return
+
+        self.groups = self.groups
+
+        self.geometry.line.numVertices.setValue(groups)
 
     def link_marker(self, marker, index):
         """
