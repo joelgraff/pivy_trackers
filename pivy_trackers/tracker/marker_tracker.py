@@ -51,7 +51,7 @@ class MarkerTracker(GeometryTracker):
         self.add_node_events(self.marker)
         self.set_style()
         self.set_visibility(True)
-        self.update(tuple(point), False)
+        self.update(tuple(point), notify=False)
 
     def update(self, coordinates=None, notify=True):
         """
@@ -69,7 +69,7 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = SmartTuple(_c)._tuple
 
-        super().update(_c, notify)
+        super().update(_c, notify=notify)
 
     def update_drag_center(self):
         """

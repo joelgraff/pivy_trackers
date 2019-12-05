@@ -35,7 +35,7 @@ class LineTracker(GeometryTracker):
     Tracker object for SoLineSet
     """
 
-    def __init__(self, name, points, parent, view=None):
+    def __init__(self, name, points, parent, view=None, selectable=True):
         """
         Constructor
         """
@@ -44,30 +44,42 @@ class LineTracker(GeometryTracker):
 
         #build node structure for the node tracker
         self.line = self.geometry.add_node(Nodes.LINE_SET, name)
+        self.add_node_events(self.line)
         self.groups = []
 
-        self.add_node_events(self.line)
         self.set_style()
         self.set_visibility(True)
+        self.set_selectability(selectable)
         self.drag_style = self.DragStyle.CURSOR
 
         self.linked_markers = {}
 
-        self.update(points, False)
+        self.update(points, notify=False)
+
+    def set_selectability(self, selectable):
+        """
+        Set the mouse / button event nodes based on passed flag
+        """
+
+        if (selectable):
+            self.event.root.whichChild = 0
+
+        else:
+            self.event.root.whichChild = -1
 
     def update(self, points, groups=None, notify=True):
         """
         Override of Geometry method
         """
 
-        super().update(points, notify)
+        super().update(points, notify=notify)
 
         if groups is None:
             return
 
         self.groups = self.groups
 
-        self.geometry.line.numVertices.setValue(groups)
+        self.line.numVertices.setValues(0, len(groups), groups)
 
     def link_marker(self, marker, index):
         """

@@ -103,7 +103,7 @@ class Select():
 
     def select_button_event(self, user_data, event_cb):
         """
-        Mouse override
+        Button override
         """
 
         if self.mouse_state.button1.pressed:
