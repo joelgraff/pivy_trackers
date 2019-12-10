@@ -151,12 +151,16 @@ class CoinGroup(object):
 
         return utils.add_child(event_class, self.top, _name)
 
-    def remove_node(self, node):
+    def remove_node(self, node, parent=None):
         """
-        Remove an existing node from the current group
+        Remove an existing node from the current group's top, unless
+        parent is specified
         """
 
-        utils.remove_child(node, self.top)
+        if not parent:
+            parent = self.top
+
+        utils.remove_child(node, parent)
 
     def copy(self):
         """

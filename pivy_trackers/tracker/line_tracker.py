@@ -29,6 +29,7 @@ from ..support.smart_tuple import SmartTuple
 from ..coin.coin_enums import NodeTypes as Nodes
 
 from .geometry_tracker import GeometryTracker
+from .marker_tracker import MarkerTracker
 
 class LineTracker(GeometryTracker):
     """
@@ -44,6 +45,12 @@ class LineTracker(GeometryTracker):
 
         #build node structure for the node tracker
         self.line = self.geometry.add_node(Nodes.LINE_SET, name)
+
+        self.markers =\
+            MarkerTracker(name + '_marker_tracker', None, self.base)
+
+        self.markers.set_visibility(False)
+
         self.add_node_events(self.line)
         self.groups = []
 
@@ -55,6 +62,26 @@ class LineTracker(GeometryTracker):
         self.linked_markers = {}
 
         self.update(points, notify=False)
+
+        _fn = lambda:\
+            self.markers.geometry.remove_node(self.markers.geometry.coordinate)
+
+        #callback to be triggered after graph is inserted into scenegraph
+        self.on_insert_callbacks.append(_fn)
+
+    def show_markers(self):
+        """
+        Show the SoMarkerSet
+        """
+
+        self.markers.set_visibility(True)
+
+    def hide_markers(self):
+        """
+        hide the SoMarkerSet
+        """
+
+        self.markers.set_visibility(False)
 
     def set_selectability(self, selectable):
         """
