@@ -104,7 +104,7 @@ class LineTracker(GeometryTracker):
         if groups is None:
             return
 
-        self.groups = self.groups
+        self.groups = groups
 
         self.line.numVertices.setValues(0, len(groups), groups)
 

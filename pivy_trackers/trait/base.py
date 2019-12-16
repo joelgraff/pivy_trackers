@@ -77,7 +77,9 @@ class Base():
         """
 
         for _fn in Base.on_insert_callbacks:
-            _fn()
+
+            if _fn:
+                _fn()
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
