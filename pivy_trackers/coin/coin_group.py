@@ -169,6 +169,14 @@ class CoinGroup(object):
 
         return self.root.copy()
 
+    def remove(self):
+        """
+        Remove the coin group from it's parent node, return a reference to
+        the root node
+        """
+
+        utils.remove_child(self.root, self.parent)
+
     def remove_all_children(self):
         """
         Remove all children under the top node.
