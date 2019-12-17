@@ -103,15 +103,9 @@ class Geometry():
         Assumes coordinates is a list of 3-float tuples
         """
 
-        if not coordinates:
-            return
-
         #encapsulate a single coordinate as a list
         if not isinstance(coordinates, list):
             coordinates = [coordinates]
-
-        #ensure coordinate points are tuples
-        coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
 
         self.prev_coordinates = self.get_coordinates()
         self.geometry.coordinate.point.setValues(coordinates)
