@@ -76,6 +76,15 @@ class GeometryTracker(
 
             self.path_nodes.append(node)
 
+    def reset(self):
+        """
+        Reset the coordinates and transform
+        """
+
+        super().update([])
+        self.geometry.set_rotation(0.0, (0.0, 0.0, 0.0))
+        self.geometry.set_translation((0.0, 0.0, 0.0))
+
     def update(self, coordinates, notify=True):
         """
         Override of Geometry method to provide messaging support

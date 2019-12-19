@@ -60,7 +60,7 @@ class LineTracker(GeometryTracker):
         self.drag_style = self.DragStyle.CURSOR
 
         self.linked_markers = {}
-
+        self.update_cb = None
         self.update(points, notify=False)
 
         _fn = lambda:\
@@ -105,8 +105,10 @@ class LineTracker(GeometryTracker):
             return
 
         self.groups = groups
-
         self.line.numVertices.setValues(0, len(groups), groups)
+
+        if self.update_cb:
+            self.update_cb()
 
     def link_marker(self, marker, index):
         """
@@ -191,6 +193,14 @@ class LineTracker(GeometryTracker):
         UI message notification override
         """
         super().notify_widget(event, message)
+
+    def reset(self):
+        """
+        Reset geometry
+        """
+
+        self.line.numVertices.setValues(0,0,[])
+        super().reset()
 
     def finish(self):
         """
