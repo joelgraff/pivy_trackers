@@ -23,7 +23,7 @@ class CoordReset(ContextTracker):
         Reset
         """
 
-        self.line_tracker.base.remove()
+        self.line_tracker.geometry.coordinate.point.setValue([1,1,0])
 
     def rebuild(self):
         _list = [(0.0, 0.0, 0.0), (0.0, 10.0, 0.0), (-10.0, 0.0, 0.0), (0.0, -10.0, 0.0), (10.0, 0.0, 0.0)]

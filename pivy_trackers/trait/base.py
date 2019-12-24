@@ -202,13 +202,13 @@ class Base():
         Node destruction / cleanup
         """
 
-        if Base.view_state:
-            Base.view_state.finish()
-            Base.view_state = None
+        #if Base.view_state:
+        #    Base.view_state.finish()
+        #    Base.view_state = None
 
-        if Base.mouse_state:
-            Base.mouse_state.finish()
-            Base.mouse_state = None
+        #if Base.mouse_state:
+        #    Base.mouse_state.finish()
+        #    Base.mouse_state = None
 
         self.base.finalize()
 

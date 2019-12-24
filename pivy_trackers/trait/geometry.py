@@ -69,13 +69,22 @@ class Geometry():
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
-        self.coordinates = ()
-        self.prev_coordinates = ()
+        self.coordinates = []
+        self.prev_coordinates = []
 
         #reset the graph node parameters
         Geometry.init_graph()
 
         super().__init__()
+
+    def reset(self):
+        """
+        Reset the coordinate node
+        """
+
+        self.geometry.coordinate.point.setValue([1, 1, 0])
+        self.coordinates = []
+        self.prev_coordinates = []
 
     def update(self, coordinates):
         """

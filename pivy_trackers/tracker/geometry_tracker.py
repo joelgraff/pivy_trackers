@@ -81,7 +81,7 @@ class GeometryTracker(
         Reset the coordinates and transform
         """
 
-        super().update([])
+        super().reset()
         self.geometry.set_rotation(0.0, (0.0, 0.0, 0.0))
         self.geometry.set_translation((0.0, 0.0, 0.0))
 

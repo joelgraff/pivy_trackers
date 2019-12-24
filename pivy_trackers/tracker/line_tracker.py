@@ -200,6 +200,7 @@ class LineTracker(GeometryTracker):
         """
 
         self.line.numVertices.setValues(0,0,[])
+        self.line.numVertices.touch()
         super().reset()
 
     def finish(self):
