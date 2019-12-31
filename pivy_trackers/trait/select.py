@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -103,7 +102,7 @@ class Select():
 
     def select_button_event(self, user_data, event_cb):
         """
-        Mouse override
+        Button override
         """
 
         if self.mouse_state.button1.pressed:
