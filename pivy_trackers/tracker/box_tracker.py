@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-#***********************************************************************
+#**************************************************************************
+#*                                                                     *
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -20,30 +21,45 @@
 #*                                                                     *
 #***********************************************************************
 """
-Task-level Singleton tracker for providing state at the task level
+Box tracker class
 """
 
-from ..support.singleton import Singleton
-from ..trait.base import Base
+from ..support.tuple_math import TupleMath
+from ..coin.coin_enums import NodeTypes as Nodes
 
-class TaskTracker(Base, metaclass=Singleton):
+from .geometry_tracker import GeometryTracker
+
+class BoxTracker(LineTracker):
     """
-    Task-level Singleton tracker for providing state at the task level
+    Box tracker class
     """
 
-    def __init__(self):
+    def __init__(self, name, corners, parent, view=None):
         """
         Constructor
+
+        corners - List of corners as 2 or 3-coordinate tuples (z-coord ignored)
         """
 
-        super().__init__('Task Tracker')
+        self.dimensions = TupleMath.subtract(corners[1], corners[0])[0:2]
 
-        self.set_visibility(True)
+        #generate formal coordinate list
+        _points = (
+            self.corners[0], (self.corners[1][0], self.corners[0][1]),
+            (self.corners[0][0], self.corners[1][1]), self.corners[1]
+        )
+
+        #build the box
+        super().__init__(name=name, points=_points, parent=parent, view=view)
+
+        self.show_markers(False)
+
 
     def finish(self):
         """
         Cleanup
         """
 
-        Base.finish(self)
-        Singleton.finish(TaskTracker)
+        self.dimensions = None
+
+        super().finish()

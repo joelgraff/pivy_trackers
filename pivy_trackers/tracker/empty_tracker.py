@@ -20,25 +20,17 @@
 #*                                                                     *
 #***********************************************************************
 """
-Task-level Singleton tracker for providing state at the task level
+Empty tracker provides a basic transform for grouping
 """
 
-from ..support.singleton import Singleton
 from ..trait.base import Base
+from ..trait.transform import Transform
 
-class TaskTracker(Base, metaclass=Singleton):
-    """
-    Task-level Singleton tracker for providing state at the task level
-    """
+class EmptyTracker(Base, Transform):
 
-    def __init__(self):
-        """
-        Constructor
-        """
+    def __init__(self, name, view, parent=None):
 
-        super().__init__('Task Tracker')
-
-        self.set_visibility(True)
+        super().__init__(name, view, parent)
 
     def finish(self):
         """
@@ -46,4 +38,4 @@ class TaskTracker(Base, metaclass=Singleton):
         """
 
         Base.finish(self)
-        Singleton.finish(TaskTracker)
+        Transform.finish(self)

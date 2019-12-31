@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -21,10 +20,7 @@
 #*                                                                     *
 #***********************************************************************
 """
-Box tracker
-
-PRESERVED FOR FUTURE REFERENCE AS POSSIBLE RUBBERBAND SELECTION TOOL
-"""
+Box tracker class
 """
 from pivy import coin
 

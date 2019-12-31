@@ -55,6 +55,18 @@ class LineTracker(GeometryTracker):
 
         self.update(points, False)
 
+    def set_vertex_groups(self, groups):
+        """
+        Set the vertex groups for the line tracker
+
+        groups - an itearable of vertex groupings
+        """
+
+        assert(sum(groups) == len(self.pionts)),\
+            'LineTracker.set_vertex_groups: group count does not match number of points'
+
+        self.line.numVertices.setValues(0, len(groups), groups)
+
     def update(self, points, notify=True):
         """
         Override of Geometry method
