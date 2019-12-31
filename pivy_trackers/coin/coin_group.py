@@ -1,6 +1,5 @@
-    # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+# -*- coding: utf-8 -*-
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -151,12 +150,16 @@ class CoinGroup(object):
 
         return utils.add_child(event_class, self.top, _name)
 
-    def remove_node(self, node):
+    def remove_node(self, node, parent=None):
         """
-        Remove an existing node from the current group
+        Remove an existing node from the current group's top, unless
+        parent is specified
         """
 
-        utils.remove_child(node, self.top)
+        if not parent:
+            parent = self.top
+
+        utils.remove_child(node, parent)
 
     def copy(self):
         """
@@ -164,6 +167,14 @@ class CoinGroup(object):
         """
 
         return self.root.copy()
+
+    def remove(self):
+        """
+        Remove the coin group from it's parent node, return a reference to
+        the root node
+        """
+
+        utils.remove_child(self.root, self.parent)
 
     def remove_all_children(self):
         """

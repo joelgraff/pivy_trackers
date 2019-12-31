@@ -28,7 +28,6 @@ from ..coin.coin_enums import MarkerStyles
 from ..support.smart_tuple import SmartTuple
 
 from .geometry_tracker import GeometryTracker
-from .line_tracker import LineTracker
 
 class MarkerTracker(GeometryTracker):
     """
@@ -42,7 +41,7 @@ class MarkerTracker(GeometryTracker):
 
         super().__init__(name=name, parent=parent, view=view)
 
-        self.point = tuple(point)
+        self.point = None
 
         #build node structure for the node tracker
         self.marker = self.geometry.add_node(Nodes.MARKER_SET, name)
@@ -50,7 +49,12 @@ class MarkerTracker(GeometryTracker):
         self.add_node_events(self.marker)
         self.set_style()
         self.set_visibility(True)
-        self.update(tuple(point), False)
+
+        if not point:
+            return
+
+        self.point = tuple(point)
+        self.update(notify=False)
 
     def update(self, coordinates=None, notify=True):
         """
@@ -68,7 +72,7 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = SmartTuple(_c)._tuple
 
-        super().update(_c, notify)
+        super().update(_c, notify=notify)
 
     def update_drag_center(self):
         """
@@ -99,7 +103,8 @@ class MarkerTracker(GeometryTracker):
         if not self.is_valid_notify:
             return
 
-        if isinstance(message.sender, LineTracker):
+        if isinstance(
+            message.sender, pivy_tracks.tracker.line_tracker.LineTracker):
 
             _idx = message.sender.linked_markers.get(self)
 

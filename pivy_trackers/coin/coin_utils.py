@@ -1,6 +1,5 @@
-    # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+# -*- coding: utf-8 -*-
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -26,7 +25,7 @@ General utilities for pivy.coin objects
 
 from pivy import coin
 
-from DraftGui import todo
+from pivy_trackers.support.todo import todo
 
 from .coin_enums import MarkerStyles
 

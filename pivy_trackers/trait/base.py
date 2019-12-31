@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -59,6 +58,8 @@ class Base():
 
     is_inserted = False
 
+    on_insert_callbacks = []
+
     @staticmethod
     def init_graph(is_switched=True, is_separated=True, switch_first=True):
         """
@@ -74,7 +75,10 @@ class Base():
         Overridable callback triggered after the graph has been inserted
         """
 
-        print('graph inserted into scengraph')
+        for _fn in Base.on_insert_callbacks:
+
+            if _fn:
+                _fn()
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
@@ -161,9 +165,16 @@ class Base():
         if verbose:
             self.base.dump()
 
+            print(
+                'triggering {} callbacks...'.format(len(Base.on_insert_callbacks))
+            )
+
         self.on_insert()
 
         self.is_inserted = True
+
+        if verbose:
+            print('{} inserted into scenegraph'.format(self.name))
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Wrappers for CoinGroup methods to expose them at the tracker level
@@ -190,13 +201,13 @@ class Base():
         Node destruction / cleanup
         """
 
-        if Base.view_state:
-            Base.view_state.finish()
-            Base.view_state = None
+        #if Base.view_state:
+        #    Base.view_state.finish()
+        #    Base.view_state = None
 
-        if Base.mouse_state:
-            Base.mouse_state.finish()
-            Base.mouse_state = None
+        #if Base.mouse_state:
+        #    Base.mouse_state.finish()
+        #    Base.mouse_state = None
 
         self.base.finalize()
 

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -69,12 +68,22 @@ class Geometry():
         self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
         self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
 
-        self.prev_coordinates = ()
+        self.coordinates = []
+        self.prev_coordinates = []
 
         #reset the graph node parameters
         Geometry.init_graph()
 
         super().__init__()
+
+    def reset(self):
+        """
+        Reset the coordinate node
+        """
+
+        self.geometry.coordinate.point.setValue([1, 1, 0])
+        self.coordinates = []
+        self.prev_coordinates = []
 
     def update(self, coordinates):
         """
@@ -102,19 +111,13 @@ class Geometry():
         Assumes coordinates is a list of 3-float tuples
         """
 
-        if not coordinates:
-            return
-
         #encapsulate a single coordinate as a list
         if not isinstance(coordinates, list):
             coordinates = [coordinates]
 
-        #ensure coordinate points are tuples
-        coordinates = [SmartTuple(_v)._tuple for _v in coordinates]
-
         self.prev_coordinates = self.get_coordinates()
-
         self.geometry.coordinate.point.setValues(coordinates)
+        self.coordinates = coordinates
 
     def get_coordinates(self, _dtype=tuple):
         """
