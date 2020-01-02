@@ -50,6 +50,8 @@ class MarkerTracker(GeometryTracker):
         self.set_style()
         self.set_visibility(True)
 
+        self.linked_geometry = {}
+
         if not point:
             return
 
@@ -93,6 +95,21 @@ class MarkerTracker(GeometryTracker):
 
         self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)
 
+    def link_geometry(self, geometry, index):
+        """
+        Link geometry trackers together
+        """
+
+        if not isinstance(index, Iterable):
+            index = [index]
+
+        #register the line and geometry with each other
+        self.register_geometry(geometry, True)
+
+        #save the index / indices of the coordinate(s) the geometry updates
+        if geometry not in self.linked_geometry:
+            self.linked_geometry[geometry] = index
+
     def notify_geometry(self, event, message):
         """
         Geometry message notification override
@@ -103,18 +120,26 @@ class MarkerTracker(GeometryTracker):
         if not self.is_valid_notify:
             return
 
-        if isinstance(
-            message.sender, pivy_tracks.tracker.line_tracker.LineTracker):
+        _point = None
 
-            _idx = message.sender.linked_markers.get(self)
+        #determine if self and the message sender are linked geometries
+        if self.linked_geometry:
+            _idx = self.linked_geometry.get(message.sender)
 
             if _idx is not None:
-                self.point = message.data[_idx]
+                _point = message.data[_idx[0]]
+
+        if not _point:
+            return
+
+        if _point == self.point:
+            return
 
         #Add sender to the excluded subscribers list, call update and
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
-        self.update(self.point)
+
+        self.update(_point)
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):

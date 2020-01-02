@@ -102,7 +102,7 @@ class Publish():
                 self.event_callbacks[_e] = {who: callback}
                 continue
 
-            #new subscriber for and existing event
+            #new subscriber for an existing event
             if who not in self.event_callbacks[_e]:
                 self.event_callbacks[_e][who] = callback
 
@@ -139,8 +139,8 @@ class Publish():
         _cb_list = self.get_subscribers(event)
 
         if verbose:
-            print('\n{} (#{}): dispatching message \n{}\n'\
-                .format(self.name, self.pub_id, message))
+            print('\n{} (#{}): dispatching to: {} \nmessage: \n{}\n'\
+                .format(self.name, self.pub_id, _cb_list, message))
 
         for _cb in _cb_list:
             _cb(event, message)

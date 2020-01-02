@@ -23,6 +23,8 @@
 Geometry nodes for Tracker objects
 """
 
+from collections.abc import Iterable
+
 from ..support.smart_tuple import SmartTuple
 
 from ..coin.coin_group import CoinGroup
@@ -111,12 +113,17 @@ class Geometry():
         Assumes coordinates is a list of 3-float tuples
         """
 
+        assert(isinstance(coordinates, Iterable)),\
+            'Geometry.set_coordiantes(): Non-iterable coordinate structure'
+
         #encapsulate a single coordinate as a list
-        if not isinstance(coordinates, list):
+        if not isinstance(coordinates[0], Iterable):
             coordinates = [coordinates]
 
         self.prev_coordinates = self.get_coordinates()
-        self.geometry.coordinate.point.setValues(coordinates)
+        self.geometry.coordinate.point.setValues(
+            0, len(coordinates), coordinates)
+
         self.coordinates = coordinates
 
     def get_coordinates(self, _dtype=tuple):

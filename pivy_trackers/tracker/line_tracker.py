@@ -23,6 +23,7 @@
 Line tracker class for tracker objects
 """
 
+from collections.abc import Iterable
 from ..support.smart_tuple import SmartTuple
 
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -53,12 +54,14 @@ class LineTracker(GeometryTracker):
         self.add_node_events(self.line)
         self.groups = []
 
+        #return
         self.set_style()
         self.set_visibility(True)
-        self.set_selectability(selectable)
+        #self.set_selectability(selectable)
+        #return
         self.drag_style = self.DragStyle.CURSOR
 
-        self.linked_markers = {}
+        self.linked_geometry = {}
         self.update_cb = None
         self.update(points, notify=False)
 
@@ -94,7 +97,7 @@ class LineTracker(GeometryTracker):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, points, notify=True):
+    def update(self, points, groups=None, notify=True):
         """
         Override of Geometry method
         """
@@ -110,17 +113,27 @@ class LineTracker(GeometryTracker):
         if self.update_cb:
             self.update_cb()
 
+    def link_geometry(self, geometry, indices):
+        """
+        Link another geometry to the line for automatic updates
+        """
+
+        if not isinstance(indices, Iterable):
+            indices = [indices]
+
+        #register the line and geometry with each other
+        self.register_geometry(geometry, True)
+
+        #save the index / indices of the coordinate(s) the geometry updates
+        if geometry not in self.linked_geometry:
+            self.linked_geometry[geometry] = indices
+
     def link_marker(self, marker, index):
         """
         Link a marker node to the line for automatic updates
         """
 
-        #register the line and marker with each other
-        self.register_geometry(marker, True)
-
-        #save the index of the coordinate the marker updates
-        if marker not in self.linked_markers:
-            self.linked_markers[marker] = index
+        self.link_geometry(marker, [index])
 
     def update_drag_center(self):
         """
@@ -135,7 +148,7 @@ class LineTracker(GeometryTracker):
 
             _pt = (0.0, 0.0, 0.0)
 
-            for _p in self.points:
+            for _p in self.coordinates:
                 _pt = SmartTuple._add(_pt, _p)
 
             _pt = SmartTuple._mul(_pt, 0.5)
@@ -151,7 +164,7 @@ class LineTracker(GeometryTracker):
                         + abs(_pt[1] - _p[1])\
                         + abs(_pt[2 - _p[2]])
 
-            for _p in self.points:
+            for _p in self.coordinates:
 
                 if _dist == -1:
                     _dist = _fn(_cursor, _p)
@@ -174,18 +187,31 @@ class LineTracker(GeometryTracker):
         if not self.is_valid_notify:
             return
 
-        #if this is an update from a marker, test to see if it is linked.
-        if len (message.data) != len(self.points):
+        _coordinates = self.coordinates[:]
 
-            if message.sender in self.linked_markers:
+        print('\n\t', self.name, 'coordinate update...')
 
-                self.points[self.linked_markers[message.sender]] \
-                    = message.data[0]
+        #test for update from a linked geometry
+        if hasattr(message.sender, 'linked_geometry'):
+
+            print('\t...linked geometry sender...')
+
+            #if linked, update points according to specified indices
+            if message.sender in self.linked_geometry:
+
+                print('\t...linked to self...', message.data[0])
+                for _i, _j in enumerate(self.linked_geometry[message.sender]):
+                    print(_i, _j)
+                    _coordinates[_j] = message.data[0]
+
+        print('\n\t',self.name, 'coordinate update', self.coordinates, _coordinates)
+
+        self.coordinates = _coordinates
 
         #Add sender to the excluded subscribers list, call update and
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
-        self.update(self.points)
+        self.update(self.coordinates)
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):
@@ -210,7 +236,6 @@ class LineTracker(GeometryTracker):
 
         self.line = None
         self.drag_style = None
-        self.points = None
-        self.linked_markers = None
+        self.linked_geometry = None
 
         super().finish()

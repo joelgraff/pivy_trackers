@@ -28,7 +28,7 @@ from ..trait.transform import Transform
 
 class EmptyTracker(Base, Transform):
 
-    def __init__(self, name, view, parent=None):
+    def __init__(self, name, parent, view=None):
 
         super().__init__(name, view, parent)
 

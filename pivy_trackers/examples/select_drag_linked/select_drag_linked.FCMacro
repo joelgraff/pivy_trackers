@@ -1,0 +1,3 @@
+from pivy_trackers.examples.select_drag_linked.select_drag_linked_tracker import SelectDragLinkedTracker
+tracker = SelectDragLinkedTracker(Gui.ActiveDocument.ActiveView)
+tracker.insert_into_scenegraph(True)

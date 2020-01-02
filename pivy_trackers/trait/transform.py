@@ -32,9 +32,10 @@ class Transform():
     Transform node for Tracker objects
     """
 
-    #members provided by Base, Style
+    #members provided by Base, Style, and Geometry
     base = None
     name = ''
+    geometry = None
 
     is_switched = None
     is_separated = None
@@ -61,7 +62,13 @@ class Transform():
             switch_first=Transform.switch_first,
             parent=self.base, name=self.name + '__GEOMETRY')
 
-        self.transform.transform = self.geometry.add_node(Nodes.TRANSFORM)
+        #if this has a geometry trait, use that node group
+        if self.geometry:
+            self.transform.transform = self.geometry.add_node(Nodes.TRANSFORM)
+
+        #otherwise, add the transform to the base group's top node.
+        else:
+            self.base.add_node(Nodes.TRANSFORM)
 
         #reset the graph node parameters
         Transform.init_graph()
@@ -82,7 +89,7 @@ class Transform():
         """
 
         assert(points),\
-            'Trasnsform.transform_points(): cannot transform NoneType')
+            'Trasnsform.transform_points(): cannot transform NoneType'
 
         #no node, use the coordinate node local to this group
         return self.view_state.transform_points(

@@ -27,7 +27,7 @@ Box tracker class
 from ..support.tuple_math import TupleMath
 from ..coin.coin_enums import NodeTypes as Nodes
 
-from .geometry_tracker import GeometryTracker
+from .line_tracker import LineTracker
 
 class BoxTracker(LineTracker):
     """
@@ -42,18 +42,26 @@ class BoxTracker(LineTracker):
         """
 
         self.dimensions = TupleMath.subtract(corners[1], corners[0])[0:2]
+        self.corners = []
+
+        for _p in corners:
+
+            self.corners.append(_p)
+
+            if len(_p) == 2:
+                self.corners[-1] = _p + (0.0,)
 
         #generate formal coordinate list
         _points = (
-            self.corners[0], (self.corners[1][0], self.corners[0][1]),
-            (self.corners[0][0], self.corners[1][1]), self.corners[1]
+            self.corners[0], (self.corners[1][0], self.corners[0][1], 0.0),
+            self.corners[1], (self.corners[0][0], self.corners[1][1], 0.0),
+            self.corners[0]
         )
 
         #build the box
         super().__init__(name=name, points=_points, parent=parent, view=view)
 
-        self.show_markers(False)
-
+        self.hide_markers()
 
     def finish(self):
         """
