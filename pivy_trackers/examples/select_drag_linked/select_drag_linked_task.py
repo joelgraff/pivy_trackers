@@ -32,7 +32,7 @@ import FreeCADGui as Gui
 
 from .select_drag_linked_tracker import SelectDragLinkedTracker
 
-class SelectDragLinkedTask():
+class SelectDragTask():
     """
     Task to manage alignment editing
     """
@@ -89,10 +89,12 @@ class SelectDragLinkedTask():
                 str(self.position), str(self.height), str(self.bound_box)
             )
 
-    def __init__(self):
+    def __init__(self, is_linked, has_markers):
 
         self.view = Gui.ActiveDocument.ActiveView
-        self.tracker = SelectDragLinkedTracker(Gui.ActiveDocument.ActiveView)
+        self.tracker =\
+            SelectDragTracker(
+                Gui.ActiveDocument.ActiveView, is_linked, has_markers)
 
         self.camera_state = self.CameraState(
             position=(0.0, 0.0, 0.0),

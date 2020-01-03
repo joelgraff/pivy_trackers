@@ -32,11 +32,11 @@ from .select_drag_linked_task import SelectDragLinkedTask
 
 from .. import resources
 
-class SelectDragLinkedCommand(Modifier):
+class SelectDragLinkedMarkersCommand(Modifier):
     """
     Command Description
     """
-    def __init__(self, is_linked=False):
+    def __init__(self):
         """
         Constructor
         """
@@ -65,11 +65,12 @@ class SelectDragLinkedCommand(Modifier):
 
         icon_path = resources.__path__[0] + '/icons/template_resource.svg'
 
-        _tool_tip = 'Test pivy_trackers linked selection / dragging'
+        _tool_tip = 'Test pivy_trackers linked markers selection / dragging'
 
         return {'Pixmap'  : icon_path,
                 'Accel'   : '',
-                'MenuText': 'Pivy Tracker Linked Selection / Dragging Test',
+                'MenuText':
+                    'Pivy Tracker Linked Markers Selection / Dragging Test',
                 'ToolTip' : _tool_tip,
                 'CmdType' : 'ForEdit'}
 
@@ -78,8 +79,9 @@ class SelectDragLinkedCommand(Modifier):
         Command activation method
         """
         #create alignment editing task
-        self.task = SelectDragLinkedTask()
+        self.task = SelectDragLinkedTask(is_linked=True, has_markers=True)
 
-        Modifier.Activated(self, 'SelectDragLinkedCommand')
+        Modifier.Activated(self, 'SelectDragLinkedMarkersCommand')
 
-Gui.addCommand('SelectDragLinkedCommand', SelectDragLinkedCommand())
+Gui.addCommand(
+    'SelectDragLinkedMarkersCommand', SelectDragLinkedMarkersCommand())
