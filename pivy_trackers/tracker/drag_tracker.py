@@ -98,6 +98,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.set_style()
         self.geometry.set_visibility(False)
 
+        self.rotation_enabled = True
+        self.translation_enabled = True
+
         #------------------------
         #drag rotation attributes
         #------------------------
@@ -206,6 +209,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Manage drag geometry translation
         """
 
+        if not self.translation_enabled:
+            return
+
         if self.is_rotating:
 
             self.is_rotating = False
@@ -235,6 +241,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Manage rotation during dragging
         coords - pair of coordinates for the rotation update in tuple form
         """
+
+        if not self.rotation_enabled:
+            return
 
         #if already rotating get the updated bearing from the center
         if self.is_rotating:

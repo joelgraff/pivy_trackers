@@ -54,11 +54,9 @@ class LineTracker(GeometryTracker):
         self.add_node_events(self.line)
         self.groups = []
 
-        #return
         self.set_style()
         self.set_visibility(True)
-        #self.set_selectability(selectable)
-        #return
+
         self.drag_style = self.DragStyle.CURSOR
 
         self.update_cb = None
