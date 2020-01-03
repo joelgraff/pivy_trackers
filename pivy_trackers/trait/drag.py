@@ -77,28 +77,28 @@ class Drag():
         Enable drag translation
         """
 
-        self.Drag.drag_tracker.translation_enabled = True
+        Drag.drag_tracker.translation_enabled = True
 
     def disable_drag_translation(self):
         """
         Disable drag translation
         """
 
-        self.Drag.drag_tracker.translation_enabled = False
+        Drag.drag_tracker.translation_enabled = False
 
     def enable_drag_rotation(self):
         """
         Enable drag rotation
         """
 
-        self.Drag.drag_tracker.rotation_enabled = True
+        Drag.drag_tracker.rotation_enabled = True
 
     def disable_drag_rotation(self):
         """
         Disable drag rotation
         """
 
-        self.Drag.drag_tracker.rotation_enabled = False
+        Drag.drag_tracker.rotation_enabled = False
 
     def drag_mouse_event(self, user_data, event_cb):
         """
