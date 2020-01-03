@@ -181,7 +181,6 @@ class CoinGroup(object):
         Remove all children under the top node.
         """
 
-        print(self.name, 'removing all children from', str(self.top.getName()))
         self.top.removeAllChildren()
 
     def dump(self):

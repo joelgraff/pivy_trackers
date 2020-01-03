@@ -67,9 +67,9 @@ def dump_node(node, indent=''):
     """
     Dump a formatted output of sceneegraph node structure to console
     """
-    if not node:
-        print('coin_utils.dump_node():NoneType passed as node.')
-        return
+
+    assert (node),\
+        'coin_utils.dump_node():NoneType passed as node.'
 
     _indent = indent
 
