@@ -25,9 +25,10 @@ Box tracker class
 
 from ..support.tuple_math import TupleMath
 
+from .empty_tracker import EmptyTracker
 from .line_tracker import LineTracker
 
-class BoxTracker(LineTracker):
+class BoxTracker(Base):
     """
     Box tracker class
     """
@@ -38,6 +39,8 @@ class BoxTracker(LineTracker):
 
         corners - List of corners as 2 or 3-coordinate tuples (z-coord ignored)
         """
+
+        super().__init__(name=name, parent=parent, view=view)
 
         self.dimensions = TupleMath.subtract(corners[1], corners[0])[0:2]
         self.corners = []
@@ -52,14 +55,20 @@ class BoxTracker(LineTracker):
         #generate formal coordinate list
         _points = (
             self.corners[0], (self.corners[1][0], self.corners[0][1], 0.0),
-            self.corners[1], (self.corners[0][0], self.corners[1][1], 0.0),
-            self.corners[0]
+            self.corners[1], (self.corners[0][0], self.corners[1][1], 0.0)
         )
 
-        #build the box
-        super().__init__(name=name, points=_points, parent=parent, view=view)
+        self.lines = [
+            LineTracker('left', [_points[0], _points[1]], self.base),
+            LineTracker('front', [_points[1], _points[2]], self.base),
+            LineTracker('right', [_points[2], _points[3]], self.base),
+            LineTracker('rear', [_points[3], _points[0]], self.base)
+        ]
 
-        self.hide_markers()
+        self.lines[0].link_geometry(self.lines[1], 1, 0)
+        self.lines[0].link_geometry(self.lines[3], 0, 1)
+        self.lines[1].link_geometry(self.lines[2], 1, 0)
+        self.lines[2].link_geometry(self.lines[3], 1, 0)
 
     def finish(self):
         """
