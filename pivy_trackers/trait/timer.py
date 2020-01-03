@@ -141,7 +141,4 @@ class Timer():
         Cleanup
         """
 
-        for _t in self.timers:
-            del _t
-
         self.timers.clear()

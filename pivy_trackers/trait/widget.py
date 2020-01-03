@@ -28,8 +28,6 @@ from ..support.message_types import MessageTypes as Messages
 from .publish import Publish
 from .subscribe import Subscribe
 
-from ..support import message_data
-
 class Widget():
     """
     Widget updating services

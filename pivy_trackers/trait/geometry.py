@@ -25,8 +25,6 @@ Geometry nodes for Tracker objects
 
 from collections.abc import Iterable
 
-from ..support.smart_tuple import SmartTuple
-
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
 

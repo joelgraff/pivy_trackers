@@ -24,7 +24,6 @@ Box tracker class
 """
 
 from ..support.tuple_math import TupleMath
-from ..coin.coin_enums import NodeTypes as Nodes
 
 from .line_tracker import LineTracker
 

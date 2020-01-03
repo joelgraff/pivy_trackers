@@ -111,6 +111,9 @@ class Publish():
         Callback unregistration for subscribers
         """
 
+        if not events:
+            return
+
         for _e in events:
 
             #no event, no subscriber

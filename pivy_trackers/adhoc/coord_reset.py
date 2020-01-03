@@ -1,14 +1,13 @@
 import FreeCADGui as Gui
 
 from ..tracker.context_tracker import ContextTracker
-from ..tracker.marker_tracker import MarkerTracker
 from ..tracker.line_tracker import LineTracker
 
 class CoordReset(ContextTracker):
 
     def __init__(self):
 
-        super().__init__('MyMarkerTracker', Gui.ActiveDocument.ActiveView)
+        super().__init__('MyTracker', Gui.ActiveDocument.ActiveView)
 
         _list = [(0.0, 0.0, 0.0), (10.0, 10.0, 0.0), (-10.0, 10.0, 0.0), (-10.0, -10.0, 0.0), (10.0, -10.0, 0.0)]
 
