@@ -112,6 +112,15 @@ class Select():
         if self.handle_select_events:
             event_cb.setHandled()
 
+        self.on_select()
+
+    def on_select(self):
+        """
+        Overridable callback after selection has occurred
+        """
+
+        pass
+
     def update_highlight(self):
         """
         Set the node currently being highlighted by the mouse
@@ -162,10 +171,10 @@ class Select():
         elif len(Select.selected) > 1:
 
             if self.is_selected():
-                self.do_multi_select
+                self.do_multi_select()
 
             else:
-                self.do_single_select
+                self.do_single_select()
 
         #single-select mode
         else:
@@ -195,7 +204,6 @@ class Select():
             _v.set_style(_v.coin_style)
 
         Select.selected = []
-
 
     def do_multi_select(self):
         """

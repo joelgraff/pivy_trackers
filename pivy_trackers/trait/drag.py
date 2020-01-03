@@ -72,6 +72,15 @@ class Drag():
 
         super().__init__()
 
+    def set_drag_translation_locks(self, x=False, y=False, z=False):
+        """
+        Lock translation along specified axes using boolean flags
+        """
+
+        Drag.drag_tracker.lock_x = x
+        Drag.drag_tracker.lock_y = y
+        Drag.drag_tracker.lock_z = z
+
     def enable_drag_translation(self):
         """
         Enable drag translation

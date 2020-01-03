@@ -25,7 +25,8 @@ Box tracker class
 
 from ..support.tuple_math import TupleMath
 
-from .empty_tracker import EmptyTracker
+from ..trait.base import Base
+
 from .line_tracker import LineTracker
 
 class BoxTracker(Base):
@@ -69,6 +70,8 @@ class BoxTracker(Base):
         self.lines[0].link_geometry(self.lines[3], 0, 1)
         self.lines[1].link_geometry(self.lines[2], 1, 0)
         self.lines[2].link_geometry(self.lines[3], 1, 0)
+
+        self.set_visibility()
 
     def finish(self):
         """

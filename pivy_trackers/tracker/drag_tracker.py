@@ -101,6 +101,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.rotation_enabled = True
         self.translation_enabled = True
 
+        self.lock_x = False
+        self.lock_y = False
+        self.lock_z = False
+
         #------------------------
         #drag rotation attributes
         #------------------------
@@ -119,7 +123,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.is_rotating = False
 
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
-
 
     def insert_full_drag(self, node):
         """
@@ -216,9 +219,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
             self.is_rotating = False
 
-            _world_pos = SmartTuple._add(
-                self.drag.full.get_translation(), self.drag_center
-            )
+            _xlate = self.drag.full.get_translation()
+            _world_pos = SmartTuple._add(_xlate, self.drag_center)
 
             self.mouse_state.set_mouse_position(self.view_state, _world_pos)
 
@@ -227,9 +229,15 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #accumulate the movement from the previous mouse position
         _delta = SmartTuple._sub(end_coord, start_coord)
 
-        #scale the tuple for microdragging
-        #if micro:
-        #    _delta = SmartTuple._scl(_delta, 0.10)
+        if self.lock_x:
+            _delta[0] = 0.0
+
+        if self.lock_y:
+            _delta[1] = 0.0
+
+        if self.lock_z:
+            _delta[2] = 0.0
+
 
         self.drag.full.set_translation(_delta)
 
