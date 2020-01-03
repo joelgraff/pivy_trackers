@@ -143,7 +143,7 @@ class GeometryTracker(
         if not isinstance(coordinates, list):
             coordinates = [coordinates]
 
-        self.dispatch_geometry(coordinates, True)
+        self.dispatch_geometry(coordinates)
 
     def notify_geometry(self, event, message):
         """

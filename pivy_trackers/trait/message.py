@@ -67,7 +67,7 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
 
         self.dispatch(_message, Messages.INTERNAL._WIDGET, verbose)
 
-    def notify(self, event, message):
+    def notify(self, event, message, verbose=False):
         """
         Generic overridable motification callback
         """
@@ -78,10 +78,6 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
         #abort if receiving it's own message
         if self.is_valid_notify:
             self.is_valid_notify = message.sender is not self
-
-        print(
-            '{}.notify() - valid? {} - message = \n{}\n'.format(self.name, str(self.is_valid_notify), str(message))
-        )
 
     def notify_geometry(self, event, message):
         """
