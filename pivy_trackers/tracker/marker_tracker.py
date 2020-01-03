@@ -50,8 +50,6 @@ class MarkerTracker(GeometryTracker):
         self.set_style()
         self.set_visibility(True)
 
-        self.linked_geometry = {}
-
         if not point:
             return
 
@@ -95,21 +93,6 @@ class MarkerTracker(GeometryTracker):
 
         self.marker.markerIndex = MarkerStyles.get(style.shape, style.size)
 
-    def link_geometry(self, geometry, index):
-        """
-        Link geometry trackers together
-        """
-
-        if not isinstance(index, Iterable):
-            index = [index]
-
-        #register the line and geometry with each other
-        self.register_geometry(geometry, True)
-
-        #save the index / indices of the coordinate(s) the geometry updates
-        if geometry not in self.linked_geometry:
-            self.linked_geometry[geometry] = index
-
     def notify_geometry(self, event, message):
         """
         Geometry message notification override
@@ -122,9 +105,9 @@ class MarkerTracker(GeometryTracker):
 
         _point = None
 
-        #determine if self and the message sender are linked geometries
         if self.linked_geometry:
-            _idx = self.linked_geometry.get(message.sender)
+
+            _idx = message.sender.linked_geometry.get(self)
 
             if _idx is not None:
                 _point = message.data[_idx[0]]

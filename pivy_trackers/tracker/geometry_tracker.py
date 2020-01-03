@@ -53,7 +53,30 @@ class GeometryTracker(
 
         super().__init__(name=name, parent=parent, view=view)
 
+        self.linked_geometry = {}
         self.coin_style = CoinStyles.DEFAULT
+
+    def link_geometry(self, target, source_index, target_index):
+        """
+        Link another geometry to the line for automatic updates
+
+        target - reference to geometry to be linked
+        source_index - index updated by target geometry
+        target_index - index updated by this geometry
+        """
+
+        if target not in self.linked_geometry:
+
+            #register the line and geometry with each other
+            self.register_geometry(target, True)
+            self.linked_geometry[target] = []
+
+        self.linked_geometry[target].append(source_index)
+
+        if self not in target.linked_geometry:
+            target.linked_geometry[self] = []
+
+        target.linked_geometry[self].append(target_index)
 
     def add_node_events(self, node=None, add_callback=False, pathed=True):
         """

@@ -61,7 +61,6 @@ class LineTracker(GeometryTracker):
         #return
         self.drag_style = self.DragStyle.CURSOR
 
-        self.linked_geometry = {}
         self.update_cb = None
         self.update(points, notify=False)
 
@@ -113,27 +112,12 @@ class LineTracker(GeometryTracker):
         if self.update_cb:
             self.update_cb()
 
-    def link_geometry(self, geometry, indices):
-        """
-        Link another geometry to the line for automatic updates
-        """
-
-        if not isinstance(indices, Iterable):
-            indices = [indices]
-
-        #register the line and geometry with each other
-        self.register_geometry(geometry, True)
-
-        #save the index / indices of the coordinate(s) the geometry updates
-        if geometry not in self.linked_geometry:
-            self.linked_geometry[geometry] = indices
-
     def link_marker(self, marker, index):
         """
         Link a marker node to the line for automatic updates
         """
 
-        self.link_geometry(marker, [index])
+        self.link_geometry(marker, index, 0)
 
     def update_drag_center(self):
         """
@@ -189,22 +173,16 @@ class LineTracker(GeometryTracker):
 
         _coordinates = self.coordinates[:]
 
-        print('\n\t', self.name, 'coordinate update...')
-
         #test for update from a linked geometry
         if hasattr(message.sender, 'linked_geometry'):
-
-            print('\t...linked geometry sender...')
 
             #if linked, update points according to specified indices
             if message.sender in self.linked_geometry:
 
-                print('\t...linked to self...', message.data[0])
-                for _i, _j in enumerate(self.linked_geometry[message.sender]):
-                    print(_i, _j)
-                    _coordinates[_j] = message.data[0]
+                _self_idx = self.linked_geometry[message.sender][0]
+                _target_idx = message.sender.linked_geometry[self][0]
 
-        print('\n\t',self.name, 'coordinate update', self.coordinates, _coordinates)
+                _coordinates[_self_idx] = message.data[_target_idx]
 
         self.coordinates = _coordinates
 
