@@ -28,11 +28,11 @@ import FreeCADGui as Gui
 
 from DraftTools import Modifier
 
-from .select_drag_linked_task import SelectDragLinkedTask
+from .select_drag_task import SelectDragTask
 
 from .. import resources
 
-class SelectDragLinkedLinesCommand(Modifier):
+class SelectDragUnlinkedCommand(Modifier):
     """
     Command Description
     """
@@ -64,12 +64,12 @@ class SelectDragLinkedLinesCommand(Modifier):
         """
 
         icon_path = resources.__path__[0] + '/icons/template_resource.svg'
-        _tool_tip = 'Test pivy_trackers linked lines selection / dragging'
+
+        _tool_tip = 'Test pivy_trackers unlinked selection / dragging'
 
         return {'Pixmap'  : icon_path,
                 'Accel'   : '',
-                'MenuText': 
-                    'Pivy Tracker Linked Lines Selection / Dragging Test',
+                'MenuText': 'Pivy Tracker Unlinked Selection / Dragging Test',
                 'ToolTip' : _tool_tip,
                 'CmdType' : 'ForEdit'}
 
@@ -78,8 +78,8 @@ class SelectDragLinkedLinesCommand(Modifier):
         Command activation method
         """
         #create alignment editing task
-        self.task = SelectDragLinkedTask(is_linked=True, has_markers=False)
+        self.task = SelectDragTask(is_linked=False, has_markers=True)
 
-        Modifier.Activated(self, 'SelectDragLinkedLinesCommand')
+        Modifier.Activated(self, 'SelectDragUnlinkedCommand')
 
-Gui.addCommand('SelectDragLinkedLinesCommand', SelectDragLinkedLinesCommand())
+Gui.addCommand('SelectDragUnlinkedCommand', SelectDragUnlinkedCommand())

@@ -1,0 +1,3 @@
+from pivy_trackers.examples.select_drag.select_drag_tracker import SelectDragTracker
+tracker = SelectDragTracker(Gui.ActiveDocument.ActiveView, is_linked=True, has_markers=False)
+tracker.insert_into_scenegraph(True)

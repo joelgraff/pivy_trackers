@@ -29,7 +29,7 @@ from ...tracker.line_tracker import LineTracker
 
 from ...trait.drag import Drag
 
-class SelectDragLinkedTracker(ContextTracker, Drag):
+class SelectDragTracker(ContextTracker, Drag):
     """
     Select Drag Tracker example
     """
@@ -46,11 +46,11 @@ class SelectDragLinkedTracker(ContextTracker, Drag):
         #and add them to the scenegraph
         self.lines = []
         self.markers = []
-        self.build_trackers(has_markers)
+        self.build_trackers(is_linked, has_markers)
 
         self.set_visibility(True)
 
-    def build_trackers(self, has_markers):
+    def build_trackers(self, is_linked, has_markers):
         """
         Build the node and wire trackers that represent the selectable
         portions of the alignment geometry
