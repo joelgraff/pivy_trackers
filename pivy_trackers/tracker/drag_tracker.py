@@ -24,6 +24,7 @@ Drag tracker for providing drag support to other trackers
 """
 
 from ..support.smart_tuple import SmartTuple
+from ..support.tuple_math import TupleMath
 from ..support.singleton import Singleton
 
 from ..coin.coin_group import CoinGroup
@@ -101,9 +102,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.rotation_enabled = True
         self.translation_enabled = True
 
-        self.lock_x = False
-        self.lock_y = False
-        self.lock_z = False
+        self.lock_axis = ()
 
         #------------------------
         #drag rotation attributes
@@ -145,6 +144,16 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.partial_indices[node].append(indices)
 
+    def set_drag_axis(self, axis):
+        """
+        Set the lock axis, ensuring it's unit length.
+        """
+
+        if axis:
+            aixs = TupleMath.unit(axis)
+
+        self.lock_axis = axis
+
     def drag_mouse_event(self, user_data, event_cb):
         """
         Drag mouse event callback
@@ -164,9 +173,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         else:
             self.translate(_coords[0], _coords[1], self.mouse_state.shift_down)
-
-        #update the drag line
-        #self.update(_coords)
 
         if self.show_drag_line and not self.geometry.is_visible():
 
@@ -229,15 +235,20 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #accumulate the movement from the previous mouse position
         _delta = SmartTuple._sub(end_coord, start_coord)
 
-        if self.lock_x:
-            _delta[0] = 0.0
+        if self.lock_axis:
 
-        if self.lock_y:
-            _delta[1] = 0.0
+            if self.lock_axis[0] == 1.0:
+                _delta = (_delta[0], 0.0, 0.0)
 
-        if self.lock_z:
-            _delta[2] = 0.0
+            elif self.lock_axis[1] == 1.0:
+                _delta = (0.0, _delta[1], 0.0)
 
+            elif self.lock_axis[2] == 1.0:
+                _delta = (0.0, 0.0, _deltas[2])
+
+            else:
+                _delta =\
+                    TupleMath.project(_delta[1], self.lock_axis, True)
 
         self.drag.full.set_translation(_delta)
 

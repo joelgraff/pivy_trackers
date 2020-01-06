@@ -72,15 +72,6 @@ class Drag():
 
         super().__init__()
 
-    def set_drag_translation_locks(self, x=False, y=False, z=False):
-        """
-        Lock translation along specified axes using boolean flags
-        """
-
-        Drag.drag_tracker.lock_x = x
-        Drag.drag_tracker.lock_y = y
-        Drag.drag_tracker.lock_z = z
-
     def enable_drag_translation(self):
         """
         Enable drag translation
@@ -108,6 +99,13 @@ class Drag():
         """
 
         Drag.drag_tracker.rotation_enabled = False
+
+    def set_drag_axis(self, axis=None):
+        """
+        Set the axis along which dragging is constrained
+        """
+
+        Drag.drag_tracker.set_drag_axis(axis)
 
     def drag_mouse_event(self, user_data, event_cb):
         """

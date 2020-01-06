@@ -62,6 +62,8 @@ class LineTracker(GeometryTracker):
         self.update_cb = None
         self.update(points, notify=False)
 
+        self.drag_axis = None
+
         _fn = lambda:\
             self.markers.geometry.remove_node(self.markers.geometry.coordinate)
 
@@ -109,6 +111,14 @@ class LineTracker(GeometryTracker):
 
         if self.update_cb:
             self.update_cb()
+
+    def drag_mouse_event(self, user_data, event_cb):
+        """
+        Override of Drag.drag_mouse_event()
+        """
+
+        self.set_drag_axis(self.drag_axis)
+        super().drag_mouse_event(user_data, event_cb)
 
     def link_marker(self, marker, index):
         """
