@@ -46,6 +46,16 @@ class MouseEvents(Const):
     LOCATION2 = coin.SoLocation2Event.getClassTypeId()
     MOUSE_BUTTON = coin.SoMouseButtonEvent.getClassTypeId()
 
+class FontStyles(Const):
+    """
+    SoFont style enumerants
+    """
+
+    NORMAL = ''
+    BOLD = 'Bold'
+    ITALIC = 'Italic'
+    BOLD_ITALIC = 'Bold Italic'
+
 class PickStyles(Const):
     """
     SoPickStyle enumerants
@@ -63,17 +73,19 @@ class NodeTypes(Const):
     Const class of enumerants correlating to coin node types
     """
 
-    NODE = coin.SoNode
     COLOR = coin.SoBaseColor
     COORDINATE = coin.SoCoordinate3
     DRAW_STYLE = coin.SoDrawStyle
     EVENT_CB = coin.SoEventCallback
+    FONT = coin.SoFont
     GROUP = coin.SoGroup
     LINE_SET = coin.SoLineSet
     MARKER_SET = coin.SoMarkerSet
+    NODE = coin.SoNode
     PICK_STYLE = coin.SoPickStyle
     SWITCH = coin.SoSwitch
     SEPARATOR = coin.SoSeparator
+    TEXT = coin.SoText2
     TRANSFORM = coin.SoTransform
 
 class MarkerStyles(Const):
