@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -39,26 +38,68 @@ class TupleMath(Const):
     """
 
     @staticmethod
-    def subtract(lhs, rhs):
+    def subtract(lhs, rhs=None):
         """
         Subtract two tuples
         """
 
+        if rhs is None:
+
+            assert(isinstance(lhs[0], tuple)),"""
+                TupleMath.subtract(lhs, rhs): list of tuples required for lhs (rhs is None)
+                """
+
+            _result = lhs[0]
+
+            for _t in lhs[1:]:
+                _result = TupleMath.add(_result, _t)
+
+            return _result
+
         return tuple(map(op_sub, lhs, rhs))
 
     @staticmethod
-    def add(lhs, rhs):
+    def add(lhs, rhs=None):
         """
         Add two tuples
+        lhs / rhs - tuples to be added
+        if rhs is empty / none, lhs must be a list of tuples
         """
 
+        if rhs is None:
+
+            assert(isinstance(lhs[0], tuple)),"""
+                TupleMath.add(lhs, rhs): list of tuples required for lhs (rhs is None)
+                """
+
+            _result = lhs[0]
+
+            for _t in lhs[1:]:
+                _result = TupleMath.add(_result, _t)
+
+            return _result
+
+        print(lhs, rhs)
         return tuple(map(op_add, lhs, rhs))
 
     @staticmethod
-    def multiply(lhs, rhs):
+    def multiply(lhs, rhs=None):
         """
         Component-wise multiply two tuples
         """
+
+        if rhs is None:
+
+            assert(isinstance(lhs[0], tuple)),"""
+                TupleMath.multiply(lhs, rhs): list of tuples required for lhs (rhs is None)
+                """
+
+            _result = lhs[0]
+
+            for _t in lhs[1:]:
+                _result = TupleMath.add(_result, _t)
+
+            return _result
 
         return tuple(map(op_mul, lhs, rhs))
 
@@ -77,6 +118,22 @@ class TupleMath(Const):
         """
 
         return tuple(map(op_div, dividend, divisor))
+
+    @staticmethod
+    def mean(lhs, rhs=None):
+        """
+        Compute the arithmetic mean of two or more tuples
+        lhs / rhs - tuples for which mean is to be computed
+        if rhs is none / empty, lhs must be an iterable of tuples
+        """
+
+        _sum = TupleMath.add(lhs, rhs)
+        _count = 2
+
+        if rhs is None:
+            _count = len(lhs)
+
+        return TupleMath.scale(_sum, 1.0 / _count)
 
     @staticmethod
     def length(tpl):
@@ -110,6 +167,24 @@ class TupleMath(Const):
             _sum += _v * vec2[_i]
 
         return _sum
+
+    @staticmethod
+    def project(vec1, vec2, unit=False):
+        """
+        Return the projection of vec1 on vec2
+        vec1 - Vector to project in tuple form
+        vec2 - Vector onto which to project in tuple form
+        unit - vec2 is a unit vector
+        """
+
+        _vec2_len = 1.0
+
+        if not unit:
+            _vec2_len = TupleMath.length(vec2)
+
+        _dot = TupleMath.dot(vec1, vec2)
+
+        return TupleMath.scale(_dot/_vec2_len, vec2)
 
     @staticmethod
     def bearing(vector, up=(0.0, 1.0)):
