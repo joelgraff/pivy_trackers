@@ -61,6 +61,13 @@ def describe(node):
     if isinstance(node, coin.SoMarkerSet):
         return 'shape={}'.format(MarkerStyles.get_by_value(node.markerIndex))
 
+    if isinstance(node, coin.SoFont):
+        return 'name={}, size={}'\
+            .format(node.name.getValue(), str(node.size.getValue()))
+
+    if isinstance(node, coin.SoText2):
+        return 'text={}'.format(str(node.string.getValues()))
+
     return ''
 
 def dump_node(node, indent=''):
