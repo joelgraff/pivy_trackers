@@ -25,13 +25,16 @@ Line tracker class for tracker objects
 
 from collections.abc import Iterable
 from ..support.smart_tuple import SmartTuple
+from ..support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
+
+from ..trait.text import Text
 
 from .geometry_tracker import GeometryTracker
 from .marker_tracker import MarkerTracker
 
-class LineTracker(GeometryTracker):
+class LineTracker(GeometryTracker, Text):
     """
     Tracker object for SoLineSet
     """
@@ -103,14 +106,15 @@ class LineTracker(GeometryTracker):
 
         super().update(points, notify=notify)
 
-        if groups is None:
-            return
-
-        self.groups = groups
-        self.line.numVertices.setValues(0, len(groups), groups)
+        if self.text.is_visible():
+            self.text.set_translation(TupleMath.mean(self.coordinates))
 
         if self.update_cb:
             self.update_cb()
+
+        if groups:
+            self.groups = groups
+            self.line.numVertices.setValues(0, len(groups), groups)
 
     def drag_mouse_event(self, user_data, event_cb):
         """
