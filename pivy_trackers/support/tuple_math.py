@@ -79,7 +79,6 @@ class TupleMath(Const):
 
             return _result
 
-        print(lhs, rhs)
         return tuple(map(op_add, lhs, rhs))
 
     @staticmethod

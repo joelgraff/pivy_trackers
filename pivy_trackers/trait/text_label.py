@@ -73,7 +73,6 @@ class TextLabel:
 
         if has_font:
             self.font = self.group.add_node(Nodes.FONT)
-            print('setting font...')
             self.set_font('', '', 100.0)
 
         self.text = self.group.add_node(Nodes.TEXT)
@@ -184,18 +183,12 @@ class TextLabel:
         Set the rotation angle of the label
         """
 
-        print('setting rotation', angle)
-
         if not self.transform:
             return
 
         _rot = utils.get_rotation(angle)
 
-        print('rotation quat:', _rot.getValue())
         self.transform.rotation = _rot
-
-        print(self.transform.rotation.getValue().getValue())
-        print(self.transform.center.getValue().getValue())
 
         if center is not None:
             self.transform.rotation.center.setValue(center)
