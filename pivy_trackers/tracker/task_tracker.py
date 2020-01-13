@@ -23,7 +23,7 @@
 Task-level Singleton tracker for providing state at the task level
 """
 
-from ..support.singleton import Singleton
+from support.singleton import Singleton
 from ..trait.base import Base
 
 class TaskTracker(Base, metaclass=Singleton):

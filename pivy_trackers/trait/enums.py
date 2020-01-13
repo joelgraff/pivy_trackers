@@ -24,7 +24,7 @@
 Enumerant support for trait classes
 """
 
-from ..support.const import Const
+from support.const import Const
 
 class DragStyle(Const):
     """

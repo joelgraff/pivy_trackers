@@ -26,7 +26,7 @@ View state class
 from pivy import coin
 from PySide import QtGui
 
-from ..support.singleton import Singleton
+from support.singleton import Singleton
 from .smart_tuple import SmartTuple
 
 class ViewStateGlobalCallbacks():
