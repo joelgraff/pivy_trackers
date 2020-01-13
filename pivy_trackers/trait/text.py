@@ -89,7 +89,7 @@ class Text:
 
         self.text.font.size.setValue(self.defaults.size)
 
-        self.labels = {}
+        self.labels = []
         self.origin = (0.0, 0.0, 0.0)
 
         self.text.set_visibility(False)
@@ -124,7 +124,7 @@ class Text:
         #_label.set_font(
          #   self.defaults.font, self.defaults.style, self.defaults.size)
 
-        self.labels[_label.group.name] = _label
+        self.labels.append(_label)
 
         self.text.insert_node(_label.group.root)
 

@@ -38,6 +38,8 @@ class MetaConst(type):
         Default getter
         """
         #pylint: disable=unsubscriptable-object
+        assert(key in cls.__dict__), 'Constant {} not found in class {}'.format(str(key), str(cls))
+
         return cls[key]
 
     def __setattr__(cls, key, value):
