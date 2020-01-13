@@ -27,6 +27,13 @@ Specifically:
 + [FreeCAD/FreeCAD View3DViewerPy](https://github.com/FreeCAD/FreeCAD/blob/1995f9d0bac63820c5c42ac0075c91a49cbad119/src/Gui/View3DViewerPy.h)
 + [PySide QTimer](https://pypi.org/project/PySide2/)
 
+Additionally, pivy_trackers relies on the following projects included as git submodules:
+
+* [FreeCAD_python_support (release branch] (https://github.com/joelgraff/freecad_python_support/tree/release)
+
+IDE's which support git should update the submodules without issue.  However, the user is encouraged to refer to the [github submodule documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) for furtrher assistance, as extra steps may be required to update the submodule paths in the project.
+
+
 **Note:** The PySide dependency for FreeCAD, specifically, is a unique package maintained via the [FreeCAD-Daily PPA](https://launchpad.net/~freecad-maintainers/+archive/ubuntu/freecad-daily).
 
 ## Getting Started
