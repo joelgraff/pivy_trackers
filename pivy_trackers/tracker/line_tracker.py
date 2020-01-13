@@ -25,7 +25,7 @@ Line tracker class for tracker objects
 
 from collections.abc import Iterable
 from ..support.smart_tuple import SmartTuple
-from ..support.tuple_math import TupleMath
+from support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
 
@@ -72,6 +72,13 @@ class LineTracker(GeometryTracker, Text):
 
         #callback to be triggered after graph is inserted into scenegraph
         self.on_insert_callbacks.append(_fn)
+
+    def get_length(self):
+        """
+        Return the line length
+        """
+
+        return TupleMath.length(TupleMath.subtract(self.coordinates))
 
     def show_markers(self):
         """

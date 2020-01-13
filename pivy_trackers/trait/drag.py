@@ -68,6 +68,12 @@ class Drag():
             Drag.drag_tracker = DragTracker(self.base)
             Drag.drag_tracker.update_center_fn = self.update_drag_center
 
+        Drag.drag_tracker.local_mouse_callbacks[self] =\
+            self.local_drag_mouse_event
+
+        Drag.drag_tracker.local_button_callbacks[self] =\
+            self.local_drag_button_event
+
         self.drag_copy = None
 
         super().__init__()
@@ -107,6 +113,20 @@ class Drag():
 
         Drag.drag_tracker.set_drag_axis(axis)
 
+    def local_drag_mouse_event(self, user_data, event_cb):
+        """
+        Local drag mouse event callback from DragTracker
+        """
+
+        print('local mouse drag event')
+
+    def local_drag_button_event(self, user_data, event_cb):
+        """
+        Local drag button event callback from DragTracker
+        """
+
+        print('local drag button event')
+
     def drag_mouse_event(self, user_data, event_cb):
         """
         Drag mouse movement event callback, called at start of drag event
@@ -123,6 +143,34 @@ class Drag():
             _v.ignore_notify = True
             _v.drag_copy = _v.geometry.copy()
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
+
+            #iterate through linked geometry for partial dragging
+            for _k in _v.linked_geometry:
+
+                if self not in _k.linked_geometry:
+                    continue
+
+                _k.drag_copy = _k.geometry.copy()
+                _idx = _k.linked_geometry[self]
+                _coords = []
+                _len = len(_k.coordinates)
+
+                #get the first two coordinates
+                if _idx == 0:
+                    _coords = _k.coordiantes[:2]
+
+                #get the last two coordinates
+                elif _idx == _len - 1:
+                    _coords = _k.coordiantes[-2:]
+
+                #more than two coordinates.
+                #get the coordinate on either side of the index
+                else:
+                    _start = _idx - 1
+                    _coords = _k.coordinates[_start:_start + 3]
+
+                self.drag_tracker.\
+                    insert_partial_drag(_k.drag_copy(), _coords, _idx)
 
     def drag_button_event(self, user_data, event_cb):
         """
@@ -141,8 +189,7 @@ class Drag():
         for _v in Select.selected:
 
             _points = self.view_state.transform_points(
-                _v.get_coordinates(), _v.drag_copy.getChild(1)
-            )
+                _v.get_coordinates(), _v.drag_copy.getChild(1))
 
             _v.update(_points)
             _v.drag_copy = None

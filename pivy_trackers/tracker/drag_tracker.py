@@ -24,8 +24,8 @@ Drag tracker for providing drag support to other trackers
 """
 
 from ..support.smart_tuple import SmartTuple
-from ..support.tuple_math import TupleMath
-from ..support.singleton import Singleton
+from support.tuple_math import TupleMath
+from support.singleton import Singleton
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -60,6 +60,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag = CoinGroup(is_switched=True, is_separated=True,
         parent=self.base, name='drag_tracker')
 
+        #build the full drag group graph
         self.drag.full = CoinGroup(is_switched=True, is_separated=True,
         parent=self.drag, name='drag_tracker_full')
 
@@ -68,11 +69,18 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         
         self.drag.full.group = self.drag.full.add_node(Nodes.GROUP, 'group')
 
+        #build the partial drag group graph
         self.drag.part = CoinGroup(is_switched=True, is_separated=True,
         parent=self.drag, name='drag_tracker_part')
 
+        self.drag.part.coordinate =\
+            self.drag.part.add_node(Nodes.COORDINATE, 'coordinate')
+
+        self.drag.part.line = self.drag.part.add_node(Nodes.LINE, 'line')
+
         self.drag.part.set_visibility()
         self.drag.full.set_visibility()
+
         self.drag.set_visibility()
         self.set_visibility()
 
@@ -104,6 +112,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.lock_axis = ()
 
+        self.local_mouse_callbacks = {}
+        self.local_button_callbacks = {}
+
         #------------------------
         #drag rotation attributes
         #------------------------
@@ -126,23 +137,30 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
     def insert_full_drag(self, node):
         """
         Insert a graph to be fully transformed by dragging
+
+        node - a coin3d group-type node containing drag geometry
         """
 
         self.drag.full.insert_node(node, self.drag.full.group)
 
-    def insert_partial_drag(self, node, indices):
+    def insert_partial_drag(self, node, coordinates, index):
         """
         Insert a graph to be partially transformed by dragging
+
+        coordinates - an Iterable of line endpoints as tuples
+        index - the line endpoint (0 or 1) to be updated
         """
 
-        self.drag.part.insert_node(node)
+        _len = len(self.drag.part.coordinate.getValues())
 
-        self.partial_nodes.append(node)
+        #add new coordiantes to end of the point SbMFVec3f
+        for _i, _v in enumerate(coordinates):
+            self.drag.part.coordinate.setset1Value(_len + _i, _v)
 
-        if not node in self.partial_indices:
-            self.partial_indices[node] = []
+        _len = len(self.drag.numVertices.getValues())
 
-        self.partial_indices[node].append(indices)
+        #add new vertex number to the NumVertices SbMFInt32
+        self.drag.line.numVertices.set1Value(_len, 2)
 
     def set_drag_axis(self, axis):
         """
@@ -184,6 +202,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
             self.geometry.set_visibility(True)
 
+        for _cb in self.local_mouse_callbacks.values():
+            _cb(user_data, event_cb)
+
         event_cb.setHandled()
 
     def drag_button_event(self, user_data, event_cb):
@@ -198,16 +219,21 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if self.dragging:
 
             self.drag.full.group.removeAllChildren()
-            self.drag.part.remove_all_children()
+            self.drag.part.group.removeAllChildren()
+
             self.geometry.set_visibility(False)
 
             self.drag.full.set_translation((0.0, 0.0, 0.0))
             self.drag.full.set_rotation(0.0)
+            self.drag.part.line.numVertices.setValues(0, 1, (0))
             self.dragging = False
 
         #start of drag operation
         else:
             self.update([self.drag_center, self.drag_center])
+
+        for _cb in self.local_button_callbacks.values():
+            _cb(user_data, event_cb)
 
 ##########################
 ## Transformation routines
