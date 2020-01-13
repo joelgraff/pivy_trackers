@@ -76,7 +76,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.part.coordinate =\
             self.drag.part.add_node(Nodes.COORDINATE, 'coordinate')
 
-        self.drag.part.line = self.drag.part.add_node(Nodes.LINE, 'line')
+        self.drag.part.line = self.drag.part.add_node(Nodes.LINE_SET, 'line')
 
         self.drag.part.set_visibility()
         self.drag.full.set_visibility()
@@ -86,7 +86,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.set_pick_style(False)
         self.partial_nodes = []
-        self.partial_indices = {}
+        self.partial_indices = []
 
         self.add_mouse_event(self.drag_mouse_event)
         self.add_button_event(self.drag_button_event)
@@ -151,16 +151,26 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         index - the line endpoint (0 or 1) to be updated
         """
 
-        _len = len(self.drag.part.coordinate.getValues())
+        _point = self.drag.part.coordinate.point
+        _num = self.drag.part.line.numVertices
+        _len = len(_point.getValues())
+
+        if _num.getValues()[0] == -1:
+            _len = 0
 
         #add new coordiantes to end of the point SbMFVec3f
         for _i, _v in enumerate(coordinates):
-            self.drag.part.coordinate.setset1Value(_len + _i, _v)
+            _point.set1Value(_len + _i, _v)
 
-        _len = len(self.drag.numVertices.getValues())
+        self.partial_indices.append((_len + index, coordinates[index]))
+
+        _len = len(_num.getValues())
+
+        if _num.getValues()[0] == -1:
+            _len = 0
 
         #add new vertex number to the NumVertices SbMFInt32
-        self.drag.line.numVertices.set1Value(_len, 2)
+        _num.set1Value(_len, 2)
 
     def set_drag_axis(self, axis):
         """
@@ -219,13 +229,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if self.dragging:
 
             self.drag.full.group.removeAllChildren()
-            self.drag.part.group.removeAllChildren()
+            self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
+            self.drag.part.line.numVertices.setValue(-1)
+            self.partial_indices = []
 
             self.geometry.set_visibility(False)
 
             self.drag.full.set_translation((0.0, 0.0, 0.0))
             self.drag.full.set_rotation(0.0)
-            self.drag.part.line.numVertices.setValues(0, 1, (0))
             self.dragging = False
 
         #start of drag operation
@@ -277,6 +288,17 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
                     TupleMath.project(_delta[1], self.lock_axis, True)
 
         self.drag.full.set_translation(_delta)
+
+        #iterate partial drag geometry and update
+        #zero index is part.coordinate.point index,
+        #one index is 
+        _coords = [_v.getValue()\
+            for _v in self.drag.part.coordinate.point.getValues()]
+
+        for _v in self.partial_indices:
+            _coords[_v[0]] = TupleMath.add(_v[1], _delta)
+
+        self.drag.part.coordinate.point.setValues(0, len(_coords), _coords)
 
         if self.show_drag_line:
             self.update([start_coord, end_coord])

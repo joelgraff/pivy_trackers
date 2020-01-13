@@ -140,12 +140,16 @@ class Drag():
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Select.selected:
+
+            print('fully selected', _v.name)
             _v.ignore_notify = True
             _v.drag_copy = _v.geometry.copy()
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
             #iterate through linked geometry for partial dragging
             for _k in _v.linked_geometry:
+
+                print('partially selected', _k.name)
 
                 if self not in _k.linked_geometry:
                     continue
@@ -156,21 +160,22 @@ class Drag():
                 _len = len(_k.coordinates)
 
                 #get the first two coordinates
-                if _idx == 0:
-                    _coords = _k.coordiantes[:2]
+                if _idx[0] == 0:
+                    _coords = _k.coordinates[:2]
 
                 #get the last two coordinates
-                elif _idx == _len - 1:
-                    _coords = _k.coordiantes[-2:]
+                elif _idx[0] == _len - 1:
+                    _coords = _k.coordinates[-2:]
 
                 #more than two coordinates.
                 #get the coordinate on either side of the index
                 else:
-                    _start = _idx - 1
+                    _start = _idx[0] - 1
                     _coords = _k.coordinates[_start:_start + 3]
 
+                print ('\tcoordinates', _coords, _idx[0])
                 self.drag_tracker.\
-                    insert_partial_drag(_k.drag_copy(), _coords, _idx)
+                    insert_partial_drag(_k.drag_copy, _coords, _idx[0])
 
     def drag_button_event(self, user_data, event_cb):
         """
@@ -187,6 +192,9 @@ class Drag():
         #iterate selected elements, transforming points and updating,
         #triggering notifications to linked trackers, if any
         for _v in Select.selected:
+
+            if not _v.drag_copy:
+                continue
 
             _points = self.view_state.transform_points(
                 _v.get_coordinates(), _v.drag_copy.getChild(1))
