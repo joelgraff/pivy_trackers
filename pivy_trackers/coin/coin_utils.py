@@ -125,7 +125,7 @@ def insert_child(node, parent, index=-1):
 
     todo.delay(_fn, node)
 
-def add_child(event_class, parent, name=''):
+def add_child(event_class, parent, name='', index=-1):
     """
     Node creation/insertion function
     """
@@ -139,7 +139,7 @@ def add_child(event_class, parent, name=''):
     _node.setName(_name)
 
     if parent:
-        insert_child(_node, parent)
+        insert_child(_node, parent, index)
 
     return _node
 

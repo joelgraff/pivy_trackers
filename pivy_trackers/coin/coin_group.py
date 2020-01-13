@@ -130,7 +130,11 @@ class CoinGroup(object):
 
     def insert_node(self, node, parent=None, index=-1):
         """
-        Insert a node into the current group default node
+        Insert an existing node into the current group default node
+
+        node - node to insert
+        parent - parent node, None = group top node (default)
+        index - position in child list, -1 = end of list (default)
         """
 
         if parent is None:
@@ -138,7 +142,7 @@ class CoinGroup(object):
 
         utils.insert_child(node, parent, index)
 
-    def add_node(self, event_class, name=''):
+    def add_node(self, event_class, name='', index=-1):
         """
         Add a new node to the current group
         """
@@ -148,7 +152,7 @@ class CoinGroup(object):
 
         _name = self.name + '__' + name
 
-        return utils.add_child(event_class, self.top, _name)
+        return utils.add_child(event_class, self.top, _name, index)
 
     def remove_node(self, node, parent=None):
         """
