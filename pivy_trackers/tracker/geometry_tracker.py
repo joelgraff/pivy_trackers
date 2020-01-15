@@ -89,14 +89,14 @@ class GeometryTracker(
             self.add_event_callback_node()
 
         #events are added to the last-added event callback node
-        self.add_mouse_event(self.select_mouse_event)
-        self.add_button_event(self.select_button_event)
+        self.add_select_events()
+        self.add_drag_events()
 
         if pathed:
 
             assert(node is not None), """pivy_trackers::GeometryTracker.add_node_events() - Node is NoneType.  Cannot apply event path"""
 
-            self.path_nodes.append(node)
+            self.callback_nodes[-1].path_node = node
 
     def reset(self):
         """

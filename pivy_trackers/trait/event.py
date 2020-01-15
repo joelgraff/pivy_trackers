@@ -23,6 +23,7 @@
 Event class for Tracker objects
 """
 import weakref
+from types import SimpleNamespace
 
 from ..support.smart_tuple import SmartTuple
 
@@ -43,7 +44,7 @@ class Event():
     name = ''
 
     #class statics
-    _self_weak_list = []
+    _self_weak_list = {}
     _default_callback_node = None
 
     @staticmethod
@@ -53,7 +54,7 @@ class Event():
         scene insertion.
         """
 
-        for _v in Event._self_weak_list:
+        for _v in Event._self_weak_list.values():
             _v().set_event_paths()
 
     is_switched = None
@@ -66,6 +67,17 @@ class Event():
         Event.is_separated = is_separated
         Event.switch_first = switch_first
 
+    @staticmethod
+    def callback_container(node=None, callback=None, event_type=None):
+        """
+        Create a callback container for event callbacks
+        """
+
+        return types.SimpleNamespace(
+            callback=callback,
+            type=event_type
+        )
+
     def __init__(self):
         """
         Constructor
@@ -77,10 +89,7 @@ class Event():
             is_switched=Event.is_switched,
             parent=self.base, name=self.name + '__EVENTS')
 
-        self.event.callbacks = []
-        self.callbacks = []
-
-        self.path_nodes = []
+        self.callback_nodes = []
 
         self.handle_events = False
 
@@ -89,11 +98,11 @@ class Event():
 
             self.add_mouse_event(self._event_mouse_event)
             self.add_button_event(self._event_button_event)
-            Event._default_callback_node = self.event.callbacks[0]
+            Event._default_callback_node = self.callback_nodes[0].cb_node
 
         self.event.set_visibility(True)
 
-        Event._self_weak_list.append(weakref.ref(self))
+        Event._self_weak_list[self] = weakref.ref(self)
 
         Event.init_graph()
 
@@ -127,51 +136,58 @@ class Event():
         Add an event callback node to the current group
         """
 
-        self.event.callbacks.append(
-            self.event.add_node(Nodes.EVENT_CB, 'EVENT_CALLBACK')
+        self.callback_nodes.append(
+            SimpleNamespace(
+                cb_node=self.event.add_node(Nodes.EVENT_CB, 'EVENT_CALLBACK'),
+                path_node=None,
+                callbacks=[]
+            )
         )
 
-        self.callbacks.append({})
-
-    def remove_event_callback_node(self, index):
+    def remove_event_callback_node(self, node=None, index=-1):
         """
         Remove an event callback node from the current group
+
         """
 
-        node = self.event.callbacks[index]
-
-        if node not in self.event.callbacks:
-            return
+        if node is None:
+            node = self.callback_nodes[index].cb_node
 
         self.event.remove_node(node)
 
-        del self.event.callbacks[index]
-        del self.callbacks[index]
+        del self.callback_nodes[index]
 
     def set_event_paths(self):
         """
-        Set the specified path on the event callback at the specified index
+        Set paths on every callback node that has a path
         """
 
-        if not self.path_nodes:
-            return
+        for _c in self.callback_nodes:
+            
+            if not _c.path_node:
+                continue
 
-        _path_nodes = self.path_nodes[:]
+            _sa = coin_utils.search(_c.path_node, self.view_state.sg_root)
+            _c.cb_node.setPath(_sa.getPath())
 
-        _len_cb = len(self.event.callbacks)
-        _len_pn = len(self.path_nodes)
+    def set_event_path(self, callback_node, is_pathed=True):
+        """
+        Set/clear a path on a specific callback node
+        """
 
-        #if too few path nodes exist, pad the path_nodes list with the last
-        #element.
-        if _len_cb > _len_pn:
-            _path_nodes += [_path_nodes[-1]]*(_len_cb - _len_pn)
+        for _c in self.callback_nodes:
 
-        for _i, _node in enumerate(self.callbacks):
+            if callback_node is not _c.cb_node:
+                continue
 
-            _node = _path_nodes[_i]
-            _sa = coin_utils.search(_node, self.view_state.sg_root)
+            _path = None
 
-            self.event.callbacks[_i].setPath(_sa.getPath())
+            if is_pathed and _c.path_node:
+                _sa = coin_utils.search(_c.path_node, self.view_state.sg_root)
+                _path = _sa.getPath()
+
+            _c.cb_node.setPath(_path)
+            break
 
     def add_event_callback(self, event_type, callback, index=-1):
         """
@@ -180,58 +196,75 @@ class Event():
 
         #if none exist, add a new one
         #otherwise default behavior reuses last-created SoEventCb node
-        if not self.event.callbacks:
+        if not self.callback_nodes:
             self.add_event_callback_node()
 
-        _et = event_type.getName().getString()
+        assert(index < len(self.callback_nodes)), """
+        Event.add_event_callback(): index {} exceeds callback list length.
+        """.format(str(index))
+        
+        _cb_node = self.callback_nodes[index].cb_node
+        _cb = _cb_node.addEventCallback(event_type, callback)
 
-        if not _et in self.callbacks:
-            self.callbacks[index][_et] = {}
+        self.callback_nodes[index].callbacks.append(
+            SimpleNamespace(
+                callback=_cb,
+                event_type=event_type
+            )
+        )
 
-        _cbs = self.callbacks[index][_et]
+        print('added event type {} to node {}'.format(event_type.getName().getString(), _cb_node.getName()))
 
-        if callback in _cbs:
-            return
+        return _cb
 
-        _cbs[callback] = \
-            self.event.callbacks[index].addEventCallback(event_type, callback)
-
-    def remove_event_callback(self, event_type, callback, index=-1):
+    def remove_event_callback(self, event_type=None, callback=None, index=-1):
         """
-        Remove an event callback
+        Remove an event callback.
+
+        index - index of callback node.
+        event_type - event type of callback to remove (optional).
+        callback - Callback to remove.  If None, removes all by event_type
         """
 
-        _et = event_type.getName().getString()
-
-        if _et not in self.callbacks:
+        if not self.callback_nodes:
             return
 
-        _cbs = self.callbacks[index][_et]
+        assert((callback is not None) or (event_type is not None)), """
+        Event.remove_event_callback():callback and event_type are None
+        """
+        assert(index < len(self.callback_nodes)), """
+        Event.add_event_callback(): index {} exceeds callback list length.
+        """.format(str(index))
 
-        if callback not in _cbs:
-            return
+        for _c in self.callback_nodes:
 
-        self.event.callbacks[index].removeEventCallback(
-            event_type, _cbs[callback])
+            for _d in list(_c.callbacks):
 
-        del _cbs[callback]
+                if (event_type is not None) and (_d.event_type != event_type):
+                    continue
 
-        if not _cbs:
-            self.remove_event_callback_node(index)
+                if callback and (callback != _d.callback):
+                    continue
+
+                _c.callbacks.remove(_d)
+                _c.node.removeEventCallback(callback)
+
+            if not _c.callbacks:
+                self.remove_event_callback_node(index)
 
     def add_mouse_event(self, callback):
         """
         Convenience function
         """
 
-        self.add_event_callback(MouseEvents.LOCATION2, callback)
+        return self.add_event_callback(MouseEvents.LOCATION2, callback)
 
     def add_button_event(self, callback):
         """
         Convenience function
         """
 
-        self.add_event_callback(MouseEvents.MOUSE_BUTTON, callback)
+        return self.add_event_callback(MouseEvents.MOUSE_BUTTON, callback)
 
     def remove_mouse_event(self, callback):
         """
@@ -273,12 +306,10 @@ class Event():
         """
 
         self.event.finalize()
-        self.event.callbacks = []
-        self.callbacks = []
-        self.path_nodes = []
+        self.callback_nodes = []
         self.handle_events = False
 
-        Event._self_weak_list = []
+        Event._self_weak_list = {}
         Event._default_callback_node = None
 
 
