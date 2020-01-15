@@ -170,15 +170,16 @@ class Event():
             _sa = coin_utils.search(_c.path_node, self.view_state.sg_root)
             _c.cb_node.setPath(_sa.getPath())
 
-    def set_event_path(self, callback_node, is_pathed=True):
+    def set_event_path(self, callback, is_pathed=True):
         """
         Set/clear a path on a specific callback node
         """
 
         for _c in self.callback_nodes:
 
-            if callback_node is not _c.cb_node:
-                continue
+            for _d in _c.callbacks:
+                if _d != callback:
+                    continue
 
             _path = None
 
@@ -187,6 +188,7 @@ class Event():
                 _path = _sa.getPath()
 
             _c.cb_node.setPath(_path)
+
             break
 
     def add_event_callback(self, event_type, callback, index=-1):
@@ -212,8 +214,6 @@ class Event():
                 event_type=event_type
             )
         )
-
-        print('added event type {} to node {}'.format(event_type.getName().getString(), _cb_node.getName()))
 
         return _cb
 

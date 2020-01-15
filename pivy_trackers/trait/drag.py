@@ -39,12 +39,13 @@ class Drag():
     view_state = None
     select = None
 
-    def is_selected(self): """prototype"""; pass
-    def add_mouse_event(self, callback): """prototype"""; pass
-    def add_button_event(self, callback): """prototype"""; pass
+    def set_event_path(self, callback, is_pathed=True): """prototype"""
+    def is_selected(self): """prototype"""
+    #def add_mouse_event(self, callback): """prototype"""; pass
+    #def add_button_event(self, callback): """prototype"""; pass
 
     #prototype to be implemented by inheriting class
-    def update_drag_center(self): """prototype"""; pass
+    def update_drag_center(self): """prototype"""
 
     #Class static reference to global DragTracker
     drag_tracker = None
@@ -59,24 +60,28 @@ class Drag():
             Select must precede Drag in method resolution order
             """
 
-        self.add_mouse_event(self.drag_mouse_event)
-        self.add_button_event(self.drag_button_event)
-
         # instances / initializes singleton DragTracker on first inherit, 
         # and adds callback for global tracker updating
         if not Drag.drag_tracker:
-            Drag.drag_tracker = DragTracker(self.base)
+            Drag.drag_tracker = DragTracker(self.root)
             Drag.drag_tracker.update_center_fn = self.update_drag_center
 
-        Drag.drag_tracker.local_mouse_callbacks[self] =\
-            self.local_drag_mouse_event
-
-        Drag.drag_tracker.local_button_callbacks[self] =\
-            self.local_drag_button_event
-
+        self.handle_drag_events = True
         self.drag_copy = None
+        self.is_dragging = False
+
+        self.drag_mouse_cb = None
+        self.drag_button_cb = None
 
         super().__init__()
+
+    def add_drag_events(self):
+        """
+        Add drag events to the coin graph
+        """
+
+        self.drag_mouse_cb = self.add_mouse_event(self.drag_mouse_event)
+        self.drag_button_cb = self.add_button_event(self.drag_button_event)
 
     def enable_drag_translation(self):
         """
@@ -113,43 +118,75 @@ class Drag():
 
         Drag.drag_tracker.set_drag_axis(axis)
 
-    def local_drag_mouse_event(self, user_data, event_cb):
+    def on_drag(self, user_data, event_cb):
         """
-        Local drag mouse event callback from DragTracker
-        """
-
-        print('local mouse drag event')
-
-    def local_drag_button_event(self, user_data, event_cb):
-        """
-        Local drag button event callback from DragTracker
+        On drag callback, called during drag operations
         """
 
-        print('local drag button event')
+        self.drag_tracker.update_drag()
 
     def drag_mouse_event(self, user_data, event_cb):
         """
-        Drag mouse movement event callback, called at start of drag event
+        Coin-level mouse event callback
         """
 
-        if not self.is_selected() or not self.mouse_state.button1.dragging:
+        if self.handle_drag_events or self.handle_events:
+            event_cb.setHandled()
+
+        if not self.is_dragging:
             return
 
+        self.on_drag(user_data, event_cb)
+
+    def drag_button_event(self, user_data, event_cb):
+        """
+        Coin-level button event callback
+        """
+
+        if self.handle_drag_events or self.handle_events:
+            event_cb.setHandled()
+        
+        if not self.is_selected:
+            return
+
+        #conflicting / undefined state, abort
+        if self.mouse_state.button1.dragging:
+            return
+
+        if self.is_dragging:
+
+            self.set_event_path(self.drag_mouse_cb, True)
+            self.set_event_path(self.drag_button_cb, True)
+            self.is_dragging = False
+
+            self.drag_tracker.end_drag()
+
+        else:
+
+            self.before_drag(user_data, event_cb)
+
+            self.set_event_path(self.drag_mouse_cb, False)
+            self.set_event_path(self.drag_button_cb, False)
+            self.is_dragging = True
+
+            self.drag_tracker.start_drag()
+
+    def before_drag(self, user_data, event_cb):
+        """
+        Before drag callback, called at start of drag operations
+        """
+
         #enabling sinks mouse events at the drag tracker
-        Drag.drag_tracker.dragging = True
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Select.selected:
 
-            print('fully selected', _v.name)
             _v.ignore_notify = True
             _v.drag_copy = _v.geometry.copy()
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
             #iterate through linked geometry for partial dragging
             for _k in _v.linked_geometry:
-
-                print('partially selected', _k.name)
 
                 if self not in _k.linked_geometry:
                     continue
@@ -173,21 +210,13 @@ class Drag():
                     _start = _idx[0] - 1
                     _coords = _k.coordinates[_start:_start + 3]
 
-                print ('\tcoordinates', _coords, _idx[0])
                 self.drag_tracker.\
                     insert_partial_drag(_k.drag_copy, _coords, _idx[0])
 
-    def drag_button_event(self, user_data, event_cb):
+    def after_drag(self, user_data, event_cb):
         """
-        Drag button event callback
+        Called at end of drag operations
         """
-
-        #only trap button up events during a drag oepration
-        if self.mouse_state.button1.pressed:
-            return
-
-        if not self.drag_tracker.dragging:
-            return
 
         #iterate selected elements, transforming points and updating,
         #triggering notifications to linked trackers, if any

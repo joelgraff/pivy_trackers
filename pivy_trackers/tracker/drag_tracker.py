@@ -22,10 +22,12 @@
 """
 Drag tracker for providing drag support to other trackers
 """
+from pivy import coin
 
 from ..support.smart_tuple import SmartTuple
 from support.tuple_math import TupleMath
 from support.singleton import Singleton
+from ..support.todo import todo
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -57,6 +59,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         super().__init__('DragTracker', None, parent)
 
+        self.handle_events = False
+        self.handle_drag_events = False
+
         self.drag = CoinGroup(is_switched=True, is_separated=True,
         parent=self.base, name='drag_tracker')
 
@@ -85,13 +90,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.set_visibility()
 
         self.set_pick_style(False)
-        self.partial_nodes = []
+
         self.partial_indices = []
-
-        self.add_mouse_event(self.drag_mouse_event)
-        self.add_button_event(self.drag_button_event)
-
-        self.dragging = False
+        self.partial_coordinates = []
 
         self.update_center_fn = lambda: print('update_center_fn')
 
@@ -105,15 +106,12 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             'drag_line', Styles.DASHED, color=Styles.Color.BLUE)
 
         self.set_style()
-        self.geometry.set_visibility(False)
+        self.geometry.set_visibility(True)
 
         self.rotation_enabled = True
         self.translation_enabled = True
 
         self.lock_axis = ()
-
-        self.local_mouse_callbacks = {}
-        self.local_button_callbacks = {}
 
         #------------------------
         #drag rotation attributes
@@ -162,7 +160,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         for _i, _v in enumerate(coordinates):
             _point.set1Value(_len + _i, _v)
 
-        self.partial_indices.append((_len + index, coordinates[index]))
+        #store a tuple of the coordinate index and the coordinate itself
+        self.partial_indices.append(_len + index)
 
         _len = len(_num.getValues())
 
@@ -171,6 +170,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #add new vertex number to the NumVertices SbMFInt32
         _num.set1Value(_len, 2)
+
+        self.partial_coordiantes = [_v.getValue()\
+            for _v in self.drag.part.coordinate.point.getValues()]
 
     def set_drag_axis(self, axis):
         """
@@ -182,18 +184,24 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.lock_axis = axis
 
-    def drag_mouse_event(self, user_data, event_cb):
+    def start_drag(self):
         """
-        Drag mouse event callback
+        Initialize dragging operation
         """
 
-        if not self.dragging:
-            return
+        if self.partial_indices:
 
-        _coords = [
-            self.drag_center,
-            self.mouse_state.world_position
-        ]
+            self.partial_coordinates = [_v.getValue()\
+                for _v in self.drag.part.coordinate.point.getValues()]
+
+        self.update([self.drag_center, self.drag_center])
+
+    def update_drag(self):
+        """
+        Process mouse movements during dragging
+        """
+
+        _coords = [self.drag_center, self.mouse_state.world_position]
 
         #update the transform
         if self.mouse_state.alt_down:
@@ -212,39 +220,20 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
             self.geometry.set_visibility(True)
 
-        for _cb in self.local_mouse_callbacks.values():
-            _cb(user_data, event_cb)
-
-        event_cb.setHandled()
-
-    def drag_button_event(self, user_data, event_cb):
+    def end_drag(self):
         """
-        Drag button event callback
+        Terminate dragging operation
         """
 
-        if self.mouse_state.button1.dragging:
-            return
+        self.drag.full.group.removeAllChildren()
+        self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
+        self.drag.part.line.numVertices.setValue(-1)
+        self.partial_indices = []
 
-        #end of drag operation
-        if self.dragging:
+        self.geometry.set_visibility(False)
 
-            self.drag.full.group.removeAllChildren()
-            self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
-            self.drag.part.line.numVertices.setValue(-1)
-            self.partial_indices = []
-
-            self.geometry.set_visibility(False)
-
-            self.drag.full.set_translation((0.0, 0.0, 0.0))
-            self.drag.full.set_rotation(0.0)
-            self.dragging = False
-
-        #start of drag operation
-        else:
-            self.update([self.drag_center, self.drag_center])
-
-        for _cb in self.local_button_callbacks.values():
-            _cb(user_data, event_cb)
+        self.drag.full.set_translation((0.0, 0.0, 0.0))
+        self.drag.full.set_rotation(0.0)
 
 ##########################
 ## Transformation routines
@@ -289,19 +278,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag.full.set_translation(_delta)
 
-        #iterate partial drag geometry and update
-        #zero index is part.coordinate.point index,
-        #one index is 
-        _coords = [_v.getValue()\
-            for _v in self.drag.part.coordinate.point.getValues()]
-
-        for _v in self.partial_indices:
-            _coords[_v[0]] = TupleMath.add(_v[1], _delta)
-
-        self.drag.part.coordinate.point.setValues(0, len(_coords), _coords)
-
         if self.show_drag_line:
             self.update([start_coord, end_coord])
+
+        self.transform_partial()
 
     def rotate(self, center_coord, radius_coord, micro):
         """
@@ -309,8 +289,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         coords - pair of coordinates for the rotation update in tuple form
         """
 
-        if not self.rotation_enabled:
-            return
+        #if not self.rotation_enabled:
+        #    return
 
         #if already rotating get the updated bearing from the center
         if self.is_rotating:
@@ -341,6 +321,29 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #update the +z axis rotation for the transformation
         self.drag.full.set_rotation (self.rotation, Axis.Z)
 
+        self.transform_partial()
+
+    def transform_partial(self):
+        """
+        Transform partially-selected geometry
+        """
+
+        #iterate partial drag geometry and update
+        #zero index is part.coordinate.point index,
+        #one index is 
+        _selected = [
+            self.partial_coordinates[_v] for _v in self.partial_indices]
+
+        _selected = self.view_state.transform_points(
+            _selected, self.drag.full.group)
+
+        _p = self.partial_coordinates[:]
+
+        for _i, _j in enumerate(self.partial_indices):
+            _p[_j] = _selected[_i]
+
+        self.drag.part.coordinate.point.setValues(0, len(_p), _p)
+
     def finish(self):
         """
         Cleanup
@@ -356,11 +359,15 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.full.finalize()
         self.drag.finalize()
 
-        self.partial_nodes = []
-        self.partial_indices = {}
+        self.partial_coordiantes = []
+        self.partial_indices = []
 
         self.update_center_fn = None
         self.coin_style = None
         self.drag_center = None
+
+        self.before_Drag_callbacks = []
+        self.on_drag_callbacks = []
+        self.after_drag_callbacks = []
 
         Singleton.finish(DragTracker)
