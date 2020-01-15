@@ -81,7 +81,18 @@ class Select():
         self.select.setName(self.name + '__SELECT')
         self.base.insert_node(self.select, self.base.top)
 
+        self.select_mouse_cb = None
+        self.select_button_cb = None
+
         super().__init__()
+
+    def add_select_events(self):
+        """
+        Add the event callbacks to the coin graph for selection
+        """
+
+        self.select_mouse_cb = self.add_mouse_event(self.select_mouse_event)
+        self.select_button_cb = self.add_button_event(self.select_button_event)
 
     def is_selected(self):
         """
@@ -97,7 +108,7 @@ class Select():
 
         self.update_highlight()
 
-        if self.handle_select_events:
+        if self.handle_select_events or self.handle_events:
             event_cb.setHandled()
 
     def select_button_event(self, user_data, event_cb):
@@ -109,7 +120,7 @@ class Select():
             self.do_selection()
 
         #sink / consume events
-        if self.handle_select_events:
+        if self.handle_select_events or self.handle_events:
             event_cb.setHandled()
 
         self.on_select()

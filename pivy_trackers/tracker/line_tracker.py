@@ -54,7 +54,9 @@ class LineTracker(GeometryTracker, Text):
 
         self.markers.set_visibility(False)
 
+        #add events to specific geometry
         self.add_node_events(self.line)
+
         self.groups = []
 
         self.set_style()
