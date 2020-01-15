@@ -35,7 +35,6 @@ class CoinGroup(object):
 
     def __init__(self, is_separated=False, is_switched=False,
                  switch_first=True, parent=None, name=''):
-
         """
         Constructor
         parent = CoinGroup or SoNode
@@ -103,16 +102,19 @@ class CoinGroup(object):
 
         utils.insert_child(self.root, self.parent)
 
-    def set_visibility(self, visible=True):
+    def set_visibility(self, visible=True, child=-3):
         """
         Update the tracker visibility
+
+        visible - whether or not children are visible
+        child - specific child to show, -3 = all children
         """
 
         if not self.switch:
             return
 
         if visible:
-            self.switch.whichChild = 0
+            self.switch.whichChild = child
 
         else:
             self.switch.whichChild = -1
