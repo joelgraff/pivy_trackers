@@ -75,6 +75,13 @@ class Drag():
 
         super().__init__()
 
+    def set_translate_increment(self, increment = 0.0):
+        """
+        Set the increment at which translations will occur.  0.0 - freeform
+        """
+
+        Drag.drag_tracker.translate_increment = increment
+
     def add_drag_events(self):
         """
         Add drag events to the coin graph

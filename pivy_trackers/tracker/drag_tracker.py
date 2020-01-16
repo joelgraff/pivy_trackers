@@ -24,7 +24,6 @@ Drag tracker for providing drag support to other trackers
 """
 from pivy import coin
 
-from ..support.smart_tuple import SmartTuple
 from support.tuple_math import TupleMath
 from support.singleton import Singleton
 from ..support.todo import todo
@@ -247,19 +246,20 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if not self.translation_enabled:
             return
 
+        #exit rotation mode
         if self.is_rotating:
 
             self.is_rotating = False
 
             _xlate = self.drag.full.get_translation()
-            _world_pos = SmartTuple._add(_xlate, self.drag_center)
+            _world_pos = TupleMath.add(_xlate, self.drag_center)
 
             self.mouse_state.set_mouse_position(self.view_state, _world_pos)
 
             return
 
         #accumulate the movement from the previous mouse position
-        _delta = SmartTuple._sub(end_coord, start_coord)
+        _delta = TupleMath.subtract(end_coord, start_coord)
 
         if self.lock_axis:
 
@@ -275,6 +275,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             else:
                 _delta =\
                     TupleMath.project(_delta[1], self.lock_axis, True)
+
+        #incremental movement
+        if self.translate_increment > 0.0:
+
+            _len = int(TupleMath.length(_delta) / self.translate_increment)
+
+            _delta = TupleMath.scale(TupleMath.unit(_delta), _len)
 
         self.drag.full.set_translation(_delta)
 
@@ -298,8 +305,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _center = self.drag.full.get_center()
             _offset = self.drag.full.get_translation()
 
-            _start = SmartTuple._add(_center, _offset)
-            _vec = SmartTuple._sub(radius_coord, _start)
+            _start = TupleMath.add(_center, _offset)
+            _vec = TupleMath.subtract(radius_coord, _start)
 
             _angle = coin_math.get_bearing(_vec)
             _delta = self.angle - _angle
