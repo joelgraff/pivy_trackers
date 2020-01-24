@@ -107,6 +107,23 @@ class GeometryTracker(
         self.geometry.set_rotation(0.0, (0.0, 0.0, 0.0))
         self.geometry.set_translation((0.0, 0.0, 0.0))
 
+    def stop_drag(self):
+        """
+        End-of-drag operations
+        """
+
+        print(self.name, 'GeometryTacker.stop_drag()')
+
+        if self.is_full_drag:
+           self.copy_matrix(self.geometry.transform)
+
+        else:
+            _points = self.view_state.transform_points(
+                self.get_coordinates(), self.drag_copy.getChild(1)
+            )
+
+            self.update(_points)
+
     def update(self, coordinates, notify=True):
         """
         Override of Geometry method to provide messaging support

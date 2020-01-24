@@ -23,16 +23,18 @@
 Line tracker class for tracker objects
 """
 
+import random
+
 from collections.abc import Iterable
 from ..support.smart_tuple import SmartTuple
 from support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
 
-from ..trait.text import Text
-
 from .geometry_tracker import GeometryTracker
 from .marker_tracker import MarkerTracker
+
+from ..trait.text import Text
 
 class LineTracker(GeometryTracker, Text):
     """
@@ -59,14 +61,16 @@ class LineTracker(GeometryTracker, Text):
 
         self.groups = []
 
+        #definte the base/parent node for text nodes to be the geometry node
+        self.text_base = self.geometry.top
+
         self.set_style()
         self.set_visibility(True)
-
-        self.drag_style = self.DragStyle.CURSOR
 
         self.update_cb = None
         self.update(points, notify=False)
 
+        self.drag_style = self.DragStyle.CURSOR
         self.drag_axis = None
 
         _fn = lambda:\
@@ -74,6 +78,15 @@ class LineTracker(GeometryTracker, Text):
 
         #callback to be triggered after graph is inserted into scenegraph
         self.on_insert_callbacks.append(_fn)
+
+    def add_text(
+        self, name=None, text=None, has_transform=False, has_font=False):
+        """
+        Convenience override of Text.add_text
+        """
+
+        super().add_text(
+            name, text, has_transform, has_font, self.geometry.top)
 
     def get_length(self):
         """
@@ -115,7 +128,7 @@ class LineTracker(GeometryTracker, Text):
 
         super().update(points, notify=notify)
 
-        if self.text.is_visible():
+        if self.text and self.text.is_visible():
             self.text.set_translation(TupleMath.mean(self.coordinates))
 
         if self.update_cb:
@@ -124,6 +137,24 @@ class LineTracker(GeometryTracker, Text):
         if groups:
             self.groups = groups
             self.line.numVertices.setValues(0, len(groups), groups)
+
+    def stop_drag(self):
+        """
+        End-of-drag operations
+        """
+
+        print(self.name, 'LineTracker.stop_drag()')
+        super().stop_drag()
+        return
+        #update line points
+        _points = self.view_state.transform_points(
+            self.get_coordinates(), self.drag_copy.getChild(1))
+
+        self.update(_points)
+
+        #update text labels
+        #for 
+        self.drag_copy = None
 
     def drag_mouse_event(self, user_data, event_cb):
         """

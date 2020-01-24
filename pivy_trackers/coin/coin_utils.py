@@ -68,7 +68,28 @@ def describe(node):
     if isinstance(node, coin.SoText2):
         return 'text={}'.format(str(node.string.getValues()))
 
+    if isinstance(node, coin.SoTransform):
+        return 'translation={}; rotation=<{}>, {} rad; center={}'.format(
+            str(node.translation.getValue().getValue()),
+            str(node.rotation.getValue().getAxisAngle()[0].getValue()),
+            str(node.rotation.getValue().getAxisAngle()[1]),
+            str(node.center.getValue().getValue())
+        )
+
     return ''
+
+def copy_matrix(source, destination, viewport):
+    """
+    Copy the transformation matrix from the source to the destination
+    """
+
+    _action = coin.SoGetMatrixAction(viewport)
+
+    source.get_
+    transform_node.setMatrix(Drag.drag_tracker.full.get_matrix())
+    Drag.drag_tracker.drag.full.transform.getMatrix(_action)
+    transform_node.setMatrix(_action.GetMatrix())
+
 
 def dump_node(node, indent=''):
     """
@@ -128,6 +149,11 @@ def insert_child(node, parent, index=-1):
 def add_child(event_class, parent, name='', index=-1):
     """
     Node creation/insertion function
+
+    event_class - event class or NodeTypes enumerator
+    parent - if None, returns created node without inserting it
+    name - string name
+    index - position in parent in which to insert, -1 = end
     """
 
     _name = name

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #***********************************************************************
-#* Copyright (c) 2018 Joel Graff <monograff76@gmail.com>               *
+#* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
 #* it under the terms of the GNU Lesser General Public License (LGPL)  *
@@ -20,65 +20,50 @@
 #*                                                                     *
 #***********************************************************************
 """
-Font / Text graph class for label-style text
+Class for creating Coin3D text node structures
 """
 
-from types import SimpleNamespace
+from . import coin_utils as utils
+from .coin_enums import NodeTypes as Nodes
 
-from collections.abc import Iterable
-from support.tuple_math import TupleMath
-
-from ..coin.coin_group import CoinGroup
-from ..coin.coin_enums import NodeTypes as Nodes
-from ..coin import coin_utils as utils
-
-class TextLabel:
+class CoinText(object):
     """
-    Font / Text graph class for label-style text
+    Class for creating Coin3D text node structures
     """
 
     def __init__(
-        self, text, name=None, has_transform=True, has_font=True, parent=None):
+        self, name, text, has_font=False, has_transform=False, parent=None):
         """
         Constructor
-
-        trait_name - Name of trait.  Assumed 'label' and indexed if already
-        exists in parent
         """
 
-        _idx = 1
-        _index = ''
-
-        if name is None:
-            name = ''
-
-        _name = name + '__LABEL'
-
-        while hasattr(self, _name + _index):
-            _index = str(_idx)
-            _idx += 1
-
-        _name += str(_index)
+        self.name = name + '_TEXT_NODE'
+        self.root = utils.add_child(Nodes.SEPARATOR, None, self.name)
+        self.top = self.root
 
         self.offset = (0.0, 0.0, 0.0)
-        self.font = None
-        self.transform = None
 
-        self.group = CoinGroup(
-            is_separated=True, is_switched=False, switch_first=False,
-            parent=parent, name=_name)
+        self.transform = None
+        self.font = None
+        self.text = None
 
         if has_transform:
-            self.transform = self.group.add_node(Nodes.TRANSFORM)
+            self.transform = utils.add_child(
+                Nodes.TRANSFORM, self.top, self.name + '_TRNSFORM')
 
         if has_font:
-            self.font = self.group.add_node(Nodes.FONT)
-            self.set_font('', '', 100.0)
+            self.font = utils.add_child(
+                Nodes.FONT, self.top, self.name + '_FONT')
 
-        self.text = self.group.add_node(Nodes.TEXT)
+            self.set_font(_group.font, '', '', 100.0)
+
+        self.text = utils.add_child(
+            Nodes.TEXT, self.top, self.name + '_TEXT')
+
+        if parent:
+            utils.insert_child(self.text, parent)
+
         self.set_text(text)
-
-        super().__init__()
 
     def set_size(self, size):
         """
@@ -104,6 +89,7 @@ class TextLabel:
         Text - string or an iterable
         """
 
+        print('seting text', text)
         if isinstance(text, str):
             self.text.string.setValue(text)
         
@@ -123,7 +109,7 @@ class TextLabel:
 
         return _result
 
-    def set_font(self, font_name, font_style, font_size):
+    def set_font(self, font_style, font_size):
         """
         Set the font based on the passed name
 
@@ -131,9 +117,6 @@ class TextLabel:
         font_style - style of the font (see coin_enums.FontStyles)
         font_size - font size in screen pixels (integer or float)
         """
-
-        if not self.font:
-            return
 
         self.font.name.setValue(font_name)
         self.font.size.setValue(font_size)
@@ -168,13 +151,14 @@ class TextLabel:
             return ()
 
         return self.transform.translation.getValue()
-    
+
     def set_translation(self, translation):
         """
         Set the translation of the text object as a 3-coordiante tuple
         """
 
         if self.transform:
+
             _xlate = TupleMath.add(translation, self.offset)
             self.transform.translation.setValue(_xlate)
 

@@ -23,8 +23,9 @@
 Drag traits for Tracker objects
 """
 
-from ..trait.select import Select
+from types import SimpleNamespace
 
+from ..trait.select import Select
 from ..tracker.drag_tracker import DragTracker
 
 class Drag():
@@ -41,11 +42,14 @@ class Drag():
 
     def set_event_path(self, callback, is_pathed=True): """prototype"""
     def is_selected(self): """prototype"""
-    #def add_mouse_event(self, callback): """prototype"""; pass
-    #def add_button_event(self, callback): """prototype"""; pass
 
     #prototype to be implemented by inheriting class
     def update_drag_center(self): """prototype"""
+
+    #default lambda for place-holder functions
+    #returns tuple of passed parameters
+    default_fn = lambda _self, _x:\
+        lambda _u_d, _e_c, _n=_self.name, _m=_x: (_u_d, _e_c, _n, _m)
 
     #Class static reference to global DragTracker
     drag_tracker = None
@@ -69,18 +73,50 @@ class Drag():
         self.handle_drag_events = True
         self.drag_copy = None
         self.is_dragging = False
+        self.is_full_drag = False
 
         self.drag_mouse_cb = None
         self.drag_button_cb = None
 
+        self.on_drag = SimpleNamespace(
+            method=Drag.default_fn(self, 'Drag.on_drag()'),
+            callbacks=[]
+        )
+
+        self.before_drag = SimpleNamespace(
+            method=Drag.default_fn(self, 'Drag.before_drag()'),
+            callbacks=[]
+        )
+
+        self.after_drag = SimpleNamespace(
+            method=Drag.default_fn(self, 'Drag.after_drag()'),
+            callbacks=[]
+        )
+
         super().__init__()
+
+
+
+    def get_partial_transformed(self):
+        """
+        Return the transformed partial coordinates
+        """
+
+        return Drag.drag_tracker.partial_transformed
 
     def set_translate_increment(self, increment = 0.0):
         """
-        Set the increment at which translations will occur.  0.0 - freeform
+        Set the increment of translation - 0.0 = free translation
         """
 
         Drag.drag_tracker.translate_increment = increment
+
+    def set_rotate_increment(self, increment = 0.0):
+        """
+        Set the increment of rotation in radians - 0.0 = free rotation
+        """
+
+        Drag.drag_tracker.rotate_increment = increment
 
     def add_drag_events(self):
         """
@@ -125,13 +161,6 @@ class Drag():
 
         Drag.drag_tracker.set_drag_axis(axis)
 
-    def on_drag(self, user_data, event_cb):
-        """
-        On drag callback, called during drag operations
-        """
-
-        self.drag_tracker.update_drag()
-
     def drag_mouse_event(self, user_data, event_cb):
         """
         Coin-level mouse event callback
@@ -143,7 +172,12 @@ class Drag():
         if not self.is_dragging:
             return
 
-        self.on_drag(user_data, event_cb)
+        self.on_drag.method(user_data, event_cb)
+
+        for _cb in self.on_drag.callbacks:
+            _cb(user_data, event_cb)
+
+        self.drag_tracker.update_drag()
 
     def drag_button_event(self, user_data, event_cb):
         """
@@ -160,27 +194,41 @@ class Drag():
         if self.mouse_state.button1.dragging:
             return
 
+        #end of drag operations
         if self.is_dragging:
+
+            self.stop_drag()
 
             self.set_event_path(self.drag_mouse_cb, True)
             self.set_event_path(self.drag_button_cb, True)
             self.is_dragging = False
 
+            self.after_drag.method(user_data, event_cb)
+
+            for _cb in self.after_drag.callbacks:
+                _cb(self, user_data, event_cb)
+
             self.drag_tracker.end_drag()
 
+        #start of drag operations
         else:
 
-            self.before_drag(user_data, event_cb)
+            self.setup_drag()
 
             self.set_event_path(self.drag_mouse_cb, False)
             self.set_event_path(self.drag_button_cb, False)
             self.is_dragging = True
 
+            self.before_drag.method(user_data, event_cb)
+
+            for _cb in self.before_drag.callbacks:
+                _cb(self, user_data, event_cb)
+
             self.drag_tracker.start_drag()
 
-    def before_drag(self, user_data, event_cb):
+    def setup_drag(self):
         """
-        Before drag callback, called at start of drag operations
+        Setup dragging at start of drag ops
         """
 
         #enabling sinks mouse events at the drag tracker
@@ -190,6 +238,8 @@ class Drag():
 
             _v.ignore_notify = True
             _v.drag_copy = _v.geometry.copy()
+            _v.is_full_drag = True
+
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
             #iterate through linked geometry for partial dragging
@@ -220,23 +270,23 @@ class Drag():
                 self.drag_tracker.\
                     insert_partial_drag(_k.drag_copy, _coords, _idx[0])
 
-    def after_drag(self, user_data, event_cb):
+    def stop_drag(self):
         """
         Called at end of drag operations
         """
 
+        print(self.name, 'Dreag.stop_drag()')
         #iterate selected elements, transforming points and updating,
         #triggering notifications to linked trackers, if any
         for _v in Select.selected:
 
+            #this selected geometry has already been updated
             if not _v.drag_copy:
                 continue
 
-            _points = self.view_state.transform_points(
-                _v.get_coordinates(), _v.drag_copy.getChild(1))
-
-            _v.update(_points)
+            _v.stop_drag()
             _v.drag_copy = None
+            _v.is_full_drag = False
 
         #re-enable notifications only after drag updates are complete
         for _v in Select.selected:

@@ -20,112 +20,209 @@
 #*                                                                     *
 #***********************************************************************
 """
-Text trait class
+Font / Text graph class for label-style text
 """
 
 from types import SimpleNamespace
 
-from ..coin.coin_enums import FontStyles
-from ..coin.coin_enums import NodeTypes as Nodes
+from collections.abc import Iterable
+from support.tuple_math import TupleMath
+
 from ..coin.coin_group import CoinGroup
+from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.coin_text import CoinText
+from ..coin import coin_utils as utils
 
-from .text_label import TextLabel
-
-class Text:
+class Text():
     """
-    Text trait class
+    Font / Text graph class for label-style text
     """
 
-    #members added by Base
+    #prototypes
     base = None
     name = ''
-
-    is_switched = None
-    is_separated = None
-    switch_first = None
-
-    @staticmethod
-    def init_graph(is_switched=True, is_separated=True, switch_first=True):
-        Text.is_switched = is_switched
-        Text.is_separated = is_separated
-        Text.switch_first = switch_first
 
     def __init__(self):
         """
         Constructor
+
+        trait_name - Name of trait.  Assumed 'label' and indexed if already
+        exists in parent
         """
 
-        if not self.base:
-            return
-
+        CoinText
         _idx = 1
         _index = ''
-        _name = self.name + '__TEXT'
 
-        while hasattr(self, _name + _index):
-            _index = str(_idx)
-            _idx += 1
-
-        _name = _name + _index
-
-        self.text = CoinGroup(
-            is_separated=Text.is_separated,
-            is_switched=Text.is_switched,
-            switch_first=Text.switch_first,
-            parent=self.base, name=_name)
-
-        Text.init_graph()
-
-        self.text.transform = self.text.add_node(Nodes.TRANSFORM)
-        self.text.transform.translation.setValue((0.0, 0.0, 0.0))
-        self.text.font = self.text.add_node(Nodes.FONT)
-
-        self.defaults = SimpleNamespace()
-        self.defaults.font = ''
-        self.defaults.style = FontStyles.NORMAL
-        self.defaults.size = 100.0
-        self.defaults.transform_node = True
-        self.defaults.font_node = True
-
-        self.text.font.size.setValue(self.defaults.size)
-
-        self.labels = []
-        self.origin = (0.0, 0.0, 0.0)
-
-        self.text.set_visibility(False)
+        self.text = None
+        self.text_base = None
+        self.text_nodes = []
+        self.offset = (0.0, 0.0, 0.0)
 
         super().__init__()
 
-    def update(self, position):
+    def _add_top_node(self):
         """
-        Update the translation of the labels based on provided position
-        """
-
-        for _label in labels.values():
-            _label.set_translation(TUpleMath.subtract(position, self.origin))
-
-    def add_label(self, name=None, text=None, xf_node=None, font_node=None):
-        """
-        Add a new label nodegraph
+        Add the top node to the node graph on-demand
         """
 
-        _has_xf = self.defaults.transform_node
-        _has_font = self.defaults.font_node
+        _base = self.text_base
+        _name = self.name + '_TEXT_GROUP'
 
-        if xf_node is not None:
-            _has_xf = xf_node
+        if _base is None:
+            _base = self.base
 
-        if font_node:
-            _has_font = font_node
+        print('Text.base = ', _base)
+        self.text = CoinGroup(
+            is_separated=True, is_switched=False, parent=_base, name=_name)
 
-        _label = TextLabel(text, name, _has_xf, _has_font)
+        self.text.transform = self.text.add_node(Nodes.TRANSFORM)
+        self.text.font = self.text.add_node(Nodes.FONT)
 
-        #_label.set_size(self.defaults.size)
-        #_label.set_font(
-         #   self.defaults.font, self.defaults.style, self.defaults.size)
+    def set_text_offset(self, offset):
+        """
+        Set the offset of the text node
+        """
 
-        self.labels.append(_label)
+        if self.text is None:
+            return
 
-        self.text.insert_node(_label.group.root)
+        self.offset = offset
+        self.text.set_translation(self.text.get_translation())
 
-        return _label
+    def add_text(
+        self, name=None, text=None, has_transform=False, has_font=False, parent=None):
+        """
+        Add a new text nodegraph
+        """
+
+        #default to the top node of the sbuclass CoinGroup
+        if parent is None:
+            parent = self.top
+
+        if self.text is None:
+            self._add_top_node()
+
+        self.text_nodes.append(CoinText(
+            self.name + '_TEXT', text, has_transform, has_font, parent)
+        )
+
+    def set_text_size(self, size):
+        """
+        Set the size of the text
+        """
+
+        if self.text.font:
+            self.text.font.size.setValue(size)
+
+    def get_size(self):
+        """
+        Get the size of the text
+        """
+
+        if self.text.font:
+            return self.text.font.size.getValue()
+
+        return -1.0
+
+    def set_text(self, text):
+        """
+        Set the node text.
+        Text - string or an iterable
+        """
+
+        if isinstance(text, str):
+            node.string.setValue(text)
+        
+        elif isinstance(text, Iterable):
+            node.string.setValues(0, len(text), text)
+
+    def get_text(self):
+        """
+        Return the text stored in the text.string attribute as a string
+        or iterable of strings
+        """
+
+        _result = self.text.string.getValues()
+
+        if len(_result) == 1:
+            _result = result[0]
+
+        return _result
+
+    def set_font(self, font_node, font_name, font_style, font_size):
+        """
+        Set the font based on the passed name
+
+        font_name - string name of the font installed on the system
+        font_style - style of the font (see coin_enums.FontStyles)
+        font_size - font size in screen pixels (integer or float)
+        """
+
+        font_node.name.setValue(font_name)
+        font_node.size.setValue(font_size)
+
+    def get_font(self):
+        """
+        Return the current font, style, and size as a SimpleNamespace
+        """
+
+        _result = SimpleNamespace(name='', style='', size=-1.0)
+
+        if not self.font:
+            return _result
+
+        _name = self.font.name.getValue().split(':')
+        
+        _result.name = _name[0]
+
+        if len(_name) == 2:
+            _result.style = _name[1]
+
+        _result.size = self.font.size.getValue()
+
+        return _result
+
+    def get_text_translation(self):
+        """
+        Return the translation of the text object
+        """
+
+        if not self.text.transform:
+            return ()
+
+        return self.text.transform.translation.getValue()
+
+    def set_text_translation(self, translation):
+        """
+        Set the translation of the text object as a 3-coordiante tuple
+        """
+
+        if self.text.transform:
+
+            _xlate = TupleMath.add(translation, self.offset)
+            self.text.transform.translation.setValue(_xlate)
+
+    def set_text_rotation(self, angle, center=None):
+        """
+        Set the rotation angle of the label
+        """
+
+        if not self.text.transform:
+            return
+
+        _rot = utils.get_rotation(angle)
+
+        self.text.transform.rotation = _rot
+
+        if center is not None:
+            self.text.transform.rotation.center.setValue(center)
+
+    def get_text_rotation(self):
+        """
+        Get the rotation angle of the label
+        """
+
+        _result = self.text.transform.rotation.getValue().getAxisAngle()
+
+        return [_result[0].getValue(), _result[1]]

@@ -58,6 +58,7 @@ class CoinGroup(object):
         self.line_set = None
         self.marker_set = None
         self.root = None
+        self.font = None
 
         _top_group = None
 
@@ -258,7 +259,7 @@ class CoinGroup(object):
 
         self.transform.center.setValue(point)
 
-    def set_rotation(self, angle, center=None):
+    def set_rotation(self, angle=None, center=None):
         """
         Set the rotation of the group SoTransform node
         """
@@ -266,8 +267,23 @@ class CoinGroup(object):
         if not self.transform:
             return
 
-        if not center:
+        if center is None:
             center = self.get_center
+
+        if angle is None:
+            angle = self.get_rotation[1]
 
         self.transform.rotation = utils.get_rotation(angle)
         self.transform.rotation.center = center
+
+    def copy_matrix(self, node, viewport):
+        """
+        Copy the matrix from the transform node to the target
+        """
+
+        _node = node
+
+        if isinstance(node, CoinGroup):
+            _node = node.transform
+    
+        utils.copy_matrix(self.transform, node, viewport)

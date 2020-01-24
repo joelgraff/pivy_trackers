@@ -92,6 +92,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.partial_indices = []
         self.partial_coordinates = []
+        self.partial_transformed = []
 
         self.update_center_fn = lambda: print('update_center_fn')
 
@@ -109,6 +110,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.rotation_enabled = True
         self.translation_enabled = True
+
+        self.translate_incrememnt = 0.0
+        self.rotate_increment = 0.0
 
         self.lock_axis = ()
 
@@ -170,7 +174,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #add new vertex number to the NumVertices SbMFInt32
         _num.set1Value(_len, 2)
 
-        self.partial_coordiantes = [_v.getValue()\
+        self.partial_coordinates = [_v.getValue()\
             for _v in self.drag.part.coordinate.point.getValues()]
 
     def set_drag_axis(self, axis):
@@ -311,6 +315,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _angle = coin_math.get_bearing(_vec)
             _delta = self.angle - _angle
 
+            if self.rotate_increment > 0.0:
+
+                _d = _delta
+                _delta =\
+                    int(_delta/self.rotate_increment) * self.rotate_increment
+
+                _angle = self.angle - _delta
+
             self.rotation += _delta
             self.angle = _angle
 
@@ -350,6 +362,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _p[_j] = _selected[_i]
 
         self.drag.part.coordinate.point.setValues(0, len(_p), _p)
+
+        self.partial_transformed = _p
 
     def finish(self):
         """
