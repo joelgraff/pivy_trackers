@@ -78,18 +78,23 @@ def describe(node):
 
     return ''
 
+def get_matrix(node, viewport):
+    """
+    Return the transformation matrix applied to the node
+    """
+
+    _action = coin.SoGetMatrixAction(viewport)
+
+    node.getMatrix(_action)
+
+    return _action.getMatrix()
+
 def copy_matrix(source, destination, viewport):
     """
     Copy the transformation matrix from the source to the destination
     """
 
-    _action = coin.SoGetMatrixAction(viewport)
-
-    source.get_
-    transform_node.setMatrix(Drag.drag_tracker.full.get_matrix())
-    Drag.drag_tracker.drag.full.transform.getMatrix(_action)
-    transform_node.setMatrix(_action.GetMatrix())
-
+    destination.setMatrix(get_matrix(source, viewport))
 
 def dump_node(node, indent=''):
     """

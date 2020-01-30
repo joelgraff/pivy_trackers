@@ -138,7 +138,7 @@ class Base():
 
         todo.delay(self._do_insert, verbose)
 
-    def transform_points(self, points, node):
+    def transform_points(self, points, node, parent=None):
         """
         Transform points by the transformation matrix
         points = a list / tuple of 3D coordinates in tuple form
@@ -148,7 +148,12 @@ class Base():
         if not node:
             node = self.geometry.coordinate
 
-        return self.view_state.transform_points(points, node, True)
+        if not parent:
+            parent = self.view_state.sg_root
+
+        _matrix = self.view_state_get_matrix(node, parent)
+
+        return self.view_state.transform_points(points, _matrix)
 
     def _do_insert(self, verbose):
         """

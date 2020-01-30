@@ -65,8 +65,11 @@ class Geometry():
             switch_first=Geometry.switch_first,
             parent=self.base, name=self.name + '__GEOMETRY')
 
-        self.geometry.transform = self.geometry.add_node(Nodes.TRANSFORM)
-        self.geometry.coordinate = self.geometry.add_node(Nodes.COORDINATE)
+        self.geometry.transform =\
+            self.geometry.add_node(Nodes.TRANSFORM, self.name + '_transform')
+
+        self.geometry.coordinate =\
+            self.geometry.add_node(Nodes.COORDINATE, self.name + '_coordinate')
 
         self.coordinates = []
         self.prev_coordinates = []
@@ -75,6 +78,13 @@ class Geometry():
         Geometry.init_graph()
 
         super().__init__()
+
+    def get_matrix(self):
+        """
+        Return the transformation matrix applied to the coordinate
+        """
+
+        self.view_state.get_matrix(self.geometry.coordiante)
 
     def reset(self):
         """
@@ -101,9 +111,12 @@ class Geometry():
         if points is None:
             points = self.get_coordinates()
 
+        _matrix = self.view_state.get_matrix(
+            self.geometry.coordinate, self.geometry.base)
+
         #no node, use the coordinate node local to this group
         return self.view_state.transform_points(
-            points, self.geometry.coordinate, True)
+            points, _matrix)
 
     def set_coordinates(self, coordinates):
         """

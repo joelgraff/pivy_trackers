@@ -62,25 +62,29 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.handle_drag_events = False
 
         self.drag = CoinGroup(is_switched=True, is_separated=True,
-        parent=self.base, name='drag_tracker')
+            parent=self.base, name=self.name + '_drag_tracker')
 
         #build the full drag group graph
         self.drag.full = CoinGroup(is_switched=True, is_separated=True,
-        parent=self.drag, name='drag_tracker_full')
+            parent=self.drag, name=self.name + '_drag_tracker_full')
 
         self.drag.full.transform = \
-            self.drag.full.add_node(Nodes.TRANSFORM, 'transform')
+            self.drag.full.add_node(Nodes.TRANSFORM, self.name + '_transform')
         
-        self.drag.full.group = self.drag.full.add_node(Nodes.GROUP, 'group')
+        self.drag.full.group =\
+            self.drag.full.add_node(Nodes.GROUP, self.name + '_group')
 
         #build the partial drag group graph
         self.drag.part = CoinGroup(is_switched=True, is_separated=True,
-        parent=self.drag, name='drag_tracker_part')
+            parent=self.drag, name=self.name + '_drag_tracker_part')
 
-        self.drag.part.coordinate =\
-            self.drag.part.add_node(Nodes.COORDINATE, 'coordinate')
+        self.drag.part.coordinate = self.drag.part.add_node(
+            Nodes.COORDINATE, self.name + '_coordinate')
 
-        self.drag.part.line = self.drag.part.add_node(Nodes.LINE_SET, 'line')
+        self.drag.part.line = self.drag.part.add_node(
+            Nodes.LINE_SET, self.name + '_line')
+
+        self.drag_matrix = None
 
         self.drag.part.set_visibility()
         self.drag.full.set_visibility()
@@ -100,7 +104,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.show_drag_line = True
 
         self.geometry.line = \
-            self.geometry.add_node(Nodes.LINE_SET, 'drag line')
+            self.geometry.add_node(Nodes.LINE_SET, self.name + 'drag line')
 
         self.coin_style = Styles.Style(
             'drag_line', Styles.DASHED, color=Styles.Color.BLUE)
@@ -135,6 +139,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
 
+    def get_matrix(self):
+        """
+        Return the matrix transformation for the full drag geometry
+        """
+
+        return self.view_state.get_matrix(self.drag.full.group)
+
     def insert_full_drag(self, node):
         """
         Insert a graph to be fully transformed by dragging
@@ -144,27 +155,46 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag.full.insert_node(node, self.drag.full.group)
 
-    def insert_partial_drag(self, node, coordinates, index):
+    def insert_partial_drag(self, node_group, indices):
         """
         Insert a graph to be partially transformed by dragging
 
-        coordinates - an Iterable of line endpoints as tuples
-        index - the line endpoint (0 or 1) to be updated
+        node - the SoCoordinate node to be added
+        indices - the list of coordinate indices as tuple of 3 integers
+        the middle index (indices[1]) is the coordinate that is changed
+        For two-index cases, iterables should be [-1,0,1] or [0,1,-1]
         """
 
         _point = self.drag.part.coordinate.point
         _num = self.drag.part.line.numVertices
         _len = len(_point.getValues())
+        _coords = []
 
         if _num.getValues()[0] == -1:
             _len = 0
 
-        #add new coordiantes to end of the point SbMFVec3f
-        for _i, _v in enumerate(coordinates):
+        #get coordinates to add
+        for _i in indices:
+
+            if _i == -1:
+                continue
+
+            _pt = node_group.getChild(1).point
+            _coords.append(_pt.getValues()[_i].getValue())
+
+        _matrix = self.view_state.get_matrix(node_group.getChild(1))
+
+        print ('partial matrix:', _matrix.getValue())
+
+        #transform coordinates by the transformation active on the node
+        _coords = self.view_state.transform_points(_coords, _matrix)
+
+        #add new coordinates to end of the point SbMFVec3f
+        for _i, _v in enumerate(_coords):
             _point.set1Value(_len + _i, _v)
 
         #store a tuple of the coordinate index and the coordinate itself
-        self.partial_indices.append(_len + index)
+        self.partial_indices.append(_len + indices[1])
 
         _len = len(_num.getValues())
 
@@ -187,7 +217,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.lock_axis = axis
 
-    def start_drag(self):
+    def begin_drag(self):
         """
         Initialize dragging operation
         """
@@ -228,6 +258,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Terminate dragging operation
         """
 
+        self.drag_matrix = self.view_state.get_matrix(self.drag.full.group)
+        print('\ndrag_matrix before', self.drag_matrix.getValue())
+        
         self.drag.full.group.removeAllChildren()
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
@@ -237,6 +270,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag.full.set_translation((0.0, 0.0, 0.0))
         self.drag.full.set_rotation(0.0)
+        print('\ndrag_matrix_after', self.drag_matrix.getValue())
 
 ##########################
 ## Transformation routines
@@ -284,7 +318,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if self.translate_increment > 0.0:
 
             _len = int(TupleMath.length(_delta) / self.translate_increment)
-
             _delta = TupleMath.scale(TupleMath.unit(_delta), _len)
 
         self.drag.full.set_translation(_delta)
@@ -353,8 +386,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _selected = [
             self.partial_coordinates[_v] for _v in self.partial_indices]
 
-        _selected = self.view_state.transform_points(
-            _selected, self.drag.full.group)
+        _matrix = self.view_state.get_matrix(
+            self.drag.full.group, self.drag.full.top)
+
+        _selected = self.view_state.transform_points(_selected, _matrix)
 
         _p = self.partial_coordinates[:]
 
@@ -387,7 +422,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.coin_style = None
         self.drag_center = None
 
-        self.before_Drag_callbacks = []
+        self.before_drag_callbacks = []
         self.on_drag_callbacks = []
         self.after_drag_callbacks = []
 

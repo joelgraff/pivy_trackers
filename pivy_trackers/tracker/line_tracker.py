@@ -61,6 +61,8 @@ class LineTracker(GeometryTracker, Text):
 
         self.groups = []
 
+        self.center = ()
+
         #definte the base/parent node for text nodes to be the geometry node
         self.text_base = self.geometry.top
 
@@ -85,8 +87,11 @@ class LineTracker(GeometryTracker, Text):
         Convenience override of Text.add_text
         """
 
-        super().add_text(
-            name, text, has_transform, has_font, self.geometry.top)
+        super().add_text(name, text, has_transform, has_font)
+
+        #position text at midpoint of line and force transform update
+        self.text_offset = self.center
+        self.set_text_translation((0.0, 0.0, 0.0))
 
     def get_length(self):
         """
@@ -138,23 +143,23 @@ class LineTracker(GeometryTracker, Text):
             self.groups = groups
             self.line.numVertices.setValues(0, len(groups), groups)
 
-    def stop_drag(self):
+        self.center = TupleMath.mean(self.coordinates)
+        self.text_center = self.center
+        self.set_text_translation((0.0, 0.0, 0.0))
+
+    def before_drag(self, user_data):
+        """
+        Start of drag operations
+        """
+
+        super().before_drag(user_data)
+
+    def after_drag(self, user_data):
         """
         End-of-drag operations
         """
 
-        print(self.name, 'LineTracker.stop_drag()')
-        super().stop_drag()
-        return
-        #update line points
-        _points = self.view_state.transform_points(
-            self.get_coordinates(), self.drag_copy.getChild(1))
-
-        self.update(_points)
-
-        #update text labels
-        #for 
-        self.drag_copy = None
+        super().after_drag(user_data)
 
     def drag_mouse_event(self, user_data, event_cb):
         """

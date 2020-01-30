@@ -276,6 +276,16 @@ class CoinGroup(object):
         self.transform.rotation = utils.get_rotation(angle)
         self.transform.rotation.center = center
 
+    def get_matrix(self, viewport, node=None):
+        """
+        Return the transformation matrix at the Transform node
+        """
+
+        if not node:
+            node = self.root
+
+        return utils.get_matrix(self.root, viewport)
+
     def copy_matrix(self, node, viewport):
         """
         Copy the matrix from the transform node to the target
@@ -285,5 +295,8 @@ class CoinGroup(object):
 
         if isinstance(node, CoinGroup):
             _node = node.transform
+
+        print('coin_group.copy_matrix()\n',self.transform)
+        print(self.transform.translation.getValue().getValue())
     
         utils.copy_matrix(self.transform, node, viewport)

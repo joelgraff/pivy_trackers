@@ -152,6 +152,13 @@ class CoinText(object):
 
         return self.transform.translation.getValue()
 
+    def set_matrix(self, matrix):
+        """
+        Apply matrix to the transform node
+        """
+
+        self.transform.setMatrix(matrix)
+
     def set_translation(self, translation):
         """
         Set the translation of the text object as a 3-coordiante tuple

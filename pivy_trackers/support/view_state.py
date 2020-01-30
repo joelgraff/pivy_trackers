@@ -23,11 +23,15 @@
 View state class
 """
 
+import math
+
 from pivy import coin
 from PySide import QtGui
 
 from support.singleton import Singleton
 from .smart_tuple import SmartTuple
+
+_NEAR_ZERO = 10**-30
 
 class ViewStateGlobalCallbacks():
     """
@@ -39,7 +43,6 @@ class ViewStateGlobalCallbacks():
         """
 
         pass
-
 
 class ViewState(metaclass=Singleton):
     """
@@ -124,19 +127,29 @@ class ViewState(metaclass=Singleton):
 
         return _form
 
-    def transform_points(self, points, node=None, refresh=True):
+    def transform_points(self, points, matrix, refresh=True):
         """
         Transform selected points by the transformation matrix
         """
 
         #store the view state matrix if a valid node is passed.
         #subsequent calls with null node will re-use the last valid node matrix
-        refresh = refresh and node is not None
 
-        _matrix = self.get_matrix(node, refresh=refresh)
+        _matrix = matrix
 
-        if not _matrix:
-            return []
+        if _matrix is None:
+            _matrix = self.get_matrix(node, refresh=refresh)
+
+        if _matrix is None:
+            return points
+
+        _xlate = [_v for _v in _matrix.getValue()[3]]
+
+        if all([_v < _NEAR_ZERO for _v in _xlate]):
+            return points
+
+        if any(math.isnan(_v) for _v in _xlate):
+            return points
 
         #append fourth point to each coordinate
         _pts = [_v + (1.0,) for _v in points]

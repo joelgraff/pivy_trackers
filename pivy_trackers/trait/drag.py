@@ -23,6 +23,8 @@
 Drag traits for Tracker objects
 """
 
+from ..support.todo import todo
+from ..coin import coin_utils
 from types import SimpleNamespace
 
 from ..trait.select import Select
@@ -49,7 +51,7 @@ class Drag():
     #default lambda for place-holder functions
     #returns tuple of passed parameters
     default_fn = lambda _self, _x:\
-        lambda _u_d, _e_c, _n=_self.name, _m=_x: (_u_d, _e_c, _n, _m)
+        lambda _u_d, _n=_self.name, _m=_x: (_u_d, _n, _m)
 
     #Class static reference to global DragTracker
     drag_tracker = None
@@ -74,28 +76,23 @@ class Drag():
         self.drag_copy = None
         self.is_dragging = False
         self.is_full_drag = False
+        self.partial_drag_indices = []
 
         self.drag_mouse_cb = None
         self.drag_button_cb = None
 
-        self.on_drag = SimpleNamespace(
-            method=Drag.default_fn(self, 'Drag.on_drag()'),
-            callbacks=[]
-        )
-
-        self.before_drag = SimpleNamespace(
-            method=Drag.default_fn(self, 'Drag.before_drag()'),
-            callbacks=[]
-        )
-
-        self.after_drag = SimpleNamespace(
-            method=Drag.default_fn(self, 'Drag.after_drag()'),
-            callbacks=[]
-        )
+        self.on_drag_callbacks = []
+        self.before_drag_callbacks = []
+        self.after_drag_callbacks= []
 
         super().__init__()
 
+    def get_drag_matrix(self):
+        """
+        Return a copy of the drag tracker transformation matrix
+        """
 
+        return Drag.drag_tracker.get_matrix()
 
     def get_partial_transformed(self):
         """
@@ -172,10 +169,10 @@ class Drag():
         if not self.is_dragging:
             return
 
-        self.on_drag.method(user_data, event_cb)
+        self.on_drag(user_data)
 
-        for _cb in self.on_drag.callbacks:
-            _cb(user_data, event_cb)
+        for _cb in self.on_drag_callbacks:
+            _cb(user_data)
 
         self.drag_tracker.update_drag()
 
@@ -197,34 +194,40 @@ class Drag():
         #end of drag operations
         if self.is_dragging:
 
-            self.stop_drag()
-
             self.set_event_path(self.drag_mouse_cb, True)
             self.set_event_path(self.drag_button_cb, True)
             self.is_dragging = False
 
-            self.after_drag.method(user_data, event_cb)
+            self.after_drag(user_data)
 
-            for _cb in self.after_drag.callbacks:
-                _cb(self, user_data, event_cb)
+            _cbs = self.after_drag_callbacks[:]
+
+            for _cb in _cbs:
+
+                _cb(user_data)
+                del self.after_drag_callbacks[0]
 
             self.drag_tracker.end_drag()
 
         #start of drag operations
         else:
 
-            self.setup_drag()
-
             self.set_event_path(self.drag_mouse_cb, False)
             self.set_event_path(self.drag_button_cb, False)
             self.is_dragging = True
 
-            self.before_drag.method(user_data, event_cb)
+            self.before_drag(user_data)
 
-            for _cb in self.before_drag.callbacks:
-                _cb(self, user_data, event_cb)
+            _cbs = self.before_drag_callbacks[:]
 
-            self.drag_tracker.start_drag()
+            for _cb in _cbs:
+
+                _cb(user_data)
+                del self.before_drag_callbacks[0]
+
+            self.on_drag_callbacks = []
+
+            todo.delay(self.setup_drag, None)
 
     def setup_drag(self):
         """
@@ -249,48 +252,41 @@ class Drag():
                     continue
 
                 _k.drag_copy = _k.geometry.copy()
+
                 _idx = _k.linked_geometry[self]
-                _coords = []
-                _len = len(_k.coordinates)
 
-                #get the first two coordinates
-                if _idx[0] == 0:
-                    _coords = _k.coordinates[:2]
+                #picked coordinate is always middle index
+                #if picked is first or last coordinate,
+                #previous / next index == -1
+                _c = [_idx[0] + _v for _v in [-1, 0, 1]]
 
-                #get the last two coordinates
-                elif _idx[0] == _len - 1:
-                    _coords = _k.coordinates[-2:]
+                if _c[-1] == len(_k.coordinates):
+                    _c[-1] = -1
 
-                #more than two coordinates.
-                #get the coordinate on either side of the index
-                else:
-                    _start = _idx[0] - 1
-                    _coords = _k.coordinates[_start:_start + 3]
+                _k.partial_drag_indices = _c
 
-                self.drag_tracker.\
-                    insert_partial_drag(_k.drag_copy, _coords, _idx[0])
+                self.before_drag_callbacks.append(_k.before_drag)
+                self.after_drag_callbacks.append(_k.after_drag)
 
-    def stop_drag(self):
+                self.drag_tracker.insert_partial_drag(
+                    _k.geometry.top, _c)
+
+        self.drag_tracker.begin_drag()
+
+    def on_drag(self, user_data):
+        """
+        Called during drag operations
+        """
+
+        pass
+
+    def after_drag(self, user_data):
         """
         Called at end of drag operations
         """
 
-        print(self.name, 'Dreag.stop_drag()')
-        #iterate selected elements, transforming points and updating,
-        #triggering notifications to linked trackers, if any
-        for _v in Select.selected:
-
-            #this selected geometry has already been updated
-            if not _v.drag_copy:
-                continue
-
-            _v.stop_drag()
-            _v.drag_copy = None
-            _v.is_full_drag = False
-
-        #re-enable notifications only after drag updates are complete
-        for _v in Select.selected:
-            _v.ignore_notify = False
+        self.drag_copy = None
+        self.is_full_drag = False
 
     def finish(self):
         """

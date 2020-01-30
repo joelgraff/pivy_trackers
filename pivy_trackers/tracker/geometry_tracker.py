@@ -23,6 +23,9 @@
 Geometry tracker base class
 """
 
+from ..coin import coin_utils
+
+from ..support.todo import todo
 from ..trait.base import Base
 from ..trait.message import Message
 from ..trait.style import Style
@@ -107,22 +110,58 @@ class GeometryTracker(
         self.geometry.set_rotation(0.0, (0.0, 0.0, 0.0))
         self.geometry.set_translation((0.0, 0.0, 0.0))
 
-    def stop_drag(self):
+    def before_drag(self, user_data):
+        """
+        Start of drag operations
+        """
+
+        pass
+
+    def after_drag(self, user_data):
         """
         End-of-drag operations
         """
 
-        print(self.name, 'GeometryTacker.stop_drag()')
-
+        print (self.name, 'after_drag')
+        #copy the drag tracker matrix transformations to the actual geometry
         if self.is_full_drag:
-           self.copy_matrix(self.geometry.transform)
+
+            #get the coordinate node of the drag copy
+            _coord = self.drag_copy.getChild(1)
+            _mat = self.view_state.get_matrix(_coord)
+            self.geometry.transform.setMatrix(_mat)
 
         else:
-            _points = self.view_state.transform_points(
-                self.get_coordinates(), self.drag_copy.getChild(1)
-            )
+            todo.delay(self._after_drag_update, None)
 
-            self.update(_points)
+        super().after_drag(user_data)
+
+    def _after_drag_update(self):
+        """
+        Delayed update callback to allow for scene traversals to complete
+        """
+
+        #get the matrix to apply transformations to coordinates
+        _matrix = self.view_state.get_matrix(
+            self.geometry.coordinate)
+
+        #get the coordinates as a list of 3-tuples
+        _coords = [
+            _v.getValue() for _v in self.geometry.coordinate.point.getValues()]
+
+        #get the point that is linked to other dragged geometry
+        _xform_idx = self.partial_drag_indices[1]
+
+        #transform the linked point by the drag transformation
+        _coords[_xform_idx] =\
+            self.view_state.transform_points(
+                [_coords[_xform_idx]], Drag.drag_tracker.drag_matrix)[0]
+
+        #reduce the llist of coordinates as appropriate
+        _partial_coords = [
+            _coords[_v] for _v in self.partial_drag_indices if _v > -1]
+
+        self.update(_partial_coords, notify=False)
 
     def update(self, coordinates, notify=True):
         """

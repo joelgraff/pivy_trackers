@@ -57,7 +57,8 @@ class Text():
         self.text = None
         self.text_base = None
         self.text_nodes = []
-        self.offset = (0.0, 0.0, 0.0)
+        self.text_offset = (0.0, 0.0, 0.0)
+        self.text_center = (0.0, 0.0, 0.0)
 
         super().__init__()
 
@@ -79,33 +80,19 @@ class Text():
         self.text.transform = self.text.add_node(Nodes.TRANSFORM)
         self.text.font = self.text.add_node(Nodes.FONT)
 
-    def set_text_offset(self, offset):
-        """
-        Set the offset of the text node
-        """
-
-        if self.text is None:
-            return
-
-        self.offset = offset
-        self.text.set_translation(self.text.get_translation())
-
     def add_text(
-        self, name=None, text=None, has_transform=False, has_font=False, parent=None):
+        self, name=None, text=None, has_transform=False, has_font=False):
         """
         Add a new text nodegraph
         """
 
-        #default to the top node of the sbuclass CoinGroup
-        if parent is None:
-            parent = self.top
-
         if self.text is None:
             self._add_top_node()
 
-        self.text_nodes.append(CoinText(
-            self.name + '_TEXT', text, has_transform, has_font, parent)
-        )
+        self.text.text = CoinText(
+            self.name + '_TEXT', text, has_transform, has_font, self.text.top)
+
+        self.text_nodes.append(self.text.text)
 
     def set_text_size(self, size):
         """
@@ -115,7 +102,7 @@ class Text():
         if self.text.font:
             self.text.font.size.setValue(size)
 
-    def get_size(self):
+    def get_text_size(self):
         """
         Get the size of the text
         """
@@ -150,7 +137,7 @@ class Text():
 
         return _result
 
-    def set_font(self, font_node, font_name, font_style, font_size):
+    def set_text_font(self, font_node, font_name, font_style, font_size):
         """
         Set the font based on the passed name
 
@@ -162,7 +149,7 @@ class Text():
         font_node.name.setValue(font_name)
         font_node.size.setValue(font_size)
 
-    def get_font(self):
+    def get_text_font(self):
         """
         Return the current font, style, and size as a SimpleNamespace
         """
@@ -183,6 +170,20 @@ class Text():
 
         return _result
 
+    def set_text_matrix(self, matrix):
+        """
+        Set the matrix for the CoinText node
+        """
+
+        self.text.set_matrix(matrix)
+
+    def get_text_matrix(self):
+        """
+        Return the matrix transformation on the text node
+        """
+
+        return self.view_state.get_matrix(self.text.text)
+
     def get_text_translation(self):
         """
         Return the translation of the text object
@@ -193,15 +194,22 @@ class Text():
 
         return self.text.transform.translation.getValue()
 
-    def set_text_translation(self, translation):
+    def set_text_translation(self, translation, accumulate = False):
         """
-        Set the translation of the text object as a 3-coordiante tuple
+        Set the translation, overriding existing unless accumulate=True
         """
 
-        if self.text.transform:
+        if not self.text or not self.text.transform:
+            return
 
-            _xlate = TupleMath.add(translation, self.offset)
-            self.text.transform.translation.setValue(_xlate)
+        _xlate = TupleMath.add(
+            [translation, self.text_offset, self.text_center]
+        )
+
+        if accumulate:
+            _xlate = TupleMath.add(self.get_text_translation(), _xlate)
+
+        self.text.transform.translation.setValue(_xlate)
 
     def set_text_rotation(self, angle, center=None):
         """
