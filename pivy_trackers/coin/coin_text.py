@@ -89,7 +89,6 @@ class CoinText(object):
         Text - string or an iterable
         """
 
-        print('seting text', text)
         if isinstance(text, str):
             self.text.string.setValue(text)
         

@@ -113,8 +113,6 @@ def dump_node(node, indent=''):
     _title = str(node.getName())
     _suffix = ' (' + describe(node) + ')'
 
-    print(_prefix + _title + _suffix)
-
     if not isinstance(node, coin.SoGroup):
         return
 

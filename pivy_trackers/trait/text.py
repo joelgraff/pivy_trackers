@@ -73,7 +73,6 @@ class Text():
         if _base is None:
             _base = self.base
 
-        print('Text.base = ', _base)
         self.text = CoinGroup(
             is_separated=True, is_switched=False, parent=_base, name=_name)
 

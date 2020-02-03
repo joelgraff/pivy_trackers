@@ -296,7 +296,4 @@ class CoinGroup(object):
         if isinstance(node, CoinGroup):
             _node = node.transform
 
-        print('coin_group.copy_matrix()\n',self.transform)
-        print(self.transform.translation.getValue().getValue())
-    
         utils.copy_matrix(self.transform, node, viewport)
