@@ -25,7 +25,7 @@ Geometry tracker base class
 
 from ..coin import coin_utils
 
-from ..support.todo import todo
+from ..coin.todo import todo
 from ..trait.base import Base
 from ..trait.message import Message
 from ..trait.style import Style
@@ -113,6 +113,13 @@ class GeometryTracker(
     def before_drag(self, user_data):
         """
         Start of drag operations
+        """
+
+        pass
+
+    def on_drag(self, user_data):
+        """
+        During drag operations
         """
 
         pass

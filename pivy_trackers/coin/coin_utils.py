@@ -25,7 +25,7 @@ General utilities for pivy.coin objects
 
 from pivy import coin
 
-from pivy_trackers.support.todo import todo
+from .todo import todo
 
 from .coin_enums import MarkerStyles
 
@@ -112,6 +112,8 @@ def dump_node(node, indent=''):
     _prefix = indent + '\n' + _indent
     _title = str(node.getName())
     _suffix = ' (' + describe(node) + ')'
+
+    print(_prefix + _title + _suffix)
 
     if not isinstance(node, coin.SoGroup):
         return

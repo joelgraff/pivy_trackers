@@ -22,11 +22,15 @@
 """
 Drag tracker for providing drag support to other trackers
 """
+
+from types import SimpleNamespace
+
 from pivy import coin
 
 from support.tuple_math import TupleMath
 from support.singleton import Singleton
-from ..support.todo import todo
+
+from ..coin.todo import todo
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -94,9 +98,12 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.set_pick_style(False)
 
-        self.partial_indices = []
-        self.partial_coordinates = []
-        self.partial_transformed = []
+        self.partial = SimpleNamespace(
+            coordinates=[],
+            transformed=[],
+            drag_indices=[],
+            group_indices=[]
+        )
 
         self.update_center_fn = lambda: print('update_center_fn')
 
@@ -112,9 +119,12 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.set_style()
         self.geometry.set_visibility(True)
 
+        #enable / disable translation / rotation movements during drag
         self.rotation_enabled = True
         self.translation_enabled = True
 
+        #increment translation / rotation by a fixed value during drag
+        #0.0 = free movement
         self.translate_incrememnt = 0.0
         self.rotate_increment = 0.0
 
@@ -139,6 +149,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
 
+    def get_partial_updates(self, index):
+        """
+        Return the transformed partial coordinates
+        """
     def get_matrix(self):
         """
         Return the matrix transformation for the full drag geometry
@@ -152,7 +166,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         node - a coin3d group-type node containing drag geometry
         """
-
         self.drag.full.insert_node(node, self.drag.full.group)
 
     def insert_partial_drag(self, node_group, indices):
@@ -184,8 +197,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         _matrix = self.view_state.get_matrix(node_group.getChild(1))
 
-        print ('partial matrix:', _matrix.getValue())
-
         #transform coordinates by the transformation active on the node
         _coords = self.view_state.transform_points(_coords, _matrix)
 
@@ -193,8 +204,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         for _i, _v in enumerate(_coords):
             _point.set1Value(_len + _i, _v)
 
-        #store a tuple of the coordinate index and the coordinate itself
-        self.partial_indices.append(_len + indices[1])
+        #store the coordinate that's to be transformed during dragging
+        self.partial.drag_indices.append(_len + indices[1])
 
         _len = len(_num.getValues())
 
@@ -204,8 +215,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #add new vertex number to the NumVertices SbMFInt32
         _num.set1Value(_len, 2)
 
-        self.partial_coordinates = [_v.getValue()\
+        self.partial.coordinates = [_v.getValue()\
             for _v in self.drag.part.coordinate.point.getValues()]
+
+        self.partial.transformed.append(_coords)
 
     def set_drag_axis(self, axis):
         """
@@ -222,9 +235,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Initialize dragging operation
         """
 
-        if self.partial_indices:
+        if self.partial.drag_indices:
 
-            self.partial_coordinates = [_v.getValue()\
+            self.partial.coordinates = [_v.getValue()\
                 for _v in self.drag.part.coordinate.point.getValues()]
 
         self.update([self.drag_center, self.drag_center])
@@ -263,7 +276,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.full.group.removeAllChildren()
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
-        self.partial_indices = []
+        self.partial.drag_indices = []
 
         self.geometry.set_visibility(False)
 
@@ -379,24 +392,29 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         """
 
         #iterate partial drag geometry and update
-        #zero index is part.coordinate.point index,
-        #one index is 
+        #zero index is part.coordinate.point index
         _selected = [
-            self.partial_coordinates[_v] for _v in self.partial_indices]
+            self.partial.coordinates[_v] for _v in self.partial.drag_indices]
 
         _matrix = self.view_state.get_matrix(
             self.drag.full.group, self.drag.full.top)
 
         _selected = self.view_state.transform_points(_selected, _matrix)
 
-        _p = self.partial_coordinates[:]
+        _p = self.partial.coordinates[:]
 
-        for _i, _j in enumerate(self.partial_indices):
+        for _i, _j in enumerate(self.partial.drag_indices):
             _p[_j] = _selected[_i]
 
         self.drag.part.coordinate.point.setValues(0, len(_p), _p)
 
-        self.partial_transformed = _p
+        _offset = 0
+
+        for _i, _j in enumerate(self.partial.drag_indices):
+
+            _k = _j - _offset
+            self.partial.transformed[_i][_k] = _selected[_i]
+            _offset += len(self.partial.transformed[_i])
 
     def finish(self):
         """
@@ -413,9 +431,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.full.finalize()
         self.drag.finalize()
 
-        self.partial_coordiantes = []
-        self.partial_indices = []
-
+        self.partial.coordinates = []
+        self.partial.drag_indices = []
+ 
         self.update_center_fn = None
         self.coin_style = None
         self.drag_center = None

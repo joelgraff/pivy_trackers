@@ -26,7 +26,6 @@ Line tracker class for tracker objects
 import random
 
 from collections.abc import Iterable
-from ..support.smart_tuple import SmartTuple
 from support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -80,6 +79,13 @@ class LineTracker(GeometryTracker, Text):
 
         #callback to be triggered after graph is inserted into scenegraph
         self.on_insert_callbacks.append(_fn)
+
+    def get_partial_transformed(self):
+        """
+        Return the transformed drag coordinates
+        """
+
+        return super().get_partial_transformed(self.partial_drag_index)
 
     def add_text(
         self, name=None, text=None, has_transform=False, has_font=False):
@@ -147,12 +153,32 @@ class LineTracker(GeometryTracker, Text):
         self.text_center = self.center
         self.set_text_translation((0.0, 0.0, 0.0))
 
+    def drag_text_update(self, text):
+        """
+        Update the drag text.  Called from inheriting class
+        """
+
+        #directly update the text of the node in the drag copy 
+        #with the supplied string
+        if not self.drag_copy:
+            return
+
+        _text_node = self.drag_copy.getChild(3).getChild(2)
+        self.set_text(text, _text_node)
+
     def before_drag(self, user_data):
         """
         Start of drag operations
         """
 
         super().before_drag(user_data)
+
+    def on_drag(self, user_data):
+        """
+        During drag operations
+        """
+
+        super().on_drag(user_data)
 
     def after_drag(self, user_data):
         """
@@ -190,9 +216,9 @@ class LineTracker(GeometryTracker, Text):
             _pt = (0.0, 0.0, 0.0)
 
             for _p in self.coordinates:
-                _pt = SmartTuple._add(_pt, _p)
+                _pt = TupleMath.add(_pt, _p)
 
-            _pt = SmartTuple._mul(_pt, 0.5)
+            _pt = TupleMath.multiply(_pt, 0.5)
 
         #use Manhattan distance to find nearest endpoint
         elif self.drag_style == self.DragStyle.ENDPOINT:

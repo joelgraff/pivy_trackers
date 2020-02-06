@@ -25,7 +25,6 @@ Marker tracker class for tracker objects
 
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_enums import MarkerStyles
-from ..support.smart_tuple import SmartTuple
 
 from .geometry_tracker import GeometryTracker
 
@@ -70,7 +69,7 @@ class MarkerTracker(GeometryTracker):
             self.point = coordinates[0]
 
         else:
-            self.point = SmartTuple(_c)._tuple
+            self.point = tuple(_c)
 
         super().update(_c, notify=notify)
 

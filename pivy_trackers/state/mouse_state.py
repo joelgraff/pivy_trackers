@@ -27,9 +27,9 @@ from pivy import coin
 from PySide.QtGui import QCursor
 
 from support.singleton import Singleton
+from support.tuple_math import TupleMath
 
-from .button_state import ButtonState
-from .smart_tuple import SmartTuple
+from ..state.button_state import ButtonState
 
 class MouseState(metaclass=Singleton):
     """
@@ -89,7 +89,7 @@ class MouseState(metaclass=Singleton):
 
         self.world_position = view_state.getPoint(self.screen_position)
 
-        self.vector = SmartTuple._sub(
+        self.vector = TupleMath.subtract(
             self.world_position, self.prev_position)
 
         self.alt_down = arg['AltDown']
@@ -179,10 +179,10 @@ class MouseState(metaclass=Singleton):
         _new_pos = view_state.getPointOnScreen(coord)
 
         #set the mouse position at the updated screen coordinate
-        _delta = SmartTuple._sub(_new_pos, self.screen_position)
+        _delta = TupleMath.subtract(_new_pos, self.screen_position)
 
         #get screen position by adding offset to the new window position
-        _pos = SmartTuple._add((_delta[0], -_delta[1]), QCursor.pos().toTuple())
+        _pos = TupleMath.add((_delta[0], -_delta[1]), QCursor.pos().toTuple())
 
         QCursor.setPos(_pos[0], _pos[1])
 

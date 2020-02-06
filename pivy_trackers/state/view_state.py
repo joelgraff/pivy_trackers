@@ -29,7 +29,6 @@ from pivy import coin
 from PySide import QtGui
 
 from support.singleton import Singleton
-from .smart_tuple import SmartTuple
 
 _NEAR_ZERO = 10**-30
 
@@ -246,7 +245,7 @@ class ViewState(metaclass=Singleton):
         Wrapper for InventorView getPoint()
         """
 
-        _pos = SmartTuple(pos)._tuple
+        _pos = tuple(pos)
         return tuple(self.view.getPoint(_pos[:2]))
 
     def getPointOnScreen(self, point):
@@ -254,7 +253,7 @@ class ViewState(metaclass=Singleton):
         Wrapper for InventorView getPointOnScreen()
         """
 
-        _pt = SmartTuple(point)._tuple
+        _pt = tuple(point)
 
         if len(_pt) == 2:
             _pt += (0.0,)
@@ -269,7 +268,7 @@ class ViewState(metaclass=Singleton):
         Wrapper for InventorView getObjectInfo()
         """
 
-        return self.view.getObjectInfo(SmartTuple(pos)._tuple)
+        return self.view.getObjectInfo(tuple(pos))
 
     def getCursorPos(self):
         """

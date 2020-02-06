@@ -25,7 +25,8 @@ Event class for Tracker objects
 import weakref
 from types import SimpleNamespace
 
-from ..support.smart_tuple import SmartTuple
+
+from tracker_support.tuple_math import TupleMath
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
@@ -120,8 +121,9 @@ class Event():
 
             return
 
-        _vec = SmartTuple._scl(self.mouse_state.vector, 0.10)
-        _pos = SmartTuple._add(self.mouse_state.prev_position, _vec)
+        _vec = TupleMath.scale(self.mouse_state.vector, 0.10)
+        _pos = TupleMath.add(self.mouse_state.prev_position, _vec)
+
         self.mouse_state.set_mouse_position(self.view_state, _pos)
 
     def _event_button_event(self, data, event_cb):

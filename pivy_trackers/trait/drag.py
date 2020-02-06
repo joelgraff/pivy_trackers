@@ -23,7 +23,9 @@
 Drag traits for Tracker objects
 """
 
-from ..support.todo import todo
+from collections.abc import Iterable
+
+from ..coin.todo import todo
 from ..coin import coin_utils
 from types import SimpleNamespace
 
@@ -76,7 +78,7 @@ class Drag():
         self.drag_copy = None
         self.is_dragging = False
         self.is_full_drag = False
-        self.partial_drag_indices = []
+        self.partial_drag_index = -1
 
         self.drag_mouse_cb = None
         self.drag_button_cb = None
@@ -94,12 +96,23 @@ class Drag():
 
         return Drag.drag_tracker.get_matrix()
 
-    def get_partial_transformed(self):
+    def get_partial_transformed(self, indices=None):
         """
         Return the transformed partial coordinates
+        indeices - an index or list of indices to return. Returns all if none
         """
 
-        return Drag.drag_tracker.partial_transformed
+        if indices is None or indices == []:
+            return Drag.drag_tracker.partial.transformed
+
+        if not isinstance(indices, Iterable):
+
+            assert(isinstance(indices, int)),\
+                'Drag.get_partial_transformed() - Index must be int or Iterable of ints'
+
+            indices = [indices]
+
+        return [Drag.drag_tracker.partial.transformed[_i] for _i in indices]
 
     def set_translate_increment(self, increment = 0.0):
         """
@@ -200,12 +213,11 @@ class Drag():
 
             self.after_drag(user_data)
 
-            _cbs = self.after_drag_callbacks[:]
-
-            for _cb in _cbs:
-
+            for _cb in self.after_drag_callbacks:
                 _cb(user_data)
-                del self.after_drag_callbacks[0]
+
+            #self.after_drag_callbacks = []
+            #self.on_drag_callbacks = []
 
             self.drag_tracker.end_drag()
 
@@ -218,14 +230,10 @@ class Drag():
 
             self.before_drag(user_data)
 
-            _cbs = self.before_drag_callbacks[:]
-
-            for _cb in _cbs:
-
+            for _cb in self.before_drag_callbacks:
                 _cb(user_data)
-                del self.before_drag_callbacks[0]
 
-            self.on_drag_callbacks = []
+            #self.before_drag_callbacks = []
 
             todo.delay(self.setup_drag, None)
 
@@ -263,13 +271,15 @@ class Drag():
                 if _c[-1] == len(_k.coordinates):
                     _c[-1] = -1
 
-                _k.partial_drag_indices = _c
-
                 self.before_drag_callbacks.append(_k.before_drag)
                 self.after_drag_callbacks.append(_k.after_drag)
 
-                self.drag_tracker.insert_partial_drag(
-                    _k.geometry.top, _c)
+                _k.partial_drag_index = \
+                    self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
+
+                self.drag_tracker.insert_full_drag(
+                    _k.drag_copy.getChild(3)
+                )
 
         self.drag_tracker.begin_drag()
 

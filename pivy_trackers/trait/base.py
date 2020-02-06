@@ -26,10 +26,10 @@ Base class for Tracker objects
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_group import CoinGroup
 
-from ..support.todo import todo
+from ..coin.todo import todo
 
-from ..support.view_state import ViewState
-from ..support.mouse_state import MouseState
+from ..state.view_state import ViewState
+from ..state.mouse_state import MouseState
 
 from .event import Event
 

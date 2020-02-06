@@ -111,13 +111,25 @@ class Text():
 
         return -1.0
 
-    def set_text(self, text):
+    def set_text(self, text, node=None, index=-1):
         """
         Set the node text.
-        Text - string or an iterable
+        text - string or an iterable
+        node - a text node.  If none, self.text_nodes is used
+        index - index of node in self.text_nodes.  Default is last item
         """
 
+        if node == None:
+
+            assert((index > 0 and index < len(self.text_nodes))),\
+                "Text.set_text(): array index {} out of bounds"\
+                    .format(str(index))
+
+            node = self.text_nodes[index]
+
         if isinstance(text, str):
+
+            print (self.name, 'set_text', text, node)
             node.string.setValue(text)
         
         elif isinstance(text, Iterable):
