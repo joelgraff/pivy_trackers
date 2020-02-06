@@ -157,18 +157,17 @@ class GeometryTracker(
             _v.getValue() for _v in self.geometry.coordinate.point.getValues()]
 
         #get the point that is linked to other dragged geometry
-        _xform_idx = self.partial_drag_indices[1]
+        _idx = self.partial_drag_index
+
+        if _idx is None or _idx < 0:
+            return
 
         #transform the linked point by the drag transformation
-        _coords[_xform_idx] =\
-            self.view_state.transform_points(
-                [_coords[_xform_idx]], Drag.drag_tracker.drag_matrix)[0]
+        _coords[_idx] = self.view_state.transform_points(
+                [_coords[_idx]], Drag.drag_tracker.drag_matrix)[0]
 
         #reduce the llist of coordinates as appropriate
-        _partial_coords = [
-            _coords[_v] for _v in self.partial_drag_indices if _v > -1]
-
-        self.update(_partial_coords, notify=False)
+        self.update([_coords[_idx]], notify=False)
 
     def update(self, coordinates, notify=True):
         """
