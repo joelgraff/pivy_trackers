@@ -25,8 +25,8 @@ MessageTypes class
 
 import types
 
-from support.const import Const
-from support.singleton import Singleton
+from ..support.const import Const
+from ..support.singleton import Singleton
 
 class MessageTypes(metaclass=Singleton):
 

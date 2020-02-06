@@ -26,7 +26,7 @@ Line tracker class for tracker objects
 import random
 
 from collections.abc import Iterable
-from support.tuple_math import TupleMath
+from ..support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
 

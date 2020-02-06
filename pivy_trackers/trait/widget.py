@@ -23,7 +23,7 @@
 Widget updating services
 """
 
-from ..support.message_types import MessageTypes as Messages
+from .message_types import MessageTypes as Messages
 
 from .publish import Publish
 from .subscribe import Subscribe

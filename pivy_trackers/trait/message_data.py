@@ -23,7 +23,7 @@
 Message data class for the Message trait
 """
 
-from ..support.message_types import MessageTypes as Messages
+from .message_types import MessageTypes as Messages
 
 def geometry_message(sender, data):
     """

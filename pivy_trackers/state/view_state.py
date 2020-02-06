@@ -28,7 +28,7 @@ import math
 from pivy import coin
 from PySide import QtGui
 
-from support.singleton import Singleton
+from ..support.singleton import Singleton
 
 _NEAR_ZERO = 10**-30
 

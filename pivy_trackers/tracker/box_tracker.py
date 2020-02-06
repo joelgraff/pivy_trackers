@@ -23,7 +23,7 @@
 Box tracker class
 """
 
-from support.tuple_math import TupleMath
+from ..support.tuple_math import TupleMath
 
 from ..trait.base import Base
 

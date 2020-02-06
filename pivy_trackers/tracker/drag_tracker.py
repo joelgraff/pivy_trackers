@@ -27,8 +27,8 @@ from types import SimpleNamespace
 
 from pivy import coin
 
-from support.tuple_math import TupleMath
-from support.singleton import Singleton
+from ..support.tuple_math import TupleMath
+from ..support.singleton import Singleton
 
 from ..coin.todo import todo
 

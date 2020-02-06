@@ -23,12 +23,12 @@
 Message services for Python object intercommunication
 """
 
-from ..support.message_types import MessageTypes as Messages
+from .message_types import MessageTypes as Messages
 
 from .publish import Publish
 from .subscribe import Subscribe
 
-from ..support import message_data
+from . import message_data
 
 class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/conflicting-attributes]
     """
