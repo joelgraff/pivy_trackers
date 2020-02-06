@@ -89,8 +89,6 @@ class CoinText(object):
         Text - string or an iterable
         """
 
-        print('Setting text, "{}" for {}'.format(text, self.name))
-
         if isinstance(text, str):
             self.text.string.setValue(text)
         

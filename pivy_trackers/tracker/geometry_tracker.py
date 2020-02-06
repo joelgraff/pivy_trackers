@@ -129,7 +129,6 @@ class GeometryTracker(
         End-of-drag operations
         """
 
-        print (self.name, 'after_drag')
         #copy the drag tracker matrix transformations to the actual geometry
         if self.is_full_drag:
 

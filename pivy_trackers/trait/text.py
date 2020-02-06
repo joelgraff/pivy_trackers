@@ -128,8 +128,6 @@ class Text():
             node = self.text_nodes[index]
 
         if isinstance(text, str):
-
-            print (self.name, 'set_text', text, node)
             node.string.setValue(text)
         
         elif isinstance(text, Iterable):
