@@ -216,9 +216,6 @@ class Drag():
             for _cb in self.after_drag_callbacks:
                 _cb(user_data)
 
-            #self.after_drag_callbacks = []
-            #self.on_drag_callbacks = []
-
             self.drag_tracker.end_drag()
 
         #start of drag operations
@@ -232,8 +229,6 @@ class Drag():
 
             for _cb in self.before_drag_callbacks:
                 _cb(user_data)
-
-            #self.before_drag_callbacks = []
 
             todo.delay(self.setup_drag, None)
 
@@ -274,8 +269,9 @@ class Drag():
                 self.before_drag_callbacks.append(_k.before_drag)
                 self.after_drag_callbacks.append(_k.after_drag)
 
-                _k.partial_drag_index = \
-                    self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
+                self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
+
+                self.partial_drag_index = _c[0]
 
                 self.drag_tracker.insert_full_drag(
                     _k.drag_copy.getChild(3)
