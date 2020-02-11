@@ -148,8 +148,7 @@ class GeometryTracker(
         """
 
         #get the matrix to apply transformations to coordinates
-        _matrix = self.view_state.get_matrix(
-            self.geometry.coordinate)
+        _matrix = self.view_state.get_matrix(self.geometry.coordinate)
 
         #get the coordinates as a list of 3-tuples
         _coords = [
@@ -165,7 +164,8 @@ class GeometryTracker(
         _coords[_idx] = self.view_state.transform_points(
                 [_coords[_idx]], Drag.drag_tracker.drag_matrix)[0]
 
-        #reduce the llist of coordinates as appropriate
+        print(self.name, 'coords', _coords)
+
         self.update([_coords[_idx]], notify=False)
 
     def update(self, coordinates, notify=True):
