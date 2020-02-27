@@ -190,12 +190,15 @@ class CoinGroup(object):
 
         self.top.removeAllChildren()
 
-    def dump(self):
+    def dump(self, node=None):
         """
         Convenience function to dump contents of CoinGroup
         """
 
-        utils.dump_node(self.root)
+        if node is None:
+            node = self.root
+
+        utils.dump_node(node)
 
     def finalize(self, parent=None):
         """
