@@ -159,7 +159,7 @@ class TupleMath(Const):
             _prev = tpl[0]
 
             for _t in tpl[1:]:
-                _len += length(subtract(_t, _prev))
+                _len += TupleMath.length(TupleMath.subtract(_t, _prev))
 
             return _len
 

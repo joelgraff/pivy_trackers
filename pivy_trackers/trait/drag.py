@@ -37,12 +37,13 @@ class Drag():
     Drag traits for tracker classes
     """
 
-    #prototypes from Base, Select, and Event
+    #prototypes from Base, Select, Event, and Geometry
     base = None
     name = ''
     mouse_state = None
     view_state = None
     select = None
+    coordinates = None
 
     def set_event_path(self, callback, is_pathed=True): """prototype"""
     def is_selected(self): """prototype"""
@@ -95,6 +96,35 @@ class Drag():
         """
 
         return Drag.drag_tracker.get_matrix()
+
+    def get_drag_coordinates(self):
+        """
+        Transform the object coordinates by the drag tracker matrix
+        """
+
+        if self.coordinates is None:
+            return None
+
+        _c = self.coordinates
+
+        if not self.is_full_drag:
+
+            if self.partial_drag_index == -1:
+                return None
+
+            _c = [_c[self.partial_drag_index]]
+
+        _c = self.view_state.transform_points(
+            _c, Drag.drag_tracker.get_matrix())
+
+        if not self.is_full_drag:
+            _coords = self.coordinates[:]
+            _coords[self.partial_drag_index] = _c[0]
+
+        else:
+            _coords = _c
+
+        return _coords
 
     def set_translate_increment(self, increment = 0.0):
         """
@@ -250,7 +280,6 @@ class Drag():
 
                 #set up the text drag
                 _text_group = _k.drag_copy.getChild(3)
-                _text_group.insertChild(_k.drag_copy.getChild(0), 0)
 
                 self.drag_tracker.insert_full_drag(_text_group)
 

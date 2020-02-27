@@ -121,17 +121,16 @@ class Text():
 
         if node == None:
 
-            assert((index > 0 and index < len(self.text_nodes))),\
+            assert((index > -2 and index < len(self.text_nodes))),\
                 "Text.set_text(): array index {} out of bounds"\
                     .format(str(index))
 
             node = self.text_nodes[index]
+            node.set_text(text)
 
-        if isinstance(text, str):
-            node.string.setValue(text)
-        
-        elif isinstance(text, Iterable):
-            node.string.setValues(0, len(text), text)
+            return
+
+        node.string.setValue(text)
 
     def get_text(self):
         """
