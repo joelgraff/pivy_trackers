@@ -137,9 +137,6 @@ class ViewState(metaclass=Singleton):
         _matrix = matrix
 
         if _matrix is None:
-            _matrix = self.get_matrix(node, refresh=refresh)
-
-        if _matrix is None:
             return points
 
         _xlate = [_v for _v in _matrix.getValue()[3]]
