@@ -23,6 +23,8 @@
 Geometry tracker base class
 """
 
+from ..support.tuple_math import TupleMath
+
 from ..coin import coin_utils
 
 from ..coin.todo import todo
@@ -115,30 +117,21 @@ class GeometryTracker(
         Start of drag operations
         """
 
-        pass
+        super().before_drag(user_data)
 
     def on_drag(self, user_data):
         """
         During drag operations
         """
 
-        pass
+        super().on_drag(user_data)
 
     def after_drag(self, user_data):
         """
         End-of-drag operations
         """
 
-        #copy the drag tracker matrix transformations to the actual geometry
-        if self.is_full_drag:
-
-            #get the coordinate node of the drag copy
-            _coord = self.drag_copy.getChild(1)
-            _mat = self.view_state.get_matrix(_coord)
-            self.geometry.transform.setMatrix(_mat)
-
-        else:
-            todo.delay(self._after_drag_update, None)
+        todo.delay(self._after_drag_update, None)
 
         super().after_drag(user_data)
 
@@ -151,22 +144,33 @@ class GeometryTracker(
         _matrix = self.view_state.get_matrix(self.geometry.coordinate)
 
         #get the coordinates as a list of 3-tuples
-        _coords = [
-            _v.getValue() for _v in self.geometry.coordinate.point.getValues()]
+        _coords = [_v.getValue() 
+            for _v in self.geometry.coordinate.point.getValues()]
+
+        _xf_coord = _coords
 
         #get the point that is linked to other dragged geometry
-        _idx = self.partial_drag_index
+        if not self.is_full_drag:
 
-        if _idx is None or _idx < 0:
-            return
+            _idx = self.partial_drag_index
+
+            if _idx is None or _idx < 0:
+                return
+
+            _xf_coord = [_coords[_idx]]
 
         #transform the linked point by the drag transformation
-        _coords[_idx] = self.view_state.transform_points(
-                [_coords[_idx]], Drag.drag_tracker.drag_matrix)[0]
+        _xf_coord = \
+            self.view_state.transform_points(
+                _xf_coord, Drag.drag_tracker.drag_matrix)
 
-        print(self.name, 'coords', _coords)
+        if not self.is_full_drag:
+            _coords[_idx] = _xf_coord[0]
 
-        self.update([_coords[_idx]], notify=False)
+        else:
+            _coords = _xf_coord
+
+        self.update(_coords, notify=False)
 
     def update(self, coordinates, notify=True):
         """

@@ -96,24 +96,6 @@ class Drag():
 
         return Drag.drag_tracker.get_matrix()
 
-    def get_partial_transformed(self, indices=None):
-        """
-        Return the transformed partial coordinates
-        indeices - an index or list of indices to return. Returns all if none
-        """
-
-        if indices is None or indices == []:
-            return Drag.drag_tracker.partial.transformed
-
-        if not isinstance(indices, Iterable):
-
-            assert(isinstance(indices, int)),\
-                'Drag.get_partial_transformed() - Index must be int or Iterable of ints'
-
-            indices = [indices]
-
-        return [Drag.drag_tracker.partial.transformed[_i] for _i in indices]
-
     def set_translate_increment(self, increment = 0.0):
         """
         Set the increment of translation - 0.0 = free translation
@@ -173,25 +155,17 @@ class Drag():
 
     def drag_mouse_event(self, user_data, event_cb):
         """
-        Coin-level mouse event callback
+        Coin-level drag mouse event callback
         """
 
         if self.handle_drag_events or self.handle_events:
             event_cb.setHandled()
 
-        if not self.is_dragging:
-            return
-
         self.on_drag(user_data)
-
-        for _cb in self.on_drag_callbacks:
-            _cb(user_data)
-
-        self.drag_tracker.update_drag()
 
     def drag_button_event(self, user_data, event_cb):
         """
-        Coin-level button event callback
+        Coin-level drag button event callback
         """
 
         if self.handle_drag_events or self.handle_events:
@@ -217,6 +191,7 @@ class Drag():
                 _cb(user_data)
 
             self.drag_tracker.end_drag()
+            todo.delay(self.teardown_drag, None)
 
         #start of drag operations
         else:
@@ -271,25 +246,51 @@ class Drag():
 
                 self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
 
-                self.partial_drag_index = _c[0]
+                _k.partial_drag_index = _c[1]
 
-                self.drag_tracker.insert_full_drag(
-                    _k.drag_copy.getChild(3)
-                )
+                #set up the text drag
+                _text_group = _k.drag_copy.getChild(3)
+                _text_group.insertChild(_k.drag_copy.getChild(0), 0)
+
+                self.drag_tracker.insert_full_drag(_text_group)
 
         self.drag_tracker.begin_drag()
+
+    def before_drag(self, user_data):
+        """
+        Called before drag operations begin
+        """
+
+        pass
 
     def on_drag(self, user_data):
         """
         Called during drag operations
         """
 
-        pass
+        if not self.is_dragging:
+            return
+
+        for _cb in self.on_drag_callbacks:
+            _cb(user_data)
+
+        self.drag_tracker.update_drag()
 
     def after_drag(self, user_data):
         """
         Called at end of drag operations
         """
+
+        pass
+
+    def teardown_drag(self):
+        """
+        Called after end of drag operations
+        """
+
+        self.before_drag_callbacks = []
+        self.on_drag_callbacks = []
+        self.after_drag_callbacks = []
 
         self.drag_copy = None
         self.is_full_drag = False
