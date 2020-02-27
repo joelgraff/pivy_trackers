@@ -80,12 +80,12 @@ class LineTracker(GeometryTracker, Text):
         #callback to be triggered after graph is inserted into scenegraph
         self.on_insert_callbacks.append(_fn)
 
-    def get_partial_transformed(self):
+    def get_length(self):
         """
         Return the transformed drag coordinates
         """
 
-        return super().get_partial_transformed(self.partial_drag_index)
+        return TupleMath.length(self.coordinates)
 
     def add_text(
         self, name=None, text=None, has_transform=False, has_font=False):
@@ -104,7 +104,7 @@ class LineTracker(GeometryTracker, Text):
         Return the line length
         """
 
-        return TupleMath.length(TupleMath.subtract(self.coordinates))
+        return TupleMath.length(self.coordinates)
 
     def show_markers(self):
         """

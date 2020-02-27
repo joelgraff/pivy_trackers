@@ -149,7 +149,21 @@ class TupleMath(Const):
     def length(tpl):
         """
         Calculate the length of a tuple
+        If a list of tuples, length is caculated as distance between points
         """
+
+        #distance between a list of points
+        if isinstance(tpl[0], Iterable):
+
+            _len = 0.0
+            _prev = tpl[0]
+
+            for _t in tpl[1:]:
+                _len += length(subtract(_t, _prev))
+
+            return _len
+
+        #vector length from origin to point
         return math.sqrt(sum([_v*_v for _v in tpl]))
 
     @staticmethod
