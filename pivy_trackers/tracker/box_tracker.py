@@ -34,7 +34,7 @@ class BoxTracker(Base):
     Box tracker class
     """
 
-    def __init__(self, name, corners, parent, view=None):
+    def __init__(self, name, corners, parent, is_resizeable=True, view=None):
         """
         Constructor
 
@@ -59,17 +59,21 @@ class BoxTracker(Base):
             self.corners[1], (self.corners[0][0], self.corners[1][1], 0.0)
         )
 
-        self.lines = [
-            LineTracker('left', [_points[0], _points[1]], self.base),
-            LineTracker('front', [_points[1], _points[2]], self.base),
-            LineTracker('right', [_points[2], _points[3]], self.base),
-            LineTracker('rear', [_points[3], _points[0]], self.base)
-        ]
+        if is_resizeable:
+            self.lines = [
+                LineTracker('left', [_points[0], _points[1]], self.base),
+                LineTracker('front', [_points[1], _points[2]], self.base),
+                LineTracker('right', [_points[2], _points[3]], self.base),
+                LineTracker('rear', [_points[3], _points[0]], self.base)
+            ]
 
-        self.lines[0].link_geometry(self.lines[1], 1, 0)
-        self.lines[0].link_geometry(self.lines[3], 0, 1)
-        self.lines[1].link_geometry(self.lines[2], 1, 0)
-        self.lines[2].link_geometry(self.lines[3], 1, 0)
+            self.lines[0].link_geometry(self.lines[1], 1, 0)
+            self.lines[0].link_geometry(self.lines[3], 0, 1)
+            self.lines[1].link_geometry(self.lines[2], 1, 0)
+            self.lines[2].link_geometry(self.lines[3], 1, 0)
+
+        else:
+            self.lines = [LineTracker('box', _points + _points[0], self.base)]
 
         self.set_visibility()
 
