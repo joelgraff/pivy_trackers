@@ -73,7 +73,7 @@ class GeometryTracker(
         if target not in self.linked_geometry:
 
             #register the line and geometry with each other
-            self.register_geometry(target, True)
+            #self.register_geometry(target, True)
             self.linked_geometry[target] = []
 
         self.linked_geometry[target].append(source_index)

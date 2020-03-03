@@ -23,6 +23,8 @@
 Class for creating Coin3D text node structures
 """
 
+from collections.abc import Iterable
+
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
 
@@ -91,7 +93,7 @@ class CoinText(object):
 
         if isinstance(text, str):
             self.text.string.setValue(text)
-        
+
         elif isinstance(text, Iterable):
             self.text.string.setValues(0, len(text), text)
 

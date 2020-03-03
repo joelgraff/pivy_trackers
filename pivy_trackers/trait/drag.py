@@ -263,6 +263,9 @@ class Drag():
 
                 _idx = _k.linked_geometry[self]
 
+                #if _idx == -1:
+                #    continue
+
                 #picked coordinate is always middle index
                 #if picked is first or last coordinate,
                 #previous / next index == -1

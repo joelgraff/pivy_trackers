@@ -125,7 +125,7 @@ class Geometry():
         """
 
         assert(isinstance(coordinates, Iterable)),\
-            'Geometry.set_coordiantes(): Non-iterable coordinate structure'
+            'Geometry.set_coordinates(): Non-iterable coordinate structure'
 
         #encapsulate a single coordinate as a list
         if not isinstance(coordinates[0], Iterable):
