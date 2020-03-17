@@ -30,8 +30,10 @@ from ..support.tuple_math import TupleMath
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
-from ..coin.coin_enums import MouseEvents as MouseEvents
+from ..coin.coin_enums import InputEvent as InputEvent
+from ..coin.coin_enums import Keys
 from ..coin import coin_utils
+from ..coin.todo import todo
 
 class Event():
     """
@@ -46,7 +48,7 @@ class Event():
 
     #class statics
     _self_weak_list = {}
-    _default_callback_node = None
+    global_cb_node = None
 
     @staticmethod
     def set_paths():
@@ -90,22 +92,39 @@ class Event():
             is_switched=Event.is_switched,
             parent=self.base, name=self.name + '__EVENTS')
 
-        self.callback_nodes = []
+        self.pathed_switch = self.event.add_node(Nodes.SWITCH, 'PATH_SWITCH')
+        self.local_switch = self.event.add_node(Nodes.SWITCH, 'LOCAL_SWITCH')
+
+        self.pathed_cb_nodes = [SimpleNamespace(
+                cb_node=coin_utils.add_child(
+                    Nodes.EVENT_CB, 
+                    self.pathed_switch,
+                    self.name + '_PATHED_CB_NODE'),
+                path_node=None,
+                callbacks=[]
+            )]
+
+        self.local_cb_node = coin_utils.add_child(
+            Nodes.EVENT_CB, self.local_switch, 'LOCAL_CB_NODE')
 
         self.handle_events = False
 
         #create a global callback for managing mouse updates
-        if not Event._default_callback_node:
+        if not Event.global_cb_node:
 
             self.add_mouse_event(self._event_mouse_event)
             self.add_button_event(self._event_button_event)
-            Event._default_callback_node = self.callback_nodes[0].cb_node
+
+            Event.global_cb_node =\
+                self.event.add_node(Nodes.EVENT_CB, 'GLOBAL_EVENT_CALLBACK')
 
         self.event.set_visibility(True)
 
         Event._self_weak_list[self] = weakref.ref(self)
-
         Event.init_graph()
+
+        self.toggle_pathed_event_callbacks()
+        #self.toggle_local_event_callbacks()
 
         super().__init__()
 
@@ -133,93 +152,60 @@ class Event():
 
         self.mouse_state.update(event_cb, self.view_state)
 
-    def add_event_callback_node(self):
-        """
-        Add an event callback node to the current group
-        """
-
-        self.callback_nodes.append(
-            SimpleNamespace(
-                cb_node=self.event.add_node(Nodes.EVENT_CB, 'EVENT_CALLBACK'),
-                path_node=None,
-                callbacks=[]
-            )
-        )
-
-    def remove_event_callback_node(self, node=None, index=-1):
-        """
-        Remove an event callback node from the current group
-
-        """
-
-        if node is None:
-            node = self.callback_nodes[index].cb_node
-
-        self.event.remove_node(node)
-
-        del self.callback_nodes[index]
-
     def set_event_paths(self):
         """
         Set paths on every callback node that has a path
         """
 
-        for _c in self.callback_nodes:
-            
-            if not _c.path_node:
-                continue
+        for _sn in self.pathed_cb_nodes:
 
-            _sa = coin_utils.search(_c.path_node, self.view_state.sg_root)
-            _c.cb_node.setPath(_sa.getPath())
+            _sa = coin_utils.search(_sn.path_node, self.view_state.sg_root)
+            _sn.cb_node.setPath(_sa.getPath())
 
-    def set_event_path(self, callback, is_pathed=True):
+    def set_event_path(self, callback, pathed=True):
         """
         Set/clear a path on a specific callback node
         """
 
-        for _c in self.callback_nodes:
+        _cb = self.pathed_cb_nodes[-1]
 
-            for _d in _c.callbacks:
-                if _d != callback:
-                    continue
+        _path = None
 
-            _path = None
+        if pathed:
 
-            if is_pathed and _c.path_node:
-                _sa = coin_utils.search(_c.path_node, self.view_state.sg_root)
-                _path = _sa.getPath()
+            for _c in self.pathed_cb_nodes:
 
-            _c.cb_node.setPath(_path)
+                for _d in _c.callbacks:
 
-            break
+                    if _d != callback[0]:
+                        continue
 
-    def add_event_callback(self, event_type, callback, index=-1):
+                    _sa = coin_utils.search(
+                        _cb.path_node, self.view_state.sg_root)
+
+                    _path = _sa.getPath()
+
+                    break
+
+        _cb.cb_node.setPath(_path)
+
+    def add_event_callback(self, event_type, callback, pathed=True):
         """
         Add an event callback
         """
 
-        #if none exist, add a new one
-        #otherwise default behavior reuses last-created SoEventCb node
-        if not self.callback_nodes:
-            self.add_event_callback_node()
+        _node = self.pathed_cb_nodes[-1].cb_node
 
-        assert(index < len(self.callback_nodes)), """
-        Event.add_event_callback(): index {} exceeds callback list length.
-        """.format(str(index))
-        
-        _cb_node = self.callback_nodes[index].cb_node
-        _cb = _cb_node.addEventCallback(event_type, callback)
+        if not pathed:
+            _node = self.local_cb_node
 
-        self.callback_nodes[index].callbacks.append(
-            SimpleNamespace(
-                callback=_cb,
-                event_type=event_type
-            )
-        )
+        else:
+            self.pathed_cb_nodes[-1].callbacks.append(callback)
 
-        return _cb
+        return _node.addEventCallback(event_type, callback)
 
-    def remove_event_callback(self, event_type=None, callback=None, index=-1):
+    def remove_event_callback(
+        self, event_type=None, callback=None, pathed=True):
         """
         Remove an event callback.
 
@@ -228,59 +214,59 @@ class Event():
         callback - Callback to remove.  If None, removes all by event_type
         """
 
-        if not self.callback_nodes:
-            return
-
         assert((callback is not None) or (event_type is not None)), """
         Event.remove_event_callback():callback and event_type are None
         """
-        assert(index < len(self.callback_nodes)), """
-        Event.add_event_callback(): index {} exceeds callback list length.
-        """.format(str(index))
 
-        for _c in self.callback_nodes:
+        _node = self.pathed_cb_nodes[-1].cb_node
 
-            for _d in list(_c.callbacks):
+        if not pathed:
+            _node = self.local_cb_node
 
-                if (event_type is not None) and (_d.event_type != event_type):
-                    continue
+        _node.removeEventCallback(callback)
 
-                if callback and (callback != _d.callback):
-                    continue
-
-                _c.callbacks.remove(_d)
-                _c.node.removeEventCallback(callback)
-
-            if not _c.callbacks:
-                self.remove_event_callback_node(index)
-
-    def add_mouse_event(self, callback):
+    def add_keyboard_event(self, callback, pathed=False):
         """
         Convenience function
         """
 
-        return self.add_event_callback(MouseEvents.LOCATION2, callback)
+        return self.add_event_callback(InputEvent.KEYBOARD, callback, pathed)
 
-    def add_button_event(self, callback):
+    def add_mouse_event(self, callback, pathed=True):
         """
         Convenience function
         """
 
-        return self.add_event_callback(MouseEvents.MOUSE_BUTTON, callback)
+        return self.add_event_callback(InputEvent.LOCATION2, callback, pathed)
 
-    def remove_mouse_event(self, callback):
+    def add_button_event(self, callback, pathed=True):
         """
         Convenience function
         """
 
-        self.remove_event_callback(MouseEvents.LOCATION2, callback)
+        return self.add_event_callback(
+            InputEvent.MOUSE_BUTTON, callback, pathed)
 
-    def remove_button_event(self, callback):
+    def remove_keyboard_event(self, callback, pathed=False):
         """
         Convenience function
         """
 
-        self.remove_event_callback(MouseEvents.MOUSE_BUTTON, callback)
+        self.remove_event_callback(InputEvent.KEYBOARD, callback, pathed)
+
+    def remove_mouse_event(self, callback, pathed=True):
+        """
+        Convenience function
+        """
+
+        self.remove_event_callback(InputEvent.LOCATION2, callback, pathed)
+
+    def remove_button_event(self, callback, pathed=True):
+        """
+        Convenience function
+        """
+
+        self.remove_event_callback(InputEvent.MOUSE_BUTTON, callback, pathed)
 
     def events_enabled(self):
         """
@@ -289,18 +275,19 @@ class Event():
 
         return self.event.whichChild == 0
 
-    def toggle_event_callbacks(self):
+    def toggle_pathed_event_callbacks(self):
+        """
+        Switch pathed events on / off
+        """
+
+        coin_utils.toggle_switch(self.pathed_switch)
+
+    def toggle_local_event_callbacks(self):
         """
         Switch event callbacks on / off
         """
-        #PyLint doesn't detect getValue()
-        #pylint: disable=no-member
 
-        if self.event.whichChild.getValue() == 0:
-            self.event.whichChild = -1
-
-        else:
-            self.event.whichChild = 0
+        coin_utils.toggle_switch(self.local_switch)
 
     def finish(self):
         """
@@ -308,11 +295,14 @@ class Event():
         """
 
         self.event.finalize()
-        self.callback_nodes = []
         self.handle_events = False
+        self.local_cb_node = None
+        self.pathed_switch = None
+        self.local_switch = None
+        self.pathed_cb_nodes = []
 
         Event._self_weak_list = {}
-        Event._default_callback_node = None
+        Event.global_cb_node = None
 
 
 Event.init_graph()

@@ -36,13 +36,14 @@ from ..trait.pick import Pick
 from ..trait.select import Select
 from ..trait.drag import Drag
 from ..trait.geometry import Geometry
+from ..trait.keyboard import Keyboard
 
 from ..trait import enums
 
 from ..coin.coin_styles import CoinStyles
 
 class GeometryTracker(
-    Base, Message, Style, Geometry, Event, Pick, Select, Drag):
+    Base, Message, Style, Geometry, Event, Keyboard, Pick, Select, Drag):
 
     """
     Geometry tracker base class
@@ -83,25 +84,21 @@ class GeometryTracker(
 
         target.linked_geometry[self].append(target_index)
 
-    def add_node_events(self, node=None, add_callback=False, pathed=True):
+    def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node
         """
 
-        #optionally create a separate callback node for new geometry
-        if add_callback:
-            pathed = True
-            self.add_event_callback_node()
-
         #events are added to the last-added event callback node
         self.add_select_events()
         self.add_drag_events()
+        #self.add_keyboard_events()
 
         if pathed:
 
             assert(node is not None), """pivy_trackers::GeometryTracker.add_node_events() - Node is NoneType.  Cannot apply event path"""
 
-            self.callback_nodes[-1].path_node = node
+            self.pathed_cb_nodes[-1].path_node = node
 
     def reset(self):
         """
@@ -208,7 +205,7 @@ class GeometryTracker(
         if not isinstance(coordinates, list):
             coordinates = [coordinates]
 
-        self.dispatch_geometry(coordinates)
+        #self.dispatch_geometry(coordinates)
 
     def notify_geometry(self, event, message):
         """
