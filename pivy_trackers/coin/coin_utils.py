@@ -167,7 +167,9 @@ def add_child(event_class, parent, name='', index=-1):
         _name = str(event_class.getClassTypeId().getName())
 
     _node = event_class()
-    _node.setName(_name)
+
+    if hasattr(_node, 'setName'):
+        _node.setName(_name)
 
     if parent:
         insert_child(_node, parent, index)
@@ -182,3 +184,16 @@ def get_rotation(angle, axis=(0.0, 0.0, 1.0)):
     """
 
     return coin.SbRotation(coin.SbVec3f(axis), angle)
+
+def toggle_switch(switch, toggle_all=False, index=-3):
+    """
+    Toggle a switch between off (-1) and on (-3 or >-1)
+    """
+    #PyLint doesn't detect getValue()
+    #pylint: disable=no-member
+
+    if switch.whichChild.getValue() == -1:
+        switch.whichChild = index
+
+    else:
+        switch.whichChild = -1

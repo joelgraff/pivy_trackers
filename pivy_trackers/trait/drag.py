@@ -23,6 +23,8 @@
 Drag traits for Tracker objects
 """
 
+import signal, traceback
+
 from collections.abc import Iterable
 
 from ..coin.todo import todo
@@ -84,9 +86,16 @@ class Drag():
         self.drag_mouse_cb = None
         self.drag_button_cb = None
 
-        self.on_drag_callbacks = []
+        #localized callback lists that are cleared at the end of
+        #every drag operation
+        self.on_drag_local_cb = []
+        self.before_drag_local_cb = []
+        self.after_drag_local_cb = []
+
+        #system-wide callbacks that persist across drag oeprations
         self.before_drag_callbacks = []
-        self.after_drag_callbacks= []
+        self.on_drag_callbacks = []
+        self.after_drag_callbacks = []
 
         super().__init__()
 
@@ -211,14 +220,12 @@ class Drag():
         #end of drag operations
         if self.is_dragging:
 
+            #re-enable selective pathing
             self.set_event_path(self.drag_mouse_cb, True)
             self.set_event_path(self.drag_button_cb, True)
             self.is_dragging = False
 
             self.after_drag(user_data)
-
-            for _cb in self.after_drag_callbacks:
-                _cb(user_data)
 
             self.drag_tracker.end_drag()
             todo.delay(self.teardown_drag, None)
@@ -226,14 +233,12 @@ class Drag():
         #start of drag operations
         else:
 
+            #set the event path to none to enable constant drag
             self.set_event_path(self.drag_mouse_cb, False)
             self.set_event_path(self.drag_button_cb, False)
             self.is_dragging = True
 
             self.before_drag(user_data)
-
-            for _cb in self.before_drag_callbacks:
-                _cb(user_data)
 
             todo.delay(self.setup_drag, None)
 
@@ -263,8 +268,8 @@ class Drag():
 
                 _idx = _k.linked_geometry[self]
 
-                #if _idx == -1:
-                #    continue
+                if _idx == -1:
+                    continue
 
                 #picked coordinate is always middle index
                 #if picked is first or last coordinate,
@@ -274,8 +279,9 @@ class Drag():
                 if _c[-1] == len(_k.coordinates):
                     _c[-1] = -1
 
-                self.before_drag_callbacks.append(_k.before_drag)
-                self.after_drag_callbacks.append(_k.after_drag)
+                #set drag callbacks which are removed at end of drag ops
+                self.before_drag_local_cb.append(_k.before_drag)
+                self.after_drag_local_cb.append(_k.after_drag)
 
                 self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
 
@@ -293,7 +299,8 @@ class Drag():
         Called before drag operations begin
         """
 
-        pass
+        for _cb in self.before_drag_callbacks + self.before_drag_local_cb:
+            _cb(user_data)
 
     def on_drag(self, user_data):
         """
@@ -303,7 +310,7 @@ class Drag():
         if not self.is_dragging:
             return
 
-        for _cb in self.on_drag_callbacks:
+        for _cb in self.on_drag_callbacks + self.on_drag_local_cb:
             _cb(user_data)
 
         self.drag_tracker.update_drag()
@@ -313,19 +320,21 @@ class Drag():
         Called at end of drag operations
         """
 
-        pass
+        for _cb in self.after_drag_callbacks + self.after_drag_local_cb:
+            _cb(user_data)
 
     def teardown_drag(self):
         """
         Called after end of drag operations
         """
 
-        self.before_drag_callbacks = []
-        self.on_drag_callbacks = []
-        self.after_drag_callbacks = []
+        self.before_drag_local_cb = []
+        self.on_drag_local_cb = []
+        self.after_drag_local_cb = []
 
         self.drag_copy = None
         self.is_full_drag = False
+        self.is_dragging = False
 
     def finish(self):
         """

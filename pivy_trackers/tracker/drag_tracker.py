@@ -438,8 +438,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.coin_style = None
         self.drag_center = None
 
-        self.before_drag_callbacks = []
-        self.on_drag_callbacks = []
-        self.after_drag_callbacks = []
+        self.before_drag_local_cb = []
+        self.on_drag_local_cb = []
+        self.after_drag_local_cb = []
 
         Singleton.finish(DragTracker)
