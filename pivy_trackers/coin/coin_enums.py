@@ -39,12 +39,13 @@ class Axis(Const):
     YZ = (0.0, 1.0, 1.0)
     XZ = (1.0, 0.0, 1.0)
 
-class MouseEvents(Const):
+class InputEvent(Const):
     """
     Mouse state event constant enumerants
     """
     LOCATION2 = coin.SoLocation2Event.getClassTypeId()
     MOUSE_BUTTON = coin.SoMouseButtonEvent.getClassTypeId()
+    KEYBOARD = coin.SoKeyboardEvent.getClassTypeId()
 
 class FontStyles(Const):
     """
@@ -79,6 +80,7 @@ class NodeTypes(Const):
     EVENT_CB = coin.SoEventCallback
     FONT = coin.SoFont
     GROUP = coin.SoGroup
+    KEYBOARD_EVENT = coin.SoKeyboardEvent
     LINE_SET = coin.SoLineSet
     MARKER_SET = coin.SoMarkerSet
     NODE = coin.SoNode
@@ -87,6 +89,135 @@ class NodeTypes(Const):
     SEPARATOR = coin.SoSeparator
     TEXT = coin.SoText2
     TRANSFORM = coin.SoTransform
+
+class Keys(Const):
+    """
+    Enumerants for Coin3D trappable keys for SoKeyboardEvent
+    """
+
+    ANY = coin.SoKeyboardEvent.ANY
+    UNDEFINED = coin.SoKeyboardEvent.UNDEFINED
+    LEFT_SHIFT = coin.SoKeyboardEvent.LEFT_SHIFT
+    RIGHT_SHIFT = coin.SoKeyboardEvent.RIGHT_SHIFT
+    LEFT_CONTROL = coin.SoKeyboardEvent.LEFT_CONTROL
+    RIGHT_CONTROL = coin.SoKeyboardEvent.RIGHT_CONTROL
+    LEFT_ALT = coin.SoKeyboardEvent.LEFT_ALT
+    RIGHT_ALT = coin.SoKeyboardEvent.RIGHT_ALT
+    NUMBER_0 = coin.SoKeyboardEvent.NUMBER_0
+    NUMBER_1 = coin.SoKeyboardEvent.NUMBER_1
+    NUMBER_2 = coin.SoKeyboardEvent.NUMBER_2
+    NUMBER_3 = coin.SoKeyboardEvent.NUMBER_3
+    NUMBER_4 = coin.SoKeyboardEvent.NUMBER_4
+    NUMBER_5 = coin.SoKeyboardEvent.NUMBER_5
+    NUMBER_6 = coin.SoKeyboardEvent.NUMBER_6
+    NUMBER_7 = coin.SoKeyboardEvent.NUMBER_7
+    NUMBER_8 = coin.SoKeyboardEvent.NUMBER_8
+    NUMBER_9 = coin.SoKeyboardEvent.NUMBER_9
+    A = coin.SoKeyboardEvent.A
+    B = coin.SoKeyboardEvent.B
+    C = coin.SoKeyboardEvent.C
+    D = coin.SoKeyboardEvent.D
+    E = coin.SoKeyboardEvent.E
+    F = coin.SoKeyboardEvent.F
+    G = coin.SoKeyboardEvent.G
+    H = coin.SoKeyboardEvent.H
+    I = coin.SoKeyboardEvent.I
+    J = coin.SoKeyboardEvent.J 
+    K = coin.SoKeyboardEvent.K
+    L = coin.SoKeyboardEvent.L
+    M = coin.SoKeyboardEvent.M
+    N = coin.SoKeyboardEvent.N
+    O = coin.SoKeyboardEvent.O  
+    P = coin.SoKeyboardEvent.P
+    Q = coin.SoKeyboardEvent.Q
+    R = coin.SoKeyboardEvent.R
+    S = coin.SoKeyboardEvent.S
+    T = coin.SoKeyboardEvent.T
+    U = coin.SoKeyboardEvent.U
+    V = coin.SoKeyboardEvent.V
+    W = coin.SoKeyboardEvent.W
+    X = coin.SoKeyboardEvent.X
+    Y = coin.SoKeyboardEvent.Y
+    Z = coin.SoKeyboardEvent.Z
+    HOME = coin.SoKeyboardEvent.HOME
+    LEFT_ARROW = coin.SoKeyboardEvent.LEFT_ARROW
+    UP_ARROW = coin.SoKeyboardEvent.UP_ARROW
+    RIGHT_ARROW = coin.SoKeyboardEvent.RIGHT_ARROW
+    DOWN_ARROW = coin.SoKeyboardEvent.DOWN_ARROW
+    PAGE_UP = coin.SoKeyboardEvent.PAGE_UP
+    PAGE_DOWN = coin.SoKeyboardEvent.PAGE_DOWN
+    END = coin.SoKeyboardEvent.END
+    PRIOR = coin.SoKeyboardEvent.PRIOR
+    NEXT = coin.SoKeyboardEvent.NEXT
+    PAD_ENTER = coin.SoKeyboardEvent.PAD_ENTER
+    PAD_F1 = coin.SoKeyboardEvent.PAD_F1
+    PAD_F2 = coin.SoKeyboardEvent.PAD_F2
+    PAD_F3 = coin.SoKeyboardEvent.PAD_F3
+    PAD_F4 = coin.SoKeyboardEvent.PAD_F4
+    PAD_0 = coin.SoKeyboardEvent.PAD_0
+    PAD_1 = coin.SoKeyboardEvent.PAD_1
+    PAD_2 = coin.SoKeyboardEvent.PAD_2
+    PAD_3 = coin.SoKeyboardEvent.PAD_3
+    PAD_4 = coin.SoKeyboardEvent.PAD_4
+    PAD_5 = coin.SoKeyboardEvent.PAD_5
+    PAD_6 = coin.SoKeyboardEvent.PAD_6
+    PAD_7 = coin.SoKeyboardEvent.PAD_7
+    PAD_8 = coin.SoKeyboardEvent.PAD_8
+    PAD_9 = coin.SoKeyboardEvent.PAD_9
+    PAD_ADD = coin.SoKeyboardEvent.PAD_ADD
+    PAD_SUBTRACT = coin.SoKeyboardEvent.PAD_SUBTRACT
+    PAD_MULTIPLY = coin.SoKeyboardEvent.PAD_MULTIPLY
+    PAD_DIVIDE = coin.SoKeyboardEvent.PAD_DIVIDE
+    PAD_SPACE = coin.SoKeyboardEvent.PAD_SPACE
+    PAD_TAB = coin.SoKeyboardEvent.PAD_TAB
+    PAD_INSERT = coin.SoKeyboardEvent.PAD_INSERT
+    PAD_DELETE = coin.SoKeyboardEvent.PAD_DELETE
+    PAD_PERIOD = coin.SoKeyboardEvent.PAD_PERIOD
+    F1 = coin.SoKeyboardEvent.F1
+    F2 = coin.SoKeyboardEvent.F2
+    F3 = coin.SoKeyboardEvent.F3
+    F4 = coin.SoKeyboardEvent.F4
+    F5 = coin.SoKeyboardEvent.F5
+    F6 = coin.SoKeyboardEvent.F6
+    F7 = coin.SoKeyboardEvent.F7
+    F8 = coin.SoKeyboardEvent.F8
+    F9 = coin.SoKeyboardEvent.F9
+    F10 = coin.SoKeyboardEvent.F10
+    F11 = coin.SoKeyboardEvent.F11
+    F12 = coin.SoKeyboardEvent.F12
+    BACKSPACE = coin.SoKeyboardEvent.BACKSPACE
+    TAB = coin.SoKeyboardEvent.TAB
+    RETURN = coin.SoKeyboardEvent.RETURN
+    ENTER = coin.SoKeyboardEvent.ENTER
+    PAUSE = coin.SoKeyboardEvent.PAUSE
+    SCROLL_LOCK = coin.SoKeyboardEvent. SCROLL_LOCK
+    ESCAPE = coin.SoKeyboardEvent.ESCAPE
+    DELETE = coin.SoKeyboardEvent.DELETE
+    KEY_DELETE = coin.SoKeyboardEvent.DELETE
+    PRINT = coin.SoKeyboardEvent. PRINT
+    INSERT = coin.SoKeyboardEvent.INSERT
+    NUM_LOCK = coin.SoKeyboardEvent.NUM_LOCK
+    CAPS_LOCK = coin.SoKeyboardEvent.CAPS_LOCK
+    SHIFT_LOCK = coin.SoKeyboardEvent.SHIFT_LOCK
+    SPACE = coin.SoKeyboardEvent.SPACE
+    APOSTROPHE = coin.SoKeyboardEvent.APOSTROPHE
+    COMMA = coin.SoKeyboardEvent.COMMA
+    MINUS = coin.SoKeyboardEvent.MINUS
+    PERIOD = coin.SoKeyboardEvent.PERIOD
+    SLASH = coin.SoKeyboardEvent.SLASH
+    SEMICOLON = coin.SoKeyboardEvent.SEMICOLON
+    EQUAL = coin.SoKeyboardEvent.EQUAL
+    BRACKETLEFT = coin.SoKeyboardEvent.BRACKETLEFT
+    BACKSLASH = coin.SoKeyboardEvent.BACKSLASH
+    BRACKETRIGHT = coin.SoKeyboardEvent.BRACKETRIGHT
+    GRAVE = coin.SoKeyboardEvent.GRAVE
+
+    #def __str__(self):
+    #    """
+    #    Stringify
+    #    """
+
+    #    return coin.
 
 class MarkerStyles(Const):
     """
