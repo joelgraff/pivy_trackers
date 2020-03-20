@@ -123,12 +123,10 @@ class Drag():
 
             _c = [_c[self.partial_drag_index]]
 
-        print('\n\tdrag coordinate update',self.coordinates, _c)
 
         _c = self.view_state.transform_points(
             _c, Drag.drag_tracker.get_matrix())
 
-        print(_c)
         if not self.is_full_drag:
             _coords = self.coordinates[:]
             _coords[self.partial_drag_index] = _c[0]
