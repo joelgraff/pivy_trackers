@@ -166,6 +166,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         node - a coin3d group-type node containing drag geometry
         """
+
         self.drag.full.insert_node(node, self.drag.full.group)
 
     def insert_partial_drag(self, node_group, indices):
@@ -215,8 +216,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #add new vertex number to the NumVertices SbMFInt32
         _num.set1Value(_len, 2)
 
-        self.partial.coordinates = [_v.getValue()\
-            for _v in self.drag.part.coordinate.point.getValues()]
+        self.partial.coordinates = [
+            _v.getValue()\
+                for _v in self.drag.part.coordinate.point.getValues()]
 
         self.partial.transformed.append(_coords)
 
