@@ -111,6 +111,9 @@ class Drag():
         Transform the object coordinates by the drag tracker matrix
         """
 
+        print('get_drag_coordinates')
+        print('self.coordinates',self.coordinates)
+
         if self.coordinates is None:
             return None
 
@@ -118,9 +121,11 @@ class Drag():
 
         if not self.is_full_drag:
 
+            print('self.partial_drag_index', self.partial_drag_index)
             if self.partial_drag_index == -1:
                 return None
 
+            print(_c[self.partial_drag_index])
             _c = [_c[self.partial_drag_index]]
 
 
@@ -262,12 +267,18 @@ class Drag():
             #iterate through linked geometry for partial dragging
             for _k in _v.linked_geometry:
 
+                print ('\t-------> ',_k.name)
+
                 if self not in _k.linked_geometry:
                     continue
 
                 _k.drag_copy = _k.geometry.copy()
 
                 _idx = _k.linked_geometry[self]
+
+                print ('partial index', _idx)
+
+                _k.partial_drag_index = _idx[0]
 
                 if _idx == -1:
                     continue
@@ -286,13 +297,12 @@ class Drag():
 
                 self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
 
-                _k.partial_drag_index = _c[1]
-
                 #set up the text drag
-                _text_group = _k.drag_copy.getChild(3)
+                if _k.text_nodes:
+                    _text_group = _k.drag_copy.getChild(3)
+                    self.drag_tracker.insert_full_drag(_text_group)
 
-                self.drag_tracker.insert_full_drag(_text_group)
-
+        print('Drag.setup_drag() - begin dragtracker')
         self.drag_tracker.begin_drag()
 
     def before_drag(self, user_data):
