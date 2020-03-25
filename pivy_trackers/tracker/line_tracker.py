@@ -158,7 +158,7 @@ class LineTracker(GeometryTracker, Text):
         Update the drag text.  Called from inheriting class
         """
 
-        #directly update the text of the node in the drag copy 
+        #directly update the text of the node in the drag copy
         #with the supplied string
         if not self.drag_copy:
             return
@@ -185,6 +185,7 @@ class LineTracker(GeometryTracker, Text):
         End-of-drag operations
         """
 
+        print(self.name, 'line_tracker.after_drag()')
         super().after_drag(user_data)
 
     def drag_mouse_event(self, user_data, event_cb):

@@ -62,13 +62,16 @@ class GeometryTracker(
         self.linked_geometry = {}
         self.coin_style = CoinStyles.DEFAULT
 
-    def link_geometry(self, target, source_index, target_index):
+    def link_geometry(self, target, source_idx, target_idx, target_only=False):
         """
         Link another geometry to the line for automatic updates
 
         target - reference to geometry to be linked
-        source_index - index updated by target geometry
-        target_index - index updated by this geometry
+        source_idx - index updated by target geometry
+        target_idx - index updated by this geometry
+        target_only - if True, source is not updated by changes in target
+        index values = 0 to max # of vertices in target line
+        index value = -1 = all indices are updated
         """
 
         if target not in self.linked_geometry:
@@ -77,12 +80,12 @@ class GeometryTracker(
             #self.register_geometry(target, True)
             self.linked_geometry[target] = []
 
-        self.linked_geometry[target].append(source_index)
+        self.linked_geometry[target].append(source_idx)
 
         if self not in target.linked_geometry:
             target.linked_geometry[self] = []
 
-        target.linked_geometry[self].append(target_index)
+        target.linked_geometry[self].append(target_idx)
 
     def add_node_events(self, node=None, pathed=True):
         """
@@ -128,11 +131,12 @@ class GeometryTracker(
         End-of-drag operations
         """
 
-        todo.delay(self._after_drag_update, None)
+        todo.delay(self._after_drag_update, user_data)
 
+        print(self.name,'geometry_tracker.after_drag()')
         super().after_drag(user_data)
 
-    def _after_drag_update(self):
+    def _after_drag_update(self, user_data):
         """
         Delayed update callback to allow for scene traversals to complete
         """
@@ -141,31 +145,48 @@ class GeometryTracker(
         _matrix = self.view_state.get_matrix(self.geometry.coordinate)
 
         #get the coordinates as a list of 3-tuples
-        _coords = [_v.getValue() 
+        _coords = [_v.getValue()
             for _v in self.geometry.coordinate.point.getValues()]
 
-        _xf_coord = _coords
+        _indices = list(range(0, len(_coords)))
 
         #get the point that is linked to other dragged geometry
         if not self.is_full_drag:
 
-            _idx = self.partial_drag_index
+            _indices = self.linked_geometry[user_data]
 
-            if _idx is None or _idx < 0:
+            if not _indices:
                 return
 
-            _xf_coord = [_coords[_idx]]
+        _xf_coords = []
+
+        print(self.name, _indices)
+        #iterate through the linked indices and add them to the list
+        #of coordinates to transform
+        for _idx in _indices:
+
+            if _idx == -1:
+                _xf_coords = _coords
+                break
+
+            _xf_coords.append(_coords[_idx])
+
+        print(_xf_coords)
 
         #transform the linked point by the drag transformation
-        _xf_coord = \
+        _xf_coords = \
             self.view_state.transform_points(
-                _xf_coord, Drag.drag_tracker.drag_matrix)
+                _xf_coords, Drag.drag_tracker.drag_matrix)
 
-        if not self.is_full_drag:
-            _coords[_idx] = _xf_coord[0]
+        print(_xf_coords)
+        #update the coordinate list with the transformed coordinates
+        for _i, _idx in enumerate(_indices):
 
-        else:
-            _coords = _xf_coord
+            if _idx == -1:
+                _coords = _xf_coords
+                break
+
+            _coords[_idx] = _xf_coords[_i]
 
         self.update(_coords, notify=False)
 
@@ -224,4 +245,3 @@ class GeometryTracker(
         Pick.finish(self)
         Select.finish(self)
         Drag.finish(self)
- 
