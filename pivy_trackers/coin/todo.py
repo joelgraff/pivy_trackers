@@ -30,7 +30,7 @@ from PySide import QtCore
 class todo:
     """
     Delays execution of functions.
-    
+
     Use todo.delay to schedule scenegraph changes which cannot occur
     during traversals
 
@@ -103,7 +103,7 @@ class todo:
                 print (traceback.format_exc(),
                     "\n[Draft.todo.tasks] Unexpected error:", \
                         sys.exc_info()[0], "in ", f, "(", arg, ")"
-                )    
+                )
 
         todo.afteritinerary = []
 
