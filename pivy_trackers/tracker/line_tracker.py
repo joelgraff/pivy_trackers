@@ -62,7 +62,7 @@ class LineTracker(GeometryTracker, Text):
 
         self.center = ()
 
-        #definte the base/parent node for text nodes to be the geometry node
+        #define the base/parent node for text nodes to be the geometry node
         self.text_base = self.geometry.top
 
         self.set_style()
@@ -127,7 +127,7 @@ class LineTracker(GeometryTracker, Text):
         groups - an itearable of vertex groupings
         """
 
-        assert(sum(groups) == len(self.pionts)),\
+        assert(sum(groups) == len(self.points)),\
             'LineTracker.set_vertex_groups: group count does not match number of points'
 
         self.line.numVertices.setValues(0, len(groups), groups)
