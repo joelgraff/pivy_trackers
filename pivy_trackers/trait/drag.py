@@ -264,12 +264,12 @@ class Drag():
             #iterate through linked geometry for partial dragging
             for _k in _v.linked_geometry:
 
-                if self not in _k.linked_geometry:
+                if self not in _k[0].linked_geometry:
                     continue
 
-                _k.drag_copy = _k.geometry.copy()
+                _k[0].drag_copy = _k[0].geometry.copy()
 
-                _idx = _k.linked_geometry[self]
+                _idx = _k[0].linked_geometry[self]
 
                 #_k.partial_drag_index = _idx[0]
 
@@ -281,18 +281,18 @@ class Drag():
                 #previous / next index == -1
                 _c = [_idx[0] + _v for _v in [-1, 0, 1]]
 
-                if _c[-1] == len(_k.coordinates):
+                if _c[-1] == len(_k[0].coordinates):
                     _c[-1] = -1
 
                 #set drag callbacks which are removed at end of drag ops
-                self.before_drag_local_cb.append(_k.before_drag)
-                self.after_drag_local_cb.append(_k.after_drag)
+                #self.before_drag_local_cb.append(_k.before_drag)
+                #self.after_drag_local_cb.append(_k.after_drag)
 
-                self.drag_tracker.insert_partial_drag(_k.geometry.top, _c)
+                self.drag_tracker.insert_partial_drag(_k[0].geometry.top, _c)
 
                 #set up the text drag
                 if _k.text_nodes:
-                    _text_group = _k.drag_copy.getChild(3)
+                    _text_group = _k[0].drag_copy.getChild(3)
                     self.drag_tracker.insert_full_drag(_text_group)
 
         self.drag_tracker.begin_drag()
