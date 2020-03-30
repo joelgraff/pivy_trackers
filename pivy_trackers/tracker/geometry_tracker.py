@@ -76,22 +76,35 @@ class GeometryTracker(
         index value = -1 = all indices are updated
         """
 
-        _target_key = (target, target_idx)
-        _source_key = (self, source_idx)
+        self._link_geometry(target, self, source_idx, target_idx)
 
-        if  _target_key not in self.linked_geometry:
+        if not target_only:
+            self._link_geometry(self, target, target_idx, source_idx)
 
-            #register the line and geometry with each other
-            #self.register_geometry(target, True)
-            self.linked_geometry[_target_key] = []
+    def _link_geometry(self, source, target, s_idx, t_idx):
+        """
+        Worker function for self.link_geometry
+        """
 
-        self.linked_geometry[_target_key].append(source_idx)
+        if target not in source.linked_geometry:
+            _dict = {}
+            source.linked_geometry[target] = _dict
 
-        if _source_key not in target.linked_geometry:
-            target.linked_geometry[_source_key] = []
+        else:
+            _dict = source.linked_geometry[target]
 
-        target.linked_geometry[_source_key].append(target_idx)
 
+        if s_idx not in _dict:
+            _dict[s_idx] = [t_idx]
+
+        else:
+            _dict[s_idx].append(t_idx)
+
+        #add ref to the called object to the calling object for linked updates
+        if not target in target.linked_geometry:
+            target.linked_geometry[target] = []
+
+        target.linked_geometry[target].append(source)
     def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node
@@ -151,7 +164,7 @@ class GeometryTracker(
         print(self.name, '_after_drag_update...', user_data.getValue())
         self.linked_update(None, user_data)
 
-    def linked_update(self, parent, matrix):
+    def linked_update(self, parent, matrix, parent_indices=None):
         """
         Takes a list of indices and a transformation matrix to update
         object coordiantes, as well as trigger updates for it's own objects
@@ -167,61 +180,47 @@ class GeometryTracker(
         _coords = [_v.getValue()
             for _v in self.geometry.coordinate.point.getValues()]
 
-        _indices = list(range(0, len(_coords)))
+        _indices = parent_indices
+        
+        if not _indices:
+            _indices = list(range(0, len(_coords)))
 
-        #get the point that is linked to other dragged geometry
-        if parent is not None:
+        #test to see if the parent updates this geometry
+        if parent in self.linked_geometry:
 
-            _indices = self.linked_geometry[parent]
+            _d = self.linked_geometry[parent]
 
-            if not _indices:
-                return
+            #iterate the list of parent coordinates
+            for _v in _indices:
 
-        _xf_coords = []
+                if _v not in _d:
+                    continue
 
-        print('\n\t{}.linked_update: {}'.format(self.name, str(_indices)))
+                _xf_coords = []
 
-        #iterate through the linked indices and add them to the list
-        #of coordinates to transform
-        for _idx in _indices:
+                #iterate the list of object coordinates updated by the
+                #current coordinate
+                for _w in _d[_v]:
+                    _xf_coords.append(_coords[_w])
 
-            if _idx == -1:
-                _xf_coords = _coords
-                break
+                if not _xf_coords:
+                    continue
 
-            _xf_coords.append(_coords[_idx])
+                print('\n\t{}.linked_update: {}:{}'.format(self.name, str(_w), str(_xf_coords)))
 
-        print('\tcoordinates:',str(_xf_coords))
+                #transform the linked point by the drag transformation
+                _xf_coords = \
+                    self.view_state.transform_points(_xf_coords, matrix)
 
-        #transform the linked point by the drag transformation
-        _xf_coords = \
-            self.view_state.transform_points(_xf_coords, matrix)
+                print('\ttransforms:',str(_xf_coords))
 
-        print('\ttransforms:',str(_xf_coords))
+                #back-propogate updated coordinates
+                for _i, _w in enumerate(_d[_v]):
+                    _coords[_w] = _xf_coords[_i]
 
-        #update the coordinate list with the transformed coordinates
-        for _i, _idx in enumerate(_indices):
-
-            if _idx == -1:
-                _coords = _xf_coords
-                break
-
-            _coords[_idx] = _xf_coords[_i]
-
-        #trigger linked updates for other geometry
-        for _v in self.linked_geometry:
-
-            #don't update the parent triggering the update
-            if _v == parent:
-                continue
-
-            print('\t\tupdate linked geometry {}'.format(_v[0].name))
-            _w = self.linked_geometry[_v]
-
-            #if any of the indices in the linked geometry are the indices
-            #being updated in the current geometry, then trigger the linked geo.
-            if any([_x in _indices for _x in _w]):
-                _v[0].linked_update(self, matrix)
+        #update geometry linked to this object
+        for _v in self.linked_geometry[self]:
+            _v.linked_update(self, matrix, _indices)
 
         self.update(_coords, notify=False)
 

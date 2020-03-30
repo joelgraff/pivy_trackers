@@ -67,10 +67,10 @@ class BoxTracker(Base):
                 LineTracker('rear', [_points[3], _points[0]], self.base)
             ]
 
-            self.lines[0].link_geometry(self.lines[1], 1, 0)
-            self.lines[0].link_geometry(self.lines[3], 0, 1)
-            self.lines[1].link_geometry(self.lines[2], 1, 0)
-            self.lines[2].link_geometry(self.lines[3], 1, 0)
+            self.lines[0].link_geometry(self.lines[1], 1, 0)    #left to front
+            self.lines[0].link_geometry(self.lines[3], 0, 1)    #left to rear
+            self.lines[1].link_geometry(self.lines[2], 1, 0)    #front to right
+            self.lines[2].link_geometry(self.lines[3], 1, 0)    #right to rear
 
         else:
             self.lines = [LineTracker('box', _points + _points[0], self.base)]
