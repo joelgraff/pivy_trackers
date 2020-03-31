@@ -59,7 +59,7 @@ class GeometryTracker(
 
         super().__init__(name=name, parent=parent, view=view)
 
-        self.linked_geometry = {}
+        self.linked_geometry = {self: []}
         self.coin_style = CoinStyles.DEFAULT
 
         self.last_matrix = None
@@ -105,6 +105,7 @@ class GeometryTracker(
             target.linked_geometry[target] = []
 
         target.linked_geometry[target].append(source)
+
     def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node

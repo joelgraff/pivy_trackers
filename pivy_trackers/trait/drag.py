@@ -245,6 +245,37 @@ class Drag():
 
             todo.delay(self.setup_drag, None)
 
+    def _setup_drag(self, source, source_indices):
+        """
+        Setup dragging worker function
+        """
+
+        #iterate linked targets for this geometry
+        for _k, _v in source.linked_geometry.items():
+
+            if _k is self:
+                continue
+
+            #iterate target indices keyed to source index
+            for _l, _w in _v.items():
+
+                if _l not in source_indices:
+                    continue
+
+                for _x in _w:
+                    _offsets = [_x + _y for _y in [-1, 0, 1]]
+
+                    if _offsets[-1] == len(_l.coordinates)
+                        _offsets[-1] = -1
+
+                    self.drag_tracker.insert_partial_drag(
+                        _l.geometry.top, _offsetes)
+
+                    #set up the text drag
+                    if _k.text_nodes:
+                        _text_group = _k[0].drag_copy.getChild(3)
+                        self.drag_tracker.insert_full_drag(_text_group)
+
     def setup_drag(self):
         """
         Setup dragging at start of drag ops
@@ -261,15 +292,20 @@ class Drag():
 
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
+            for _k, _w in _v.linked_geometry.items():
+
+                if _k is self:
+                    continue
+
             #iterate through linked geometry for partial dragging
             for _k in _v.linked_geometry:
 
-                if self not in _k[0].linked_geometry:
+                if self not in _k.linked_geometry:
                     continue
 
-                _k[0].drag_copy = _k[0].geometry.copy()
+                _k.drag_copy = _k.geometry.copy()
 
-                _idx = _k[0].linked_geometry[self]
+                _idx = _k.linked_geometry[self]
 
                 #_k.partial_drag_index = _idx[0]
 
