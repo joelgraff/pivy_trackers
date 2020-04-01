@@ -76,29 +76,42 @@ class GeometryTracker(
         index value = -1 = all indices are updated
         """
 
-        self._link_geometry(target, self, source_idx, target_idx)
+        self._link_geometry(self, target, source_idx, target_idx)
 
         if not target_only:
-            self._link_geometry(self, target, target_idx, source_idx)
+
+            for _v in target_idx:
+                self._link_geometry(target, self, _v, [source_idx])
 
     def _link_geometry(self, source, target, s_idx, t_idx):
         """
         Worker function for self.link_geometry
+
+        source - the object which triggers an update in the target
+        target - the object which is updated
+        s_idx - the index of the source coordinate triggering the update
+        t_idx - list of the index or indices of the target coordinate to update
         """
 
+        #add the target to the source's linked_geometry dict
+        #and set up the index dict
         if target not in source.linked_geometry:
+
             _dict = {}
             source.linked_geometry[target] = _dict
 
+        #retrieve the existing index dict
         else:
             _dict = source.linked_geometry[target]
 
 
+        #if the source index is not already in the dict, add it with the target
         if s_idx not in _dict:
-            _dict[s_idx] = [t_idx]
+            _dict[s_idx] = t_idx
 
+        #otherwise, append
         else:
-            _dict[s_idx].append(t_idx)
+            _dict[s_idx] += t_idx
 
         #add ref to the called object to the calling object for linked updates
         if not target in target.linked_geometry:
@@ -181,33 +194,41 @@ class GeometryTracker(
         _coords = [_v.getValue()
             for _v in self.geometry.coordinate.point.getValues()]
 
+        #list of coordinate indices which have been updated in the parent
         _indices = parent_indices
-        
+
         if not _indices:
             _indices = list(range(0, len(_coords)))
 
+        _updated_indices = []
+
         #test to see if the parent updates this geometry
-        if parent in self.linked_geometry:
+        if parent and self in parent.linked_geometry:
 
-            _d = self.linked_geometry[parent]
+            #dict of parent indices which update coordiantes in the current obj
+            _d = parent.linked_geometry[self]
 
-            #iterate the list of parent coordinates
+            print('{}->{}: {}->{}'.format(parent.name, self.name, _indices, _d))
+            #iterate the list of updated parent coordinate indices
             for _v in _indices:
 
+                #if the parent index is not a key in the linked_geometry dict
+                #for this geometry, then continue
                 if _v not in _d:
                     continue
 
                 _xf_coords = []
 
-                #iterate the list of object coordinates updated by the
-                #current coordinate
+                #iterate the list of object coordinates updated by the current #coordinate and add it to the list of coordinates to transform
+                #Also, track indices which are updated for later
                 for _w in _d[_v]:
+                    _updated_indices.append(_w)
                     _xf_coords.append(_coords[_w])
 
                 if not _xf_coords:
                     continue
 
-                print('\n\t{}.linked_update: {}:{}'.format(self.name, str(_w), str(_xf_coords)))
+                print('\n\t{}->{}.linked_update: {}:{}'.format(parent.name, self.name, str(_w), str(_xf_coords)))
 
                 #transform the linked point by the drag transformation
                 _xf_coords = \
@@ -219,9 +240,15 @@ class GeometryTracker(
                 for _i, _w in enumerate(_d[_v]):
                     _coords[_w] = _xf_coords[_i]
 
+        else:
+            _coords = self.view_state.transform_points(_coords, matrix)
+            _updated_indices = _indices
+
         #update geometry linked to this object
-        for _v in self.linked_geometry[self]:
-            _v.linked_update(self, matrix, _indices)
+        if _updated_indices:
+
+            for _v in self.linked_geometry[self]:
+                _v.linked_update(self, matrix, _updated_indices)
 
         self.update(_coords, notify=False)
 

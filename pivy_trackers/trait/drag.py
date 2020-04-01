@@ -248,13 +248,22 @@ class Drag():
     def _setup_drag(self, source, source_indices):
         """
         Setup dragging worker function
+        linked_geometry:
+            key - target objects or self
+            item - dict
+                key - source index
+                item - list of target indices
         """
 
         #iterate linked targets for this geometry
         for _k, _v in source.linked_geometry.items():
 
+            _k.drag_copy = _k.geometry.copy()
+
             if _k is self:
                 continue
+
+            print (self.name,_v)
 
             #iterate target indices keyed to source index
             for _l, _w in _v.items():
@@ -265,16 +274,21 @@ class Drag():
                 for _x in _w:
                     _offsets = [_x + _y for _y in [-1, 0, 1]]
 
-                    if _offsets[-1] == len(_l.coordinates)
+                    if _offsets[-1] == len(_k.coordinates):
                         _offsets[-1] = -1
 
+                    print('{}:{} insert partial drag'.format(self.name, _k.name))
                     self.drag_tracker.insert_partial_drag(
-                        _l.geometry.top, _offsetes)
+                        _k.geometry.top, _offsets)
 
                     #set up the text drag
                     if _k.text_nodes:
-                        _text_group = _k[0].drag_copy.getChild(3)
-                        self.drag_tracker.insert_full_drag(_text_group)
+
+                        _text_group = _k.drag_copy.getChild(3)
+
+                        if _text_group:
+                            print('{}:{} insert full drag'.format(self.name, _k.name))
+                            self.drag_tracker.insert_full_drag(_text_group)
 
     def setup_drag(self):
         """
@@ -287,51 +301,16 @@ class Drag():
         for _v in Select.selected:
 
             _v.ignore_notify = True
-            _v.drag_copy = _v.geometry.copy()
             _v.is_full_drag = True
 
+            _v.drag_copy = _v.geometry.copy()
             Drag.drag_tracker.insert_full_drag(_v.drag_copy)
 
-            for _k, _w in _v.linked_geometry.items():
-
-                if _k is self:
-                    continue
-
-            #iterate through linked geometry for partial dragging
-            for _k in _v.linked_geometry:
-
-                if self not in _k.linked_geometry:
-                    continue
-
-                _k.drag_copy = _k.geometry.copy()
-
-                _idx = _k.linked_geometry[self]
-
-                #_k.partial_drag_index = _idx[0]
-
-                #if _idx == -1:
-                #    continue
-
-                #picked coordinate is always middle index
-                #if picked is first or last coordinate,
-                #previous / next index == -1
-                _c = [_idx[0] + _v for _v in [-1, 0, 1]]
-
-                if _c[-1] == len(_k[0].coordinates):
-                    _c[-1] = -1
-
-                #set drag callbacks which are removed at end of drag ops
-                #self.before_drag_local_cb.append(_k.before_drag)
-                #self.after_drag_local_cb.append(_k.after_drag)
-
-                self.drag_tracker.insert_partial_drag(_k[0].geometry.top, _c)
-
-                #set up the text drag
-                if _k.text_nodes:
-                    _text_group = _k[0].drag_copy.getChild(3)
-                    self.drag_tracker.insert_full_drag(_text_group)
+            self._setup_drag(_v, list(range(0, len(_v.coordinates))))
 
         self.drag_tracker.begin_drag()
+
+        return
 
     def before_drag(self, user_data):
         """
