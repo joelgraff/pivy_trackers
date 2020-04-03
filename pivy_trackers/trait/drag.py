@@ -81,7 +81,8 @@ class Drag():
         self.drag_copy = None
         self.is_dragging = False
         self.is_full_drag = False
-        self.partial_drag_index = -1
+        self.drag_indices = []
+        self._is_setting_up = False
 
         self.drag_mouse_cb = None
         self.drag_button_cb = None
@@ -111,30 +112,31 @@ class Drag():
         Transform the object coordinates by the drag tracker matrix
         """
 
-        if self.coordinates is None:
+        if  not self.coordinates:
             return None
 
-        _c = self.coordinates
+        if not self.drag_indices:
+            return None
 
-        if not self.is_full_drag:
+        #get coordinates being dragged
+        _c = [self.coordinates[_v] for _v in self.drag_indices]
 
-            print('self.partial_drag_index', self.partial_drag_index)
-            if self.partial_drag_index == -1:
-                return None
-
-            print(_c[self.partial_drag_index])
-            _c = [_c[self.partial_drag_index]]
-
-
+        #transform them according to the drag tracker's matrix
         _c = self.view_state.transform_points(
             _c, Drag.drag_tracker.get_matrix())
 
-        if not self.is_full_drag:
-            _coords = self.coordinates[:]
-            _coords[self.partial_drag_index] = _c[0]
+        _coords = []
+
+        #update the coordinate list with the transformations
+        if len(self.coordinates) == len(_c):
+            _coords = _c
 
         else:
-            _coords = _c
+
+            _coords = self.coordinates[:]
+
+            for _i, _v in enumerate(self.drag_indices):
+                _coords[_v] = _c[_i]
 
         return _coords
 
@@ -245,7 +247,47 @@ class Drag():
 
             todo.delay(self.setup_drag, None)
 
-    def _setup_drag(self, source, source_indices):
+    def _setup_drag(self, drag_list, parent=None):
+        """
+        """
+
+        print('{}._setup_drag()'.format(self.name))
+
+        #abort nested calls
+        if self._is_setting_up:
+            return
+
+        #abort call with no parent link
+        if parent and (parent not in self.linked_geometry):
+            return
+
+        print(self.linked_geometry[self])
+        #add to drag list if not previously added
+        if not self in drag_list:
+            self.drag_copy = self.geometry.copy()
+            drag_list.append(self)
+
+        _indices = []
+
+        #get parent drag indices, otherwise assume full drag
+        if parent:
+            _idx = parent.drag_indices
+            self.drag_indices += [self.linked_geometry[parent][i] for i in _idx]
+
+        else:
+            self.is_full_drag = True
+            self.drag_indices = list(range(0, len(self.coordinates)))
+
+        #call geometry linked to this object
+        self._is_setting_up = True
+
+        #call linked geometry to set up dragging based on passed indices
+        for _v in self.linked_geometry[self]:
+            _v._setup_drag(drag_list, self)
+
+        self._is_setting_up = False
+
+    def _setup_drag_old(self, level=0, indices = None):
         """
         Setup dragging worker function
         linked_geometry:
@@ -255,40 +297,64 @@ class Drag():
                 item - list of target indices
         """
 
+        _tabs = ''
+
+        for _i in range(0, level):
+            _tabs += '\t'
+
+        print('{}{}._setup_drag...'.format(_tabs, self.name))
+
+        if self._is_setting_up:
+            return
+
+        self._is_setting_up = True
+
+        if not indices:
+            self.drag_indices = indices
+
         #iterate linked targets for this geometry
-        for _k, _v in source.linked_geometry.items():
+        for _target_obj, _idx_dict in self.linked_geometry.items():
 
-            _k.drag_copy = _k.geometry.copy()
+            print(_target_obj.name, _idx_dict)
 
-            if _k is self:
+            if _target_obj is self:
                 continue
 
-            print (self.name,_v)
+            if not _target_obj.drag_copy:
+                _target_obj.drag_copy = _target_obj.geometry.copy()
 
             #iterate target indices keyed to source index
-            for _l, _w in _v.items():
+            for _source, _targets in _idx_dict.items():
 
-                if _l not in source_indices:
+                if _source not in self.drag_indices:
                     continue
 
-                for _x in _w:
-                    _offsets = [_x + _y for _y in [-1, 0, 1]]
+                for _target in _targets:
 
-                    if _offsets[-1] == len(_k.coordinates):
+                    print('\n\t--->>Adding drag index {} to {} ({})'.format(str(_target), _target_obj.name, _target_obj.is_full_drag))
+
+                    _target_obj.drag_indices.append(_target)
+
+                    _offsets = [_target + _y for _y in [-1, 0, 1]]
+
+                    if _offsets[-1] == len(_target_obj.coordinates):
                         _offsets[-1] = -1
 
-                    print('{}:{} insert partial drag'.format(self.name, _k.name))
-                    self.drag_tracker.insert_partial_drag(
-                        _k.geometry.top, _offsets)
+                    if not _target_obj.is_full_drag:
+                        self.drag_tracker.insert_partial_drag(
+                            _target_obj.geometry.top, _offsets)
 
                     #set up the text drag
-                    if _k.text_nodes:
-
-                        _text_group = _k.drag_copy.getChild(3)
+                    if _target_obj.text_nodes:
+                        _text_group = _target_obj.drag_copy.getChild(3)
 
                         if _text_group:
-                            print('{}:{} insert full drag'.format(self.name, _k.name))
                             self.drag_tracker.insert_full_drag(_text_group)
+
+            if _target_obj.drag_indices:
+                _target_obj._setup_drag(level + 1)
+
+        self._is_setting_up = False
 
     def setup_drag(self):
         """
@@ -298,15 +364,39 @@ class Drag():
         #enabling sinks mouse events at the drag tracker
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
+        drag_list = []
+
         for _v in Select.selected:
 
             _v.ignore_notify = True
-            _v.is_full_drag = True
+            self._setup_drag(drag_list)
 
-            _v.drag_copy = _v.geometry.copy()
-            Drag.drag_tracker.insert_full_drag(_v.drag_copy)
+        for _v in drag_list:
 
-            self._setup_drag(_v, list(range(0, len(_v.coordinates))))
+            #remove duplicates
+            _v.drag_indices = list(set(_v.drag_indices))
+
+            #if all the coordinate indices are added, switch to full drag
+            if len(_v.drag_indices) == len(_v.coordinates):
+                _v.is_full_drag = True
+
+            if _v.is_full_drag:
+                Drag.drag_tracker.insert_full_drag(self.drag_copy)
+
+            else:
+
+                #get the starting and ending points of the range
+                _idx_range = [_v.drag_indices[0] - 1, _v.drag_indices[-1] + 1]
+
+                #adjust for dragging end vertices
+                if _idx_range[0] < 0:
+                    _idx_range[0] = 0
+
+                if _idx_range[1] >= len(_v.coordinates):
+                    _idx_range[1] = len(_v.coordinates) - 1
+
+                self.drag_tracker.insert_partial_drag(
+                    _v.geometry.top, _idx_range, _v.drag_indices)
 
         self.drag_tracker.begin_drag()
 
@@ -350,6 +440,8 @@ class Drag():
         self.before_drag_local_cb = []
         self.on_drag_local_cb = []
         self.after_drag_local_cb = []
+        self.drag_indices = []
+        self._has_setup = False
 
         self.drag_copy = None
         self.is_full_drag = False

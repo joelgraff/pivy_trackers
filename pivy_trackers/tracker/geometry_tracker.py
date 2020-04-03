@@ -93,17 +93,22 @@ class GeometryTracker(
         t_idx - list of the index or indices of the target coordinate to update
         """
 
-        #add the target to the source's linked_geometry dict
+        #add the source to the target's linked_geometry dict
         #and set up the index dict
-        if target not in source.linked_geometry:
+        if source not in target.linked_geometry:
 
             _dict = {}
-            source.linked_geometry[target] = _dict
+            target.linked_geometry[source] = _dict
+
+        if not source in source.linked_geometry:
+            source.linked_geometry[source] = []
+
+        if not target in source.linked_geometry[source]:
+            source.linked_geometry[source].append(target)
 
         #retrieve the existing index dict
         else:
-            _dict = source.linked_geometry[target]
-
+            _dict = target.linked_geometry[source]
 
         #if the source index is not already in the dict, add it with the target
         if s_idx not in _dict:
@@ -112,12 +117,6 @@ class GeometryTracker(
         #otherwise, append
         else:
             _dict[s_idx] += t_idx
-
-        #add ref to the called object to the calling object for linked updates
-        if not target in target.linked_geometry:
-            target.linked_geometry[target] = []
-
-        target.linked_geometry[target].append(source)
 
     def add_node_events(self, node=None, pathed=True):
         """
@@ -247,8 +246,11 @@ class GeometryTracker(
         #update geometry linked to this object
         if _updated_indices:
 
-            for _v in self.linked_geometry[self]:
-                _v.linked_update(self, matrix, _updated_indices)
+            print('\n\t----> updating linked geometries')
+
+            for _k in self.linked_geometry:
+                print('\n\t',_k.name)
+                _k.linked_update(self, matrix, _updated_indices)
 
         self.update(_coords, notify=False)
 
