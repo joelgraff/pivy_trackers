@@ -251,8 +251,6 @@ class Drag():
         """
         """
 
-        print('{}._setup_drag()'.format(self.name), self.drag_indices)
-
         #abort nested calls
         if self._is_setting_up:
             return
@@ -260,6 +258,8 @@ class Drag():
         #abort call with no parent link
         if parent and (parent not in self.linked_geometry):
             return
+
+        print('{}._setup_drag()'.format(self.name), self.drag_indices)
 
         #add to drag list if not previously added
         if not self in drag_list:
@@ -295,6 +295,7 @@ class Drag():
 
         self._is_setting_up = False
 
+        print(self.name, 'setup_drag complete')
     def setup_drag(self):
         """
         Setup dragging at start of drag ops
@@ -315,13 +316,15 @@ class Drag():
             #remove duplicates
             _v.drag_indices = list(set(_v.drag_indices))
 
+            print('{}.setup_drag: {}'.format(_v.name, str(_v.drag_indices)))
             #if all the coordinate indices are added, switch to full drag
             if len(_v.drag_indices) == len(_v.coordinates):
                 _v.is_full_drag = True
 
             if _v.is_full_drag:
 
-                Drag.drag_tracker.insert_full_drag(self.drag_copy)
+                print('\tFULL DRAG FOR', _v.name)
+                Drag.drag_tracker.insert_full_drag(_v.drag_copy)
                 continue
 
             if not _v.drag_indices:
