@@ -112,12 +112,11 @@ class GeometryTracker(
 
         #if the source index is not already in the dict, add it with the target
         if s_idx not in _dict:
-            _dict[s_idx] = t_idx
+            _dict[s_idx] = []
 
-        #otherwise, append
-        else:
-            _dict[s_idx] += t_idx
+        _dict[s_idx] += t_idx
 
+        print(self.name, source.name, target.name, 'source / target', target.linked_geometry[source])
     def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node
@@ -180,7 +179,7 @@ class GeometryTracker(
     def linked_update(self, parent, matrix, parent_indices=None):
         """
         Takes a list of indices and a transformation matrix to update
-        object coordiantes, as well as trigger updates for it's own objects
+        object coordinates, as well as trigger updates for it's own objects
         """
 
         #avoid looping updates

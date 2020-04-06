@@ -262,6 +262,7 @@ class Drag():
             return
 
         print(self.linked_geometry[self])
+
         #add to drag list if not previously added
         if not self in drag_list:
             self.drag_copy = self.geometry.copy()
@@ -271,88 +272,28 @@ class Drag():
 
         #get parent drag indices, otherwise assume full drag
         if parent:
+
             _idx = parent.drag_indices
-            self.drag_indices += [self.linked_geometry[parent][i] for i in _idx]
+            _p_idx = self.linked_geometry[parent]
+
+            for _i in _idx:
+                if _i in _p_idx:
+                    self.drag_indices += _p_idx[_i]
+
+            print(_idx, _p_idx)
 
         else:
+
             self.is_full_drag = True
             self.drag_indices = list(range(0, len(self.coordinates)))
 
+        print(self.name, self.drag_indices)
         #call geometry linked to this object
         self._is_setting_up = True
 
         #call linked geometry to set up dragging based on passed indices
         for _v in self.linked_geometry[self]:
             _v._setup_drag(drag_list, self)
-
-        self._is_setting_up = False
-
-    def _setup_drag_old(self, level=0, indices = None):
-        """
-        Setup dragging worker function
-        linked_geometry:
-            key - target objects or self
-            item - dict
-                key - source index
-                item - list of target indices
-        """
-
-        _tabs = ''
-
-        for _i in range(0, level):
-            _tabs += '\t'
-
-        print('{}{}._setup_drag...'.format(_tabs, self.name))
-
-        if self._is_setting_up:
-            return
-
-        self._is_setting_up = True
-
-        if not indices:
-            self.drag_indices = indices
-
-        #iterate linked targets for this geometry
-        for _target_obj, _idx_dict in self.linked_geometry.items():
-
-            print(_target_obj.name, _idx_dict)
-
-            if _target_obj is self:
-                continue
-
-            if not _target_obj.drag_copy:
-                _target_obj.drag_copy = _target_obj.geometry.copy()
-
-            #iterate target indices keyed to source index
-            for _source, _targets in _idx_dict.items():
-
-                if _source not in self.drag_indices:
-                    continue
-
-                for _target in _targets:
-
-                    print('\n\t--->>Adding drag index {} to {} ({})'.format(str(_target), _target_obj.name, _target_obj.is_full_drag))
-
-                    _target_obj.drag_indices.append(_target)
-
-                    _offsets = [_target + _y for _y in [-1, 0, 1]]
-
-                    if _offsets[-1] == len(_target_obj.coordinates):
-                        _offsets[-1] = -1
-
-                    if not _target_obj.is_full_drag:
-                        self.drag_tracker.insert_partial_drag(
-                            _target_obj.geometry.top, _offsets)
-
-                    #set up the text drag
-                    if _target_obj.text_nodes:
-                        _text_group = _target_obj.drag_copy.getChild(3)
-
-                        if _text_group:
-                            self.drag_tracker.insert_full_drag(_text_group)
-
-            if _target_obj.drag_indices:
-                _target_obj._setup_drag(level + 1)
 
         self._is_setting_up = False
 
@@ -381,22 +322,26 @@ class Drag():
                 _v.is_full_drag = True
 
             if _v.is_full_drag:
+
                 Drag.drag_tracker.insert_full_drag(self.drag_copy)
+                continue
 
-            else:
+            if not _v.drag_indices:
+                continue
 
-                #get the starting and ending points of the range
-                _idx_range = [_v.drag_indices[0] - 1, _v.drag_indices[-1] + 1]
+            #get the starting and ending points of the range
+            _idx_range = [_v.drag_indices[0] - 1, _v.drag_indices[-1] + 1]
 
-                #adjust for dragging end vertices
-                if _idx_range[0] < 0:
-                    _idx_range[0] = 0
+            #adjust points to ensure they are valid list indices
+            if _idx_range[0] < 0:
+                _idx_range[0] = 0
 
-                if _idx_range[1] >= len(_v.coordinates):
-                    _idx_range[1] = len(_v.coordinates) - 1
+            if _idx_range[1] >= len(_v.coordinates):
+                _idx_range[1] = len(_v.coordinates) - 1
 
-                self.drag_tracker.insert_partial_drag(
-                    _v.geometry.top, _idx_range, _v.drag_indices)
+            print('\n\tPARTIAL DRAG FOR', _v.name, _idx_range, _v.drag_indices)
+            self.drag_tracker.insert_partial_drag(
+                _v.geometry.top, _idx_range, _v.drag_indices)
 
         self.drag_tracker.begin_drag()
 

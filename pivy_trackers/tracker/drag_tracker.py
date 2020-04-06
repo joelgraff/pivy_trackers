@@ -175,46 +175,55 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         node_group - the SoCoordinate node to be added
         index_range - list of two indices indicating first and last coordinate
-        indices - the list of indices of coordiantes to be dragged
+        indices - the list of indices of coordinates to be dragged
         """
 
         _point = self.drag.part.coordinate.point
         _num = self.drag.part.line.numVertices
         _len = len(_point.getValues())
-        _coords = []
 
-        if _num.getValues()[0] == -1:
+        #copy the coordinates of the node group to a list
+        _pt = node_group.getChild(1).point
+        _coords = [_v.getValue() for _v in _pt.getValues()]
+        _xf_coords = _coords[:]
+
+        #only one point indicates no data
+        if _len == 1:
             _len = 0
 
-        #get coordinates to add
-        for _i in indices:
-
-            _pt = node_group.getChild(1).point
-            _coords.append(_pt.getValues()[_i].getValue())
-
+        #get the active view matrix form the node group
         _matrix = self.view_state.get_matrix(node_group.getChild(1))
 
         #transform coordinates by the transformation active on the node
-        _coords = self.view_state.transform_points(_coords, _matrix)
+        _xf_coords = self.view_state.transform_points(_xf_coords, _matrix)
+        print(_coords)
+
+        #copy the transformed coordinates back to the original list
+        for _i in indices:
+            _coords[_i] = _xf_coords[_i]
 
         #add new coordinates to end of the point SbMFVec3f
         for _i, _v in enumerate(_coords):
             _point.set1Value(_len + _i, _v)
 
+        print('p.c.p.2',[_v.getValue() for _v in _point.getValues()])
+
         #store the coordinate that's to be transformed during dragging
-        self.partial.drag_indices += indices
-        self.partial_drag_indices = list(set(self.partial_drag_indices))
+        self.partial.drag_indices += [_len + _i for _i in indices]
 
         _len = len(_num.getValues())
 
+        #-1 indicates unintialized
+        if _num.getValues()[0] == -1:
+            _len = 0
+
         #add new vertex number to the NumVertices SbMFInt32 (by reference)
-        _num.set1Value(_len, index_range[-1] - index_range[0])
+        _num.set1Value(_len, index_range[1] - index_range[0] + 1)
 
-        self.partial.coordinates = [
-            _v.getValue()\
-                for _v in self.drag.part.coordinate.point.getValues()]
+        self.partial.coordinates += _coords
 
-        print(self.name, self.partial.coordinates, self.partial.drag_indices)
+        print(self.name, _num.getValues(), self.partial.coordinates, self.partial.drag_indices)
+
         self.partial.transformed.append(_coords)
 
     def set_drag_axis(self, axis):
@@ -387,6 +396,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         """
         Transform partially-selected geometry
         """
+
+        print(self.partial.coordinates, self.partial.drag_indices)
 
         #iterate partial drag geometry and update
         #zero index is part.coordinate.point index
