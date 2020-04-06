@@ -107,6 +107,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.update_center_fn = lambda: print('update_center_fn')
 
+        self.full_drag_nodes = []
+
         #initialize the drag line
         self.show_drag_line = True
 
@@ -167,6 +169,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         node - a coin3d group-type node containing drag geometry
         """
 
+        #prevent the same node from being added twice
+        #if not node in self.full_drag_nodes:
+        #    self.full_drag_nodes.append(node)
+        #else:
+        #    return
+
+        print('\n\t->>>>>>>>>>>{} INSERT FULL DRAG<<<<<<<<<<<')
+
         self.drag.full.insert_node(node, self.drag.full.group)
 
     def insert_partial_drag(self, node_group, index_range, indices):
@@ -178,6 +188,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         indices - the list of indices of coordinates to be dragged
         """
 
+        print('\n\t------------>{} INSERT PARTIAL DRAG<-------------')
         _point = self.drag.part.coordinate.point
         _num = self.drag.part.line.numVertices
         _len = len(_point.getValues())
@@ -283,6 +294,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
         self.partial.drag_indices = []
+        self.full_drag_nodes = []
 
         self.geometry.set_visibility(False)
 
