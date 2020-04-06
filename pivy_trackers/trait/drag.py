@@ -251,7 +251,7 @@ class Drag():
         """
         """
 
-        print('{}._setup_drag()'.format(self.name))
+        print('{}._setup_drag()'.format(self.name), self.drag_indices)
 
         #abort nested calls
         if self._is_setting_up:
@@ -260,8 +260,6 @@ class Drag():
         #abort call with no parent link
         if parent and (parent not in self.linked_geometry):
             return
-
-        print(self.linked_geometry[self])
 
         #add to drag list if not previously added
         if not self in drag_list:
@@ -382,6 +380,10 @@ class Drag():
         Called after end of drag operations
         """
 
+        #abort if no drag copy to prevent recursion
+        if not self.drag_copy:
+            return
+
         self.before_drag_local_cb = []
         self.on_drag_local_cb = []
         self.after_drag_local_cb = []
@@ -391,6 +393,9 @@ class Drag():
         self.drag_copy = None
         self.is_full_drag = False
         self.is_dragging = False
+
+        for _k in self.linked_geometry[self]:
+            _k.teardown_drag()
 
     def finish(self):
         """

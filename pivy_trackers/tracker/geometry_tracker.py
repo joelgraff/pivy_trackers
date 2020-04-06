@@ -200,8 +200,10 @@ class GeometryTracker(
 
         _updated_indices = []
 
+        print('\t---->',self.name,'linked_update() <-------')
+
         #test to see if the parent updates this geometry
-        if parent and (self in parent.linked_geometry):
+        if parent in self.linked_geometry:
 
             #dict of parent indices which update coordiantes in the current obj
             _d = self.linked_geometry[parent]
@@ -247,11 +249,10 @@ class GeometryTracker(
 
             print('\n\t----> updating linked geometries')
 
-            for _k in self.linked_geometry:
+            for _k in self.linked_geometry[self]:
 
-                if _k is not self:
-                    print('\n\t',_k.name, _updated_indices)
-                    _k.linked_update(self, matrix, _updated_indices)
+                print('\n\t',_k.name, _updated_indices)
+                _k.linked_update(self, matrix, _updated_indices)
 
         self.update(_coords, notify=False)
 
