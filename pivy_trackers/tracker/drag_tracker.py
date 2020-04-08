@@ -107,8 +107,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.update_center_fn = lambda: print('update_center_fn')
 
-        self.full_drag_nodes = []
-
         #initialize the drag line
         self.show_drag_line = True
 
@@ -169,14 +167,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         node - a coin3d group-type node containing drag geometry
         """
 
-        #prevent the same node from being added twice
-        #if not node in self.full_drag_nodes:
-        #    self.full_drag_nodes.append(node)
-        #else:
-        #    return
-
-        print('\n\t->>>>>>>>>>>{} INSERT FULL DRAG<<<<<<<<<<<')
-
         self.drag.full.insert_node(node, self.drag.full.group)
 
     def insert_partial_drag(self, node_group, index_range, indices):
@@ -188,7 +178,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         indices - the list of indices of coordinates to be dragged
         """
 
-        print('\n\t------------>{} INSERT PARTIAL DRAG<-------------')
         _point = self.drag.part.coordinate.point
         _num = self.drag.part.line.numVertices
         _len = len(_point.getValues())
@@ -207,7 +196,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #transform coordinates by the transformation active on the node
         _xf_coords = self.view_state.transform_points(_xf_coords, _matrix)
-        print(_coords)
 
         #copy the transformed coordinates back to the original list
         for _i in indices:
@@ -216,8 +204,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #add new coordinates to end of the point SbMFVec3f
         for _i, _v in enumerate(_coords):
             _point.set1Value(_len + _i, _v)
-
-        print('p.c.p.2',[_v.getValue() for _v in _point.getValues()])
 
         #store the coordinate that's to be transformed during dragging
         self.partial.drag_indices += [_len + _i for _i in indices]
@@ -232,8 +218,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _num.set1Value(_len, index_range[1] - index_range[0] + 1)
 
         self.partial.coordinates += _coords
-
-        print(self.name, _num.getValues(), self.partial.coordinates, self.partial.drag_indices)
 
         self.partial.transformed.append(_coords)
 
@@ -409,8 +393,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Transform partially-selected geometry
         """
 
-        print(self.partial.coordinates, self.partial.drag_indices)
-
         #iterate partial drag geometry and update
         #zero index is part.coordinate.point index
         _selected = [
@@ -457,9 +439,5 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.update_center_fn = None
         self.coin_style = None
         self.drag_center = None
-
-        self.before_drag_local_cb = []
-        self.on_drag_local_cb = []
-        self.after_drag_local_cb = []
 
         Singleton.finish(DragTracker)

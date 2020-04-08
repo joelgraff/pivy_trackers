@@ -116,7 +116,6 @@ class GeometryTracker(
 
         _dict[s_idx] += t_idx
 
-        print(self.name, source.name, target.name, 'source / target', target.linked_geometry[source])
     def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node
@@ -173,7 +172,6 @@ class GeometryTracker(
         Delayed update callback to allow for scene traversals to complete
         """
 
-        print(self.name, '_after_drag_update...', user_data.getValue())
         self.linked_update(None, user_data)
 
     def linked_update(self, parent, matrix, parent_indices=None):
@@ -200,15 +198,12 @@ class GeometryTracker(
 
         _updated_indices = []
 
-        print('\t---->',self.name,'linked_update() <-------')
-
         #test to see if the parent updates this geometry
         if parent in self.linked_geometry:
 
             #dict of parent indices which update coordiantes in the current obj
             _d = self.linked_geometry[parent]
 
-            print('{}->{}: {}->{}'.format(parent.name, self.name, _indices, _d))
             #iterate the list of updated parent coordinate indices
             for _v in _indices:
 
@@ -228,13 +223,9 @@ class GeometryTracker(
                 if not _xf_coords:
                     continue
 
-                print('\n\t{}->{}.linked_update: {}:{}'.format(parent.name, self.name, str(_w), str(_xf_coords)))
-
                 #transform the linked point by the drag transformation
                 _xf_coords = \
                     self.view_state.transform_points(_xf_coords, matrix)
-
-                print('\ttransforms:',str(_xf_coords))
 
                 #back-propogate updated coordinates
                 for _i, _w in enumerate(_d[_v]):
@@ -247,11 +238,7 @@ class GeometryTracker(
         #update geometry linked to this object
         if _updated_indices:
 
-            print('\n\t----> updating linked geometries')
-
             for _k in self.linked_geometry[self]:
-
-                print('\n\t',_k.name, _updated_indices)
                 _k.linked_update(self, matrix, _updated_indices)
 
         self.update(_coords, notify=False)
