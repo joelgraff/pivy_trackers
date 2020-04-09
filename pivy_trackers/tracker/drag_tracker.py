@@ -274,7 +274,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag_matrix = self.view_state.get_matrix(self.drag.full.group)
 
-        self.drag.full.group.removeAllChildren()
+        todo.delay(self.drag.full.group.removeAllChildren, None)
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
         self.partial.drag_indices = []
