@@ -24,6 +24,7 @@ Class for creating Coin3D text node structures
 """
 
 from collections.abc import Iterable
+from types import SimpleNamespace
 
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
@@ -57,60 +58,72 @@ class CoinText(object):
             self.font = utils.add_child(
                 Nodes.FONT, self.top, self.name + '_FONT')
 
-            self.set_font(_group.font, '', '', 100.0)
+            self.set_font(self.font, '', '', 100.0)
 
         self.text = utils.add_child(
             Nodes.TEXT, self.top, self.name + '_TEXT')
 
         if parent:
-            utils.insert_child(self.text, parent)
+            utils.insert_child(self.top, parent)
 
         self.set_text(text)
 
-    def set_size(self, size):
+    def set_size(self, size, font_node=None):
         """
         Set the size of the text
         """
 
-        if self.font:
-            self.font.size.setValue(size)
+        if not font_node:
+            font_node = self.font
 
-    def get_size(self):
+        if font_node:
+            font_node.size.setValue(size)
+
+    def get_size(self, font_node=None):
         """
         Get the size of the text
         """
 
-        if self.font:
-            return self.font.size.getValue()
+        if not font_node:
+            font_node = self.font
+
+        if font_node:
+            return font.size.getValue()
 
         return -1.0
 
-    def set_text(self, text):
+    def set_text(self, text, text_node=None):
         """
         Set the node text.
         Text - string or an iterable
         """
 
+        if not text_node:
+            text_node = self.text
+
         if isinstance(text, str):
-            self.text.string.setValue(text)
+            text_node.string.setValue(text)
 
         elif isinstance(text, Iterable):
-            self.text.string.setValues(0, len(text), text)
+            text_node.string.setValues(0, len(text), text)
 
-    def get_text(self):
+    def get_text(self, text_node=None):
         """
         Return the text stored in the text.string attribute as a string
         or iterable of strings
         """
 
-        _result = self.text.string.getValues()
+        if not text_node:
+            text_node = self.text
+
+        _result = text_node.string.getValues()
 
         if len(_result) == 1:
             _result = _result[0]
 
         return _result
 
-    def set_font(self, font_style, font_size):
+    def set_font(self, font_style, font_name, font_size):
         """
         Set the font based on the passed name
 
@@ -133,7 +146,7 @@ class CoinText(object):
             return _result
 
         _name = self.font.name.getValue().split(':')
-        
+
         _result.name = _name[0]
 
         if len(_name) == 2:
