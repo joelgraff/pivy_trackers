@@ -60,6 +60,7 @@ class Drag():
 
     #Class static reference to global DragTracker
     drag_tracker = None
+    drag_list = []
 
     def __init__(self):
         """
@@ -83,7 +84,6 @@ class Drag():
         self.is_full_drag = False
         self.drag_indices = []
         self._is_setting_up = False
-        self.drag_nodes = []
 
         self.drag_mouse_cb = None
         self.drag_button_cb = None
@@ -94,19 +94,6 @@ class Drag():
         self.after_drag_callbacks = []
 
         super().__init__()
-
-    def add_drag_nodes(self, nodes):
-        """
-        Add extra drag nodes at the start of a drag operation.
-        Called by inheriting class
-        """
-
-        _n = nodes
-
-        if not isinstance(nodes, list):
-            _n = [nodes]
-
-        self.drag_nodes += _n
 
     def get_drag_matrix(self):
         """
@@ -213,7 +200,10 @@ class Drag():
         if self.handle_drag_events or self.handle_events:
             event_cb.setHandled()
 
-        self.on_drag(user_data)
+        if user_data is None:
+            user_data = 'NONE'
+
+        todo.delay(self.on_drag, user_data)
 
     def drag_button_event(self, user_data, event_cb):
         """
@@ -238,9 +228,9 @@ class Drag():
             self.set_event_path(self.drag_button_cb, True)
             self.is_dragging = False
 
-            self.after_drag(self)
+            todo.delay(self.after_drag, self)
 
-            self.drag_tracker.end_drag()
+            todo.delay(self.drag_tracker.end_drag, None)
             todo.delay(self.teardown_drag, None)
 
         #start of drag operations
@@ -252,84 +242,39 @@ class Drag():
             self.is_dragging = True
 
             if user_data is None:
-                user_data = 'test'
+                user_data = 'NONE'
 
             todo.delay(self.before_drag, user_data)
-            todo.delay(self.setup_drag, None)
+            todo.delay(self.drag_tracker.begin_drag, None)
 
-    def _setup_drag(self, drag_list, parent=None):
+    def get_drag_nodes(self):
         """
-        Internal setup drag function to handle linked geometry
-        TODO: Move to GeometryTracker class?
+        Base implementation for overriding in inherited classes
         """
 
-        #abort nested calls
-        if self._is_setting_up:
-            return
+        return []
 
-        #abort call with no parent link
-        if parent and (parent not in self.linked_geometry):
-            return
-
-        #add to drag list if not previously added
-        if not self in drag_list:
-            self.drag_copy = self.geometry.copy()
-            drag_list.append(self)
-
-        _indices = []
-
-        #get parent drag indices, otherwise assume full drag
-        if parent:
-
-            _idx = parent.drag_indices
-            _p_idx = self.linked_geometry[parent]
-
-            for _i in _idx:
-                if _i in _p_idx:
-                    self.drag_indices += _p_idx[_i]
-
-        else:
-
-            self.is_full_drag = True
-            self.drag_indices = list(range(0, len(self.coordinates)))
-
-        #call geometry linked to this object
-        self._is_setting_up = True
-
-        #call linked geometry to set up dragging based on passed indices
-        for _v in self.linked_geometry[self]:
-            _v._setup_drag(drag_list, self)
-
-        self._is_setting_up = False
-
-    def setup_drag(self):
+    def before_drag(self, user_data):
         """
-        Setup dragging at start of drag ops
+        Called before drag operations begin
         """
+
+        for _cb in self.before_drag_callbacks:
+            _cb(user_data)
 
         #enabling sinks mouse events at the drag tracker
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
-        drag_list = []
-
-        for _v in Select.selected:
-
-            _v.ignore_notify = True
-            self._setup_drag(drag_list)
-
-        for _v in drag_list:
+        for _v in Drag.drag_list:
 
             #remove duplicates
             _v.drag_indices = list(set(_v.drag_indices))
 
             #if all the coordinate indices are added, switch to full drag
-            if len(_v.drag_indices) == len(_v.coordinates):
-                _v.is_full_drag = True
+            _v.is_full_drag = len(_v.drag_indices) == len(_v.coordinates)
 
             if _v.is_full_drag:
-
                 Drag.drag_tracker.insert_full_drag(_v.drag_copy)
-
                 continue
 
             if not _v.drag_indices:
@@ -348,23 +293,10 @@ class Drag():
             Drag.drag_tracker.insert_partial_drag(
                 _v.drag_copy, _idx_range, _v.drag_indices)
 
-            #Drag.drag_tracker.insert_full_drag(_v.drag_nodes)
-
             #add extra child class drag nodes as fully-dragged
-            for _v in self.drag_nodes:
-                Drag.drag_tracker.insert_full_drag(_v)
+            for _w in _v.get_drag_nodes():
+                Drag.drag_tracker.insert_full_drag(_w)
 
-        self.drag_tracker.begin_drag()
-
-        return
-
-    def before_drag(self, user_data):
-        """
-        Called before drag operations begin
-        """
-
-        for _cb in self.before_drag_callbacks:
-            _cb(user_data)
 
     def on_drag(self, user_data):
         """
@@ -375,7 +307,7 @@ class Drag():
             return
 
         for _cb in self.on_drag_callbacks:
-            _cb(user_data)
+            todo.delay(_cb, user_data)
 
         self.drag_tracker.update_drag()
 
@@ -396,8 +328,9 @@ class Drag():
         if not self.drag_copy:
             return
 
+        Drag.drag_list = []
+
         self.drag_indices = []
-        self.drag_nodes = []
         self._has_setup = False
 
         self.drag_copy = None

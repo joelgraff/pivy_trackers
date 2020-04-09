@@ -63,6 +63,7 @@ class GeometryTracker(
         self.coin_style = CoinStyles.DEFAULT
 
         self.last_matrix = None
+        self._setting_up_linked_drag = False
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
         """
@@ -116,6 +117,54 @@ class GeometryTracker(
 
         _dict[s_idx] += t_idx
 
+    def setup_linked_drag(self, parent=None):
+        """
+        Set up all linked geometry for a drag oepration
+        """
+
+        #abort nested calls
+        if self._setting_up_linked_drag:
+            return
+
+        #abort call with no parent link
+        if parent and (parent not in self.linked_geometry):
+            return
+
+        #add to drag list if not previously added
+        if not self in Drag.drag_list:
+            self.drag_copy = self.geometry.copy()
+            Drag.drag_list.append(self)
+
+        _indices = []
+
+        #if parent exists and object is not selected, get partial drag indices
+        if parent and self not in Select.selected:
+
+            _idx = parent.drag_indices
+            _p_idx = self.linked_geometry[parent]
+
+            for _i in _idx:
+                if _i in _p_idx:
+                    self.drag_indices += _p_idx[_i]
+
+        #otherwise, assume fully-dragged
+        else:
+
+            self.is_full_drag = True
+            self.drag_indices = list(range(0, len(self.coordinates)))
+
+        #if no dragging occurs, stop here
+        if not self.drag_indices:
+            return
+
+        self._setting_up_linked_drag = True
+
+        #call linked geometry to set up dragging based on passed indices
+        for _v in self.linked_geometry[self]:
+            _v.setup_linked_drag(self)
+
+        self._setting_up_linked_drag = False
+
     def add_node_events(self, node=None, pathed=True):
         """
         Set up node events for the passed node
@@ -145,6 +194,8 @@ class GeometryTracker(
         """
         Start of drag operations
         """
+
+        self.setup_linked_drag()
 
         super().before_drag(user_data)
 
