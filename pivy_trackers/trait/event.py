@@ -97,7 +97,7 @@ class Event():
 
         self.pathed_cb_nodes = [SimpleNamespace(
                 cb_node=coin_utils.add_child(
-                    Nodes.EVENT_CB, 
+                    Nodes.EVENT_CB,
                     self.pathed_switch,
                     self.name + '_PATHED_CB_NODE'),
                 path_node=None,
@@ -124,7 +124,7 @@ class Event():
         Event.init_graph()
 
         self.toggle_pathed_event_callbacks()
-        #self.toggle_local_event_callbacks()
+        self.toggle_local_event_callbacks()
 
         super().__init__()
 
@@ -230,6 +230,7 @@ class Event():
         Convenience function
         """
 
+        print('adding keyboard event...')
         return self.add_event_callback(InputEvent.KEYBOARD, callback, pathed)
 
     def add_mouse_event(self, callback, pathed=True):

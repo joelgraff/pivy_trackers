@@ -173,7 +173,7 @@ class GeometryTracker(
         #events are added to the last-added event callback node
         self.add_select_events()
         self.add_drag_events()
-        #self.add_keyboard_events()
+        self.add_keyboard_events()
 
         if pathed:
 

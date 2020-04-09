@@ -37,8 +37,9 @@ from .geometry_tracker import GeometryTracker
 from .marker_tracker import MarkerTracker
 
 from ..trait.text import Text
+from ..trait.keyboard import Keyboard
 
-class LineTracker(GeometryTracker, Text):
+class LineTracker(GeometryTracker, Text, Keyboard):
     """
     Tracker object for SoLineSet
     """
@@ -60,6 +61,7 @@ class LineTracker(GeometryTracker, Text):
 
         #add events to specific geometry
         self.add_node_events(self.line)
+        #self.add_keyboard_events()
 
         self.groups = []
 
