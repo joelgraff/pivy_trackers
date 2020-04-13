@@ -211,19 +211,16 @@ class GeometryTracker(
         End-of-drag operations
         """
 
-        todo.delay(
-            self._after_drag_update,
-            Drag.drag_tracker.get_matrix()
-        )
+        todo.delay(self._after_drag, Drag.drag_tracker.get_matrix())
 
         super().after_drag(user_data)
 
-    def _after_drag_update(self, user_data):
+    def _after_drag(self, matrix):
         """
-        Delayed update callback to allow for scene traversals to complete
+        Proxy function to handle delayed calls
         """
 
-        self.linked_update(None, user_data)
+        self.update(matrix=matrix)
 
     def linked_update(self, parent, matrix, parent_indices=None):
         """
@@ -274,14 +271,17 @@ class GeometryTracker(
                 if not _xf_coords:
                     continue
 
+                print(self.name, _xf_coords, matrix.getValue())
                 #transform the linked point by the drag transformation
                 _xf_coords = \
                     self.view_state.transform_points(_xf_coords, matrix)
 
+                print(self.name, _xf_coords)
                 #back-propogate updated coordinates
                 for _i, _w in enumerate(_d[_v]):
                     _coords[_w] = _xf_coords[_i]
 
+                print(self.name, _coords)
         else:
             _coords = self.view_state.transform_points(_coords, matrix)
             _updated_indices = _indices
@@ -292,14 +292,14 @@ class GeometryTracker(
             for _k in self.linked_geometry[self]:
                 _k.linked_update(self, matrix, _updated_indices)
 
-        self.update(_coords, notify=False)
+        #self.update(coordinates=_coords, notify=False)
 
-    def update(self, coordinates, notify=True):
+    def update(self, coordinates=None, matrix=None, notify=True):
         """
         Override of Geometry method to provide messaging support
         """
 
-        if not coordinates:
+        if not coordinates and not matrix:
             return
 
         _c = coordinates
@@ -307,9 +307,10 @@ class GeometryTracker(
         if not isinstance(_c, list):
             _c = [_c]
 
-        is_unique = len(self.prev_coordinates) != len(_c)
+        is_unique_len = len(self.prev_coordinates) != len(_c)
+        is_unique = False
 
-        if not is_unique:
+        if not is_unique_len:
 
             for _i, _v in enumerate(self.prev_coordinates):
 
@@ -320,7 +321,19 @@ class GeometryTracker(
         if not is_unique:
             return
 
-        super().update(coordinates)
+        #if only a coordinate update, need to calculate delta for each changed
+        #coordinate.  If matrix update, use translation row as delta for all.
+
+        _deltas = []
+
+        if coordinates and not is_unique_len:
+            _deltas = TupleMath.subtract(self.prev_coordinates, coordinates)
+            print(self.name,'update()  -  coordinate deltas = ', _deltas)
+
+        elif matrix:
+            print(matrix)
+
+        super().update(coordinates=coordinates)
 
         self.coordinates = coordinates
 

@@ -27,6 +27,7 @@ from collections.abc import Iterable
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.todo import todo
 
 class Geometry():
     """
@@ -100,7 +101,7 @@ class Geometry():
         Update implementation
         """
 
-        self.set_coordinates(coordinates)
+        todo.delay(self.set_coordinates, coordinates)
 
     def transform_points(self, points=None):
         """

@@ -74,7 +74,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         self.set_visibility(True)
 
         self.update_cb = None
-        self.update(points, notify=False)
+        self.update(coordinates=points, notify=False)
 
         self.draggable_text = True
         self.drag_style = self.DragStyle.CURSOR
@@ -134,6 +134,23 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         return TupleMath.length(self.coordinates)
 
+    def set_length(self, length):
+        """
+        Set the length of the line by scaling the line points about the
+        line's center
+        """
+
+        _scale = length / self.get_length()
+
+        _coords = self.coordinates[:]
+        for _c in _coords:
+
+            _delta = TupleMath.subtract(_c, self.center)
+            _delta = TupleMath.scale(_delta, _scale)
+            _c = TupleMath.add(_delta, self.center)
+
+        self.update(coordinates=_coords)
+
     def show_markers(self):
         """
         Show the SoMarkerSet
@@ -160,12 +177,12 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, points, groups=None, notify=True):
+    def update(self, coordinates, groups=None, notify=True):
         """
         Override of Geometry method
         """
 
-        super().update(points, notify=notify)
+        super().update(coordinates=coordinates, notify=notify)
 
         if self.text and self.text.is_visible():
 
@@ -302,7 +319,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         #Add sender to the excluded subscribers list, call update and
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
-        self.update(self.coordinates)
+        self.update(coordinates=self.coordinates)
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):

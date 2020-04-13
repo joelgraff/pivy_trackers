@@ -23,7 +23,7 @@ class Qt_Frameless(QtGui.QLineEdit):
         callback
         """
 
-        self.editingFinished.connect(self.signal_callback(self.text))
+        self.editingFinished.connect(callback)
 
     def show(self, text, position):
         """
