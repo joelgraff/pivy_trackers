@@ -2,3 +2,6 @@
 	path = support
 	url = https://github.com/joelgraff/freecad_python_support
 	branch = release
+[submodule "freecad_python_support"]
+	path = freecad_python_support
+	url = https://github.com/joelgraff/freecad_python_support
