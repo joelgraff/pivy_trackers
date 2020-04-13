@@ -65,7 +65,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.groups = []
 
-        self.center = ()
+        self.center = (0.0, 0.0, 0.0)
 
         #definte the base/parent node for text nodes to be the geometry node
         self.text_base = self.geometry.top
@@ -197,7 +197,9 @@ class LineTracker(GeometryTracker, Text, Keyboard):
             self.groups = groups
             self.line.numVertices.setValues(0, len(groups), groups)
 
-        self.center = TupleMath.mean(self.coordinates)
+        if self.coordinates:
+            self.center = TupleMath.mean(self.coordinates)
+
         self.text_center = self.center
         self.set_text_translation((0.0, 0.0, 0.0))
 
