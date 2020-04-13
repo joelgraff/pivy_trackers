@@ -101,6 +101,9 @@ class Geometry():
         Update implementation
         """
 
+        if not coordinates:
+            return
+
         todo.delay(self.set_coordinates, coordinates)
 
     def transform_points(self, points=None):

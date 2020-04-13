@@ -318,7 +318,7 @@ class GeometryTracker(
                     is_unique = True
                     break
 
-        if not is_unique:
+        if not is_unique and self.coordinates:
             return
 
         #if only a coordinate update, need to calculate delta for each changed

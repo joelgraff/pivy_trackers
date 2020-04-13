@@ -132,6 +132,9 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         Return the line length
         """
 
+        if not self.coordinates:
+            return 0.0
+
         return TupleMath.length(self.coordinates)
 
     def set_length(self, length):
@@ -177,12 +180,14 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, coordinates, groups=None, notify=True):
+    def update(self, coordinates=None, groups=None, matrix=None, notify=True):
         """
         Override of Geometry method
         """
 
-        super().update(coordinates=coordinates, notify=notify)
+        super().update(coordinates=coordinates, matrix=matrix, notify=notify)
+
+        print(self.name, 'update', self.coordinates)
 
         if self.text and self.text.is_visible():
 
@@ -199,6 +204,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         if self.coordinates:
             self.center = TupleMath.mean(self.coordinates)
+            print(self.name,'center',self.center)
 
         self.text_center = self.center
         self.set_text_translation((0.0, 0.0, 0.0))
