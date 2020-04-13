@@ -32,6 +32,7 @@ from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.coin_text import CoinText
 from ..coin import coin_utils as utils
+from ..coin.todo import todo
 
 class Text():
     """
@@ -45,18 +46,15 @@ class Text():
     def __init__(self):
         """
         Constructor
-
-        trait_name - Name of trait.  Assumed 'label' and indexed if already
-        exists in parent
         """
 
-        CoinText
         _idx = 1
         _index = ''
 
         self.text = None
-        self.text_base = None
         self.text_nodes = []
+        self.text_copies = []
+        self.text_base = None
         self.text_offset = (0.0, 0.0, 0.0)
         self.text_center = (0.0, 0.0, 0.0)
 
@@ -88,10 +86,9 @@ class Text():
         if self.text is None:
             self._add_top_node()
 
-        self.text.text = CoinText(
-            self.name + '_TEXT', text, has_transform, has_font, self.text.top)
-
-        self.text_nodes.append(self.text.text)
+        self.text_nodes.append(CoinText(
+            self.name + '_Text', text, has_transform, has_font, self.text.top)
+        )
 
     def set_text_size(self, size):
         """
@@ -141,7 +138,7 @@ class Text():
         _result = self.text.string.getValues()
 
         if len(_result) == 1:
-            _result = result[0]
+            _result = _result[0]
 
         return _result
 
@@ -168,7 +165,6 @@ class Text():
             return _result
 
         _name = self.font.name.getValue().split(':')
-        
         _result.name = _name[0]
 
         if len(_name) == 2:
@@ -190,7 +186,7 @@ class Text():
         Return the matrix transformation on the text node
         """
 
-        return self.view_state.get_matrix(self.text.text)
+        return self.view_state.get_matrix(self.text_nodes[-1])
 
     def get_text_translation(self):
         """

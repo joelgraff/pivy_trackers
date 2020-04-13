@@ -71,7 +71,7 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = tuple(_c)
 
-        super().update(_c, notify=notify)
+        super().update(coordinates=_c, notify=notify)
 
     def update_drag_center(self):
         """
@@ -121,7 +121,7 @@ class MarkerTracker(GeometryTracker):
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
 
-        self.update(_point)
+        self.update(coordinates=_point)
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):

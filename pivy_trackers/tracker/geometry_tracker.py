@@ -63,6 +63,7 @@ class GeometryTracker(
         self.coin_style = CoinStyles.DEFAULT
 
         self.last_matrix = None
+        self._setting_up_linked_drag = False
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
         """
@@ -112,11 +113,57 @@ class GeometryTracker(
 
         #if the source index is not already in the dict, add it with the target
         if s_idx not in _dict:
-            _dict[s_idx] = t_idx
+            _dict[s_idx] = []
 
-        #otherwise, append
+        _dict[s_idx] += t_idx
+
+    def setup_linked_drag(self, parent=None):
+        """
+        Set up all linked geometry for a drag oepration
+        """
+
+        #abort nested calls
+        if self._setting_up_linked_drag:
+            return
+
+        #abort call with no parent link
+        if parent and (parent not in self.linked_geometry):
+            return
+
+        #add to drag list if not previously added
+        if not self in Drag.drag_list:
+            self.drag_copy = self.geometry.copy()
+            Drag.drag_list.append(self)
+
+        _indices = []
+
+        #if parent exists and object is not selected, get partial drag indices
+        if parent and self not in Select.selected:
+
+            _idx = parent.drag_indices
+            _p_idx = self.linked_geometry[parent]
+
+            for _i in _idx:
+                if _i in _p_idx:
+                    self.drag_indices += _p_idx[_i]
+
+        #otherwise, assume fully-dragged
         else:
-            _dict[s_idx] += t_idx
+
+            self.is_full_drag = True
+            self.drag_indices = list(range(0, len(self.coordinates)))
+
+        #if no dragging occurs, stop here
+        if not self.drag_indices:
+            return
+
+        self._setting_up_linked_drag = True
+
+        #call linked geometry to set up dragging based on passed indices
+        for _v in self.linked_geometry[self]:
+            _v.setup_linked_drag(self)
+
+        self._setting_up_linked_drag = False
 
     def add_node_events(self, node=None, pathed=True):
         """
@@ -126,7 +173,7 @@ class GeometryTracker(
         #events are added to the last-added event callback node
         self.add_select_events()
         self.add_drag_events()
-        #self.add_keyboard_events()
+        self.add_keyboard_events()
 
         if pathed:
 
@@ -148,6 +195,8 @@ class GeometryTracker(
         Start of drag operations
         """
 
+        self.setup_linked_drag()
+
         super().before_drag(user_data)
 
     def on_drag(self, user_data):
@@ -162,25 +211,21 @@ class GeometryTracker(
         End-of-drag operations
         """
 
-        todo.delay(
-            self._after_drag_update,
-            Drag.drag_tracker.get_matrix()
-        )
+        todo.delay(self._after_drag, Drag.drag_tracker.get_matrix())
 
         super().after_drag(user_data)
 
-    def _after_drag_update(self, user_data):
+    def _after_drag(self, matrix):
         """
-        Delayed update callback to allow for scene traversals to complete
+        Proxy function to handle delayed calls
         """
 
-        print(self.name, '_after_drag_update...', user_data.getValue())
-        self.linked_update(None, user_data)
+        self.update(matrix=matrix)
 
     def linked_update(self, parent, matrix, parent_indices=None):
         """
         Takes a list of indices and a transformation matrix to update
-        object coordiantes, as well as trigger updates for it's own objects
+        object coordinates, as well as trigger updates for it's own objects
         """
 
         #avoid looping updates
@@ -202,12 +247,11 @@ class GeometryTracker(
         _updated_indices = []
 
         #test to see if the parent updates this geometry
-        if parent and self in parent.linked_geometry:
+        if parent in self.linked_geometry:
 
             #dict of parent indices which update coordiantes in the current obj
-            _d = parent.linked_geometry[self]
+            _d = self.linked_geometry[parent]
 
-            print('{}->{}: {}->{}'.format(parent.name, self.name, _indices, _d))
             #iterate the list of updated parent coordinate indices
             for _v in _indices:
 
@@ -227,18 +271,17 @@ class GeometryTracker(
                 if not _xf_coords:
                     continue
 
-                print('\n\t{}->{}.linked_update: {}:{}'.format(parent.name, self.name, str(_w), str(_xf_coords)))
-
+                print(self.name, _xf_coords, matrix.getValue())
                 #transform the linked point by the drag transformation
                 _xf_coords = \
                     self.view_state.transform_points(_xf_coords, matrix)
 
-                print('\ttransforms:',str(_xf_coords))
-
+                print(self.name, _xf_coords)
                 #back-propogate updated coordinates
                 for _i, _w in enumerate(_d[_v]):
                     _coords[_w] = _xf_coords[_i]
 
+                print(self.name, _coords)
         else:
             _coords = self.view_state.transform_points(_coords, matrix)
             _updated_indices = _indices
@@ -246,20 +289,17 @@ class GeometryTracker(
         #update geometry linked to this object
         if _updated_indices:
 
-            print('\n\t----> updating linked geometries')
-
-            for _k in self.linked_geometry:
-                print('\n\t',_k.name)
+            for _k in self.linked_geometry[self]:
                 _k.linked_update(self, matrix, _updated_indices)
 
-        self.update(_coords, notify=False)
+        #self.update(coordinates=_coords, notify=False)
 
-    def update(self, coordinates, notify=True):
+    def update(self, coordinates=None, matrix=None, notify=True):
         """
         Override of Geometry method to provide messaging support
         """
 
-        if not coordinates:
+        if not coordinates and not matrix:
             return
 
         _c = coordinates
@@ -267,9 +307,10 @@ class GeometryTracker(
         if not isinstance(_c, list):
             _c = [_c]
 
-        is_unique = len(self.prev_coordinates) != len(_c)
+        is_unique_len = len(self.prev_coordinates) != len(_c)
+        is_unique = False
 
-        if not is_unique:
+        if not is_unique_len:
 
             for _i, _v in enumerate(self.prev_coordinates):
 
@@ -280,7 +321,19 @@ class GeometryTracker(
         if not is_unique:
             return
 
-        super().update(coordinates)
+        #if only a coordinate update, need to calculate delta for each changed
+        #coordinate.  If matrix update, use translation row as delta for all.
+
+        _deltas = []
+
+        if coordinates and not is_unique_len:
+            _deltas = TupleMath.subtract(self.prev_coordinates, coordinates)
+            print(self.name,'update()  -  coordinate deltas = ', _deltas)
+
+        elif matrix:
+            print(matrix)
+
+        super().update(coordinates=coordinates)
 
         self.coordinates = coordinates
 

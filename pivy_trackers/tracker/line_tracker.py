@@ -25,17 +25,21 @@ Line tracker class for tracker objects
 
 import random
 
+from ..coin import coin_utils
+
 from collections.abc import Iterable
 from ..support.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
+from ..coin.todo import todo
 
 from .geometry_tracker import GeometryTracker
 from .marker_tracker import MarkerTracker
 
 from ..trait.text import Text
+from ..trait.keyboard import Keyboard
 
-class LineTracker(GeometryTracker, Text):
+class LineTracker(GeometryTracker, Text, Keyboard):
     """
     Tracker object for SoLineSet
     """
@@ -57,6 +61,7 @@ class LineTracker(GeometryTracker, Text):
 
         #add events to specific geometry
         self.add_node_events(self.line)
+        #self.add_keyboard_events()
 
         self.groups = []
 
@@ -69,8 +74,9 @@ class LineTracker(GeometryTracker, Text):
         self.set_visibility(True)
 
         self.update_cb = None
-        self.update(points, notify=False)
+        self.update(coordinates=points, notify=False)
 
+        self.draggable_text = True
         self.drag_style = self.DragStyle.CURSOR
         self.drag_axis = None
 
@@ -86,6 +92,28 @@ class LineTracker(GeometryTracker, Text):
         """
 
         return TupleMath.length(self.coordinates)
+
+    def get_drag_nodes(self):
+        """
+        Internal function for use with todo.delay()
+        """
+
+        if not self.draggable_text:
+            return []
+
+        if not self.text:
+            return []
+
+        _top = self.text.top.copy()
+
+        #reset when drag nodes are requested
+        self.text_copies = []
+
+        #save the copies of the text nodes to the CoinText object
+        for _i in range(2, _top.getNumChildren()):
+            self.text_copies.append(_top.getChild(_i).getChild(0))
+
+        return [_top]
 
     def add_text(
         self, name=None, text=None, has_transform=False, has_font=False):
@@ -105,6 +133,23 @@ class LineTracker(GeometryTracker, Text):
         """
 
         return TupleMath.length(self.coordinates)
+
+    def set_length(self, length):
+        """
+        Set the length of the line by scaling the line points about the
+        line's center
+        """
+
+        _scale = length / self.get_length()
+
+        _coords = self.coordinates[:]
+        for _c in _coords:
+
+            _delta = TupleMath.subtract(_c, self.center)
+            _delta = TupleMath.scale(_delta, _scale)
+            _c = TupleMath.add(_delta, self.center)
+
+        self.update(coordinates=_coords)
 
     def show_markers(self):
         """
@@ -132,15 +177,18 @@ class LineTracker(GeometryTracker, Text):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, points, groups=None, notify=True):
+    def update(self, coordinates, groups=None, notify=True):
         """
         Override of Geometry method
         """
 
-        super().update(points, notify=notify)
+        super().update(coordinates=coordinates, notify=notify)
 
         if self.text and self.text.is_visible():
-            self.text.set_translation(TupleMath.mean(self.coordinates))
+
+            self.text.set_translation(
+                TupleMath.mean(self.coordinates)
+            )
 
         if self.update_cb:
             self.update_cb()
@@ -160,11 +208,9 @@ class LineTracker(GeometryTracker, Text):
 
         #directly update the text of the node in the drag copy
         #with the supplied string
-        if not self.drag_copy:
-            return
 
-        _text_node = self.drag_copy.getChild(3).getChild(2)
-        self.set_text(text, _text_node)
+        for _v in self.text_copies:
+            self.set_text(text, _v)
 
     def before_drag(self, user_data):
         """
@@ -185,7 +231,7 @@ class LineTracker(GeometryTracker, Text):
         End-of-drag operations
         """
 
-        print(self.name, 'line_tracker.after_drag()')
+        self.text_copies = []
         super().after_drag(user_data)
 
     def drag_mouse_event(self, user_data, event_cb):
@@ -273,7 +319,7 @@ class LineTracker(GeometryTracker, Text):
         #Add sender to the excluded subscribers list, call update and
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
-        self.update(self.coordinates)
+        self.update(coordinates=self.coordinates)
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):
