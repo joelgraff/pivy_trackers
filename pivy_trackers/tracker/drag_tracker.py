@@ -203,7 +203,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #store the coordinate that's to be transformed during dragging
         self.partial.drag_indices += indices
-        self.partial_drag_indices = list(set(self.partial_drag_indices))
+        self.partial.drag_indices = list(set(self.partial.drag_indices))
 
         _len = len(_num.getValues())
 
