@@ -101,8 +101,16 @@ class Geometry():
         Update implementation
         """
 
-        if not coordinates:
-            return
+        self.prev_coordinates = self.get_coordinates()
+
+        assert(isinstance(coordinates, Iterable)),\
+            'Geometry.set_coordinates(): Non-iterable coordinate structure'
+
+        #encapsulate a single coordinate as a list
+        if not isinstance(coordinates[0], Iterable):
+            coordinates = [coordinates]
+
+        self.coordinates = coordinates
 
         todo.delay(self.set_coordinates, coordinates)
 
@@ -128,18 +136,8 @@ class Geometry():
         Assumes coordinates is a list of 3-float tuples
         """
 
-        assert(isinstance(coordinates, Iterable)),\
-            'Geometry.set_coordinates(): Non-iterable coordinate structure'
-
-        #encapsulate a single coordinate as a list
-        if not isinstance(coordinates[0], Iterable):
-            coordinates = [coordinates]
-
-        self.prev_coordinates = self.get_coordinates()
         self.geometry.coordinate.point.setValues(
             0, len(coordinates), coordinates)
-
-        self.coordinates = coordinates
 
     def get_coordinates(self, _dtype=tuple):
         """

@@ -212,7 +212,6 @@ class GeometryTracker(
         """
 
         todo.delay(self._after_drag, Drag.drag_tracker.get_matrix())
-
         super().after_drag(user_data)
 
     def _after_drag(self, matrix):
@@ -304,20 +303,23 @@ class GeometryTracker(
 
         _c = coordinates
 
+        print(self.name, _c)
         if not isinstance(_c, list):
             _c = [_c]
 
-        is_unique_len = len(self.prev_coordinates) != len(_c)
+        is_unique_len = len(self.coordinates) != len(_c)
         is_unique = False
 
         if not is_unique_len:
 
-            for _i, _v in enumerate(self.prev_coordinates):
+            for _i, _v in enumerate(self.coordinates):
 
                 if _v != _c[_i]:
                     is_unique = True
                     break
 
+        #lengths and are the same, or lengths differ
+        #if lengths differ and there are existing coordinates, quit
         if not is_unique and self.coordinates:
             return
 
@@ -326,7 +328,7 @@ class GeometryTracker(
 
         _deltas = []
 
-        if coordinates and not is_unique_len:
+        if coordinates:
             _deltas = TupleMath.subtract(self.prev_coordinates, coordinates)
             print(self.name,'update()  -  coordinate deltas = ', _deltas)
 
@@ -335,13 +337,11 @@ class GeometryTracker(
 
         super().update(coordinates=coordinates)
 
-        self.coordinates = coordinates
+        #if not notify:
+        #    return
 
-        if not notify:
-            return
-
-        if not isinstance(coordinates, list):
-            coordinates = [coordinates]
+        #if not isinstance(coordinates, list):
+        #    coordinates = [coordinates]
 
         #self.dispatch_geometry(coordinates)
 

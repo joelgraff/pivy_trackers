@@ -180,7 +180,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, coordinates=None, groups=None, matrix=None, notify=True):
+    def update(self, coordinates=None, matrix=None, groups=None, notify=True):
         """
         Override of Geometry method
         """
