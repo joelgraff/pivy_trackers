@@ -128,7 +128,7 @@ class Drag():
 
         else:
 
-            _coords = self.coordinates[:]
+            _coords = list(self.coordinates[:])
 
             for _i, _v in enumerate(self.drag_indices):
                 _coords[_v] = _c[_i]
