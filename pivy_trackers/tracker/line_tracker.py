@@ -140,13 +140,14 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         _coords = self.coordinates[:]
 
-        for _c in _coords:
+        for _i, _c in enumerate(_coords):
 
             _delta = TupleMath.subtract(_c, self.center)
             _delta = TupleMath.scale(_delta, _scale)
-            _c = TupleMath.add(_delta, self.center)
+            _coords[_i] = TupleMath.add(_delta, self.center)
 
         self.update(coordinates=_coords)
+        self.set_text(str(length))
 
     def show_markers(self):
         """
