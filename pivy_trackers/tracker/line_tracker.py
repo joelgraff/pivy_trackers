@@ -86,13 +86,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         #callback to be triggered after graph is inserted into scenegraph
         self.on_insert_callbacks.append(_fn)
 
-    def get_length(self):
-        """
-        Return the transformed drag coordinates
-        """
-
-        return TupleMath.length(self.coordinates)
-
     def get_drag_nodes(self):
         """
         Internal function for use with todo.delay()
@@ -146,6 +139,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         _scale = length / self.get_length()
 
         _coords = self.coordinates[:]
+
         for _c in _coords:
 
             _delta = TupleMath.subtract(_c, self.center)
