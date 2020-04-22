@@ -62,7 +62,7 @@ class GeometryTracker(
         self.linked_geometry = {self: []}
         self.coin_style = CoinStyles.DEFAULT
 
-        self.last_delta = None
+        self.in_linked_update = False
         self._setting_up_linked_drag = False
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
@@ -231,10 +231,10 @@ class GeometryTracker(
             return
 
         #avoid looping updates
-        if delta == self.last_delta:
+        if self.in_linked_update:
             return
 
-        self.last_delta = delta
+        self.in_linked_update = True
 
         #get the coordinates as 3-tuples
         _coords = [_v.getValue()
@@ -245,33 +245,51 @@ class GeometryTracker(
 
         #no specified indices presumes all parent indices were updated
         if not _indices:
-            _indices = list(range(0, len(_coords)))
 
-        _updated_indices = _indices
+            if parent:
+                _indices = list(range(0, len(parent.coordinates)))
+            else:
+                _indices = list(range(0, len(_coords)))
+
+        _updated_indices = list(range(0, len(_coords)))
+        _deltas = list(delta)
+        _updated_deltas = _deltas
 
         if parent:
 
-            _updated_indices = []
+            _deltas = [(0.0, 0.0, 0.0) for _i in range(0, len(_coords))]
 
-            [_updated_indices.extend(_v)\
-                for _k, _v in self.linked_geometry[parent].items()\
-                    if _k in _indices
-            ]
+            for _k, _v in self.linked_geometry[parent].items():
+
+                if not _k in _indices:
+                    continue
+
+                for _w in _v:
+                    _deltas[_w] = delta[_indices.index(_k)]
+
+            _updated_indices = []
+            _updated_deltas = []
+
+            for _i, _v in enumerate(_deltas):
+
+                if _v == (0.0, 0.0, 0.0):
+                    continue
+
+                _updated_indices.append(_i)
+                _updated_deltas.append(_v)
 
         #quit if parent index updates do not affect this geometry
         if not _updated_indices:
+            self.in_linked_update = False
             return
 
         #update geometry linked to this object
         for _k in self.linked_geometry[self]:
-            _k.linked_update(self, delta, _updated_indices)
-
-        _deltas = [
-            delta if _i in _updated_indices else (0, 0, 0)\
-                for _i in range(0, len(_coords))
-        ]
+            _k.linked_update(self, _updated_deltas, _updated_indices)
 
         super().update(coordinates=TupleMath.add(_coords, _deltas))
+
+        self.in_linked_update = False
 
     def update(self, coordinates=None, matrix=None, notify=True):
         """
@@ -317,7 +335,7 @@ class GeometryTracker(
         _delta = TupleMath.subtract(_c, self.coordinates)
 
         if _delta:
-            self.linked_update(None, _delta[0])
+            self.linked_update(None, _delta)
 
         super().update(coordinates=_c)
 

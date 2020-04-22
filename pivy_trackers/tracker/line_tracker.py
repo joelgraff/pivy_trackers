@@ -182,8 +182,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         super().update(coordinates=coordinates, matrix=matrix, notify=notify)
 
-        print(self.name, 'update', self.coordinates)
-
         if self.text and self.text.is_visible():
 
             self.text.set_translation(
@@ -199,7 +197,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         if self.coordinates:
             self.center = TupleMath.mean(self.coordinates)
-            print(self.name,'center',self.center)
 
         self.text_center = self.center
         self.set_text_translation((0.0, 0.0, 0.0))
