@@ -194,8 +194,11 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #get the active view matrix form the node group
         _matrix = self.view_state.get_matrix(node_group.getChild(1))
 
+        print (_matrix.getValue())
         #transform coordinates by the transformation active on the node
         _xf_coords = self.view_state.transform_points(_xf_coords, _matrix)
+
+        print('drag_tracker xf coords', _xf_coords)
 
         #copy the transformed coordinates back to the original list
         for _i in indices:
@@ -218,6 +221,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _num.set1Value(_len, index_range[1] - index_range[0] + 1)
 
         self.partial.coordinates += _coords
+
+        print('drag_Tracker partial coords:', _coords)
 
         self.partial.transformed.append(_coords)
 
