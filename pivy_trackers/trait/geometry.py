@@ -25,6 +25,8 @@ Geometry nodes for Tracker objects
 
 from collections.abc import Iterable
 
+from ..support.tuple_math import TupleMath
+
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.todo import todo
@@ -74,6 +76,11 @@ class Geometry():
 
         self.coordinates = []
         self.prev_coordinates = []
+        self.linked_geometry = {}
+        self.in_update = False
+
+        #flag to update the transform node instead of the coordinate node
+        self.update_transform = False
 
         #reset the graph node parameters
         Geometry.init_graph()
@@ -96,23 +103,105 @@ class Geometry():
         self.coordinates = []
         self.prev_coordinates = []
 
-    def update(self, coordinates):
+    def update(self, coordinates, matrix=None, notify=False):
         """
-        Update implementation
+        Updates the coordinates of the current object and triggers
+        linked object updates
         """
+
+        #Examine the passed coordinates, identifying which have changed
+        #Pass a list of the changed indices and coordinates to linked_update
+
+        if self.in_update:
+            return
+
+        if not coordinates and not matrix:
+            return
+
+        _c = coordinates
+
+        #compute transformation if matrix is specified
+        #otherwise, ensure the coordinates are encapsulated in a list
+        if matrix and self.coordinates:
+            _c = self.view_state.transform_points(self.coordinates, matrix)
+
+        elif not isinstance(_c[0], Iterable):
+            _c = [_c]
+
+        _indices = []
+        _deltas = _c
+
+        if self.coordinates:
+
+            #abort if there are a different number of new coordinates
+            if len(self.coordinates) != len(_c):
+                return
+
+        #compute the changes in coordinates
+        _deltas = TupleMath.subtract(_c, self.coordinates)
+
+        #no changes, either by coordinate update or matrix transformation.
+        if not _deltas or all([_v==(0.0, 0.0, 0.0) for _v in _deltas]):
+            return
+
+        #get a list of the coordinates which differ from current
+        _indices = [_i for _i, _v in enumerate(self.coordinates)\
+            if _v != (0.0, 0.0, 0.0)
+        ]
+
+        self.in_update = True
+
+        #process linked updates if responsible for any
+        if self.coordinates and self in self.linked_geometry:
+
+            for _v in self.linked_geometry[self]:
+                _v.linked_update(self, _indices, _deltas)
+
+        self.in_update = False
 
         self.prev_coordinates = self.get_coordinates()
+        self.coordinates = _c
 
-        assert(isinstance(coordinates, Iterable)),\
-            'Geometry.set_coordinates(): Non-iterable coordinate structure'
+        #process updates to the current geometry
+        if not self.update_transform:
+            todo.delay(self.set_coordinates, _c)
 
-        #encapsulate a single coordinate as a list
-        if not isinstance(coordinates[0], Iterable):
-            coordinates = [coordinates]
+        else:
+            _t = self.geometry.get_translation()
+            self.geometry.set_translation(TupleMath.add(_t, _c[0]))
 
-        self.coordinates = coordinates
+    def linked_update(self, parent, indices, deltas):
+        """
+        Updates geometry linked to this object
+        """
 
-        todo.delay(self.set_coordinates, coordinates)
+        if not parent in self.linked_geometry:
+            return
+
+        #indices in this object which are linked to the parent
+        _link_indices = self.linked_geometry[parent]
+        _link_coords = [_v.getValue()\
+                for _v in self.geometry.coordinate.point.getValues()
+            ]
+
+        #iterate the changed indices, adding the corresponding parent delta
+        for _i, _v in enumerate(indices):
+
+            if _v not in _link_indices:
+                continue
+
+            #update by transform or update all coordinates
+            if any(_w == -1 for _w in _link_indices[_v]):
+                _link_coords = deltas[_v]
+
+            #iterate each linked index, and update the corresponding coordinate
+            else:
+
+                for _x in _link_indices[_v]:
+                    _link_coords[_x] =\
+                        TupleMath.add(deltas[_i], _link_coords[_x])
+
+        self.update(_link_coords)
 
     def transform_points(self, points=None):
         """

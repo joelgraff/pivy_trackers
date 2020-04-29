@@ -23,6 +23,8 @@
 Geometry tracker base class
 """
 
+from collections.abc import Iterable
+
 from ..support.tuple_math import TupleMath
 
 from ..coin import coin_utils
@@ -59,10 +61,8 @@ class GeometryTracker(
 
         super().__init__(name=name, parent=parent, view=view)
 
-        self.linked_geometry = {self: []}
         self.coin_style = CoinStyles.DEFAULT
 
-        self.in_linked_update = False
         self._setting_up_linked_drag = False
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
@@ -77,11 +77,20 @@ class GeometryTracker(
         index value = -1 = all indices are updated
         """
 
+        if not isinstance(target_idx, Iterable):
+            target_idx = [target_idx]
+
         self._link_geometry(self, target, source_idx, target_idx)
 
         if not target_only:
 
             for _v in target_idx:
+
+                #cannot reverse link for full-transformed geometries
+                if _v == -1:
+                    continue
+
+                #-1 indicates the entire geometry is linked by transform
                 self._link_geometry(target, self, _v, [source_idx])
 
     def _link_geometry(self, source, target, s_idx, t_idx):
@@ -157,6 +166,9 @@ class GeometryTracker(
         if not self.drag_indices:
             return
 
+        if not self in self.linked_geometry:
+            return
+
         self._setting_up_linked_drag = True
 
         #call linked geometry to set up dragging based on passed indices
@@ -221,131 +233,15 @@ class GeometryTracker(
 
         self.update(matrix=matrix)
 
-    def linked_update(self, parent, delta, parent_indices=None):
+        self.view_state.dump()
+
+
+    def update(self, coordinates, matrix=None, notify = False):
         """
-        Updates linked geoemtry using coordinate deltas
-        """
-
-        #quit early if the parent doesn't update this geometry
-        if parent and not parent in self.linked_geometry:
-            return
-
-        #avoid looping updates
-        if self.in_linked_update:
-            return
-
-        self.in_linked_update = True
-
-        #get the coordinates as 3-tuples
-        _coords = [_v.getValue()
-            for _v in self.geometry.coordinate.point.getValues()]
-
-        #list of coordinate indices which have been updated in the parent
-        _indices = parent_indices
-
-        #no specified indices presumes all parent indices were updated
-        if not _indices:
-
-            if parent:
-                _indices = list(range(0, len(parent.coordinates)))
-            else:
-                _indices = list(range(0, len(_coords)))
-
-        _updated_indices = list(range(0, len(_coords)))
-        _deltas = list(delta)
-        _updated_deltas = _deltas
-
-        if parent:
-
-            _deltas = [(0.0, 0.0, 0.0) for _i in range(0, len(_coords))]
-
-            for _k, _v in self.linked_geometry[parent].items():
-
-                if not _k in _indices:
-                    continue
-
-                for _w in _v:
-                    _deltas[_w] = delta[_indices.index(_k)]
-
-            _updated_indices = []
-            _updated_deltas = []
-
-            for _i, _v in enumerate(_deltas):
-
-                if _v == (0.0, 0.0, 0.0):
-                    continue
-
-                _updated_indices.append(_i)
-                _updated_deltas.append(_v)
-
-        #quit if parent index updates do not affect this geometry
-        if not _updated_indices:
-            self.in_linked_update = False
-            return
-
-        #update geometry linked to this object
-        for _k in self.linked_geometry[self]:
-            _k.linked_update(self, _updated_deltas, _updated_indices)
-
-        super().update(coordinates=TupleMath.add(_coords, _deltas))
-
-        self.in_linked_update = False
-
-    def update(self, coordinates=None, matrix=None, notify=True):
-        """
-        Override of Geometry method to provide messaging support
+        Override of geometry.update()
         """
 
-        if not coordinates and not matrix:
-            return
-
-        _c = coordinates
-
-        if _c:
-
-            if not isinstance(_c, list):
-                _c = [_c]
-
-            if self.coordinates:
-
-                #abort if there are a different number of new coordinates
-                if len(self.coordinates) != len(_c):
-                    return
-
-                _is_unique = False
-
-                #abort if no difference in the incoming coordinates
-                for _i, _v in enumerate(self.coordinates):
-
-                    if _v != _c[_i]:
-                        _is_unique = True
-                        break
-
-                if not _is_unique:
-                    return
-
-        #if only a coordinate update, need to calculate delta for each changed
-        #coordinate.  If matrix update, use translation row as delta for all.
-
-        #compute deltas for linked updates
-        if matrix:
-            _c = self.view_state.transform_points(self.coordinates, matrix)
-
-        _delta = _c
-        _delta = TupleMath.subtract(_c, self.coordinates)
-
-        if _delta:
-            self.linked_update(None, _delta)
-
-        super().update(coordinates=_c)
-
-        #if not notify:
-        #    return
-
-        #if not isinstance(coordinates, list):
-        #    coordinates = [coordinates]
-
-        #self.dispatch_geometry(coordinates)
+        super().update(coordinates, matrix)
 
     def notify_geometry(self, event, message):
         """
