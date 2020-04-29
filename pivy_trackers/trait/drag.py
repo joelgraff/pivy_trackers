@@ -229,7 +229,6 @@ class Drag():
             self.is_dragging = False
 
             todo.delay(self.after_drag, self)
-
             todo.delay(self.drag_tracker.end_drag, None)
             todo.delay(self.teardown_drag, None)
 
@@ -337,8 +336,10 @@ class Drag():
         self.is_full_drag = False
         self.is_dragging = False
 
-        for _k in self.linked_geometry[self]:
-            _k.teardown_drag()
+        if self in self.linked_geometry:
+
+            for _k in self.linked_geometry[self]:
+                _k.teardown_drag()
 
     def finish(self):
         """

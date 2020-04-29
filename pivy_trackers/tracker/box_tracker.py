@@ -28,17 +28,23 @@ from ..support.tuple_math import TupleMath
 from ..trait.base import Base
 
 from .line_tracker import LineTracker
+from .geometry_tracker import GeometryTracker
 
-class BoxTracker(Base):
+class BoxTracker(GeometryTracker):
     """
     Box tracker class
     """
 
-    def __init__(self, name, corners, parent, is_resizeable=True, view=None):
+    def __init__(self, name, corners, parent,
+                 is_resizeable=True, update_transform = True, view=None):
+
         """
         Constructor
 
         corners - List of corners as 2 or 3-coordinate tuples (z-coord ignored)
+        parent - the reference to the parent node
+        is_resizeable - determines whether or not box dimensions can change
+        update_transform - when linked to other geomtry, update single transform
         """
 
         super().__init__(name=name, parent=parent, view=view)
@@ -73,7 +79,7 @@ class BoxTracker(Base):
             self.lines[2].link_geometry(self.lines[3], 1, [0])   #right to rear
 
         else:
-            self.lines = [LineTracker('box', _points + _points[0], self.base)]
+            self.lines = [LineTracker('box', _points + (_points[0],), self.base)]
 
         self.set_visibility()
 

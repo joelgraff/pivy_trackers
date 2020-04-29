@@ -28,6 +28,8 @@ import math
 from pivy import coin
 from PySide import QtGui
 
+from ..coin import coin_utils
+
 from ..support.singleton import Singleton
 
 _NEAR_ZERO = 10**-30
@@ -81,6 +83,18 @@ class ViewState(metaclass=Singleton):
 
         self.add_mouse_event(
             ViewState.global_view_mouse_event)
+
+    def dump(self, node=None):
+        """
+        Dump the scenegraph to console, unless node is specified
+        """
+
+        _node = node
+
+        if not _node:
+            _node = self.sg_root
+
+        coin_utils.dump_node(_node)
 
     def get_matrix(self, node, parent=None, refresh=True):
         """
