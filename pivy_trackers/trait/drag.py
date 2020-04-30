@@ -229,8 +229,8 @@ class Drag():
             self.is_dragging = False
 
             todo.delay(self.after_drag, self)
-            todo.delay(self.drag_tracker.end_drag, None)
             todo.delay(self.teardown_drag, None)
+            todo.delay(self.drag_tracker.end_drag, None)
 
         #start of drag operations
         else:
@@ -260,6 +260,8 @@ class Drag():
 
         for _cb in self.before_drag_callbacks:
             _cb(user_data)
+
+        self.drag_copy = self.geometry.copy()
 
         #enabling sinks mouse events at the drag tracker
         Drag.drag_tracker.drag_center = self.update_drag_center()
@@ -295,7 +297,6 @@ class Drag():
             #add extra child class drag nodes as fully-dragged
             for _w in _v.get_drag_nodes():
                 Drag.drag_tracker.insert_full_drag(_w)
-
 
     def on_drag(self, user_data):
         """

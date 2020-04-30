@@ -26,6 +26,7 @@ Box tracker class
 from ..support.tuple_math import TupleMath
 
 from ..trait.base import Base
+from ..trait.geometry import Geometry
 
 from .line_tracker import LineTracker
 from .geometry_tracker import GeometryTracker
@@ -36,7 +37,7 @@ class BoxTracker(GeometryTracker):
     """
 
     def __init__(self, name, corners, parent,
-                 is_resizeable=True, update_transform = True, view=None):
+                 is_resizeable=True, update_transform=True, view=None):
 
         """
         Constructor
