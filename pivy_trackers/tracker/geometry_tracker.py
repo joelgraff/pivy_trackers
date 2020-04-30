@@ -62,7 +62,7 @@ class GeometryTracker(
         super().__init__(name=name, parent=parent, view=view)
 
         self.coin_style = CoinStyles.DEFAULT
-
+        self.is_draggable = True
         self._setting_up_linked_drag = False
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
@@ -140,7 +140,7 @@ class GeometryTracker(
             return
 
         #add to drag list if not previously added
-        if not self in Drag.drag_list:
+        if not self in Drag.drag_list and self.is_draggable:
             self.drag_copy = self.geometry.copy()
             Drag.drag_list.append(self)
 
@@ -222,7 +222,7 @@ class GeometryTracker(
         """
         End-of-drag operations
         """
-
+        self.view_state.dump()
         todo.delay(self._after_drag, Drag.drag_tracker.get_matrix())
         super().after_drag(user_data)
 
@@ -232,9 +232,6 @@ class GeometryTracker(
         """
 
         self.update(matrix=matrix)
-
-        self.view_state.dump()
-
 
     def update(self, coordinates, matrix=None, notify = False):
         """
