@@ -38,11 +38,11 @@ IDE's which support git should update the submodules without issue.  However, th
 
 ## Getting Started
 
-Clone the project into a path visible through your project's top-level module
+Clone the project into a path visible through your project's top-level module.  Note the `--recursive` switch, which ensures the FreeCAD_python_support submodule is also cloned:
 
 ```bash
 cd /my/project/top/module/path
-git clone https://github.com/joelgraff/pivy_trackers.git
+git clone --recursive https://github.com/joelgraff/pivy_trackers.git
 ```
 
 ## Usage
