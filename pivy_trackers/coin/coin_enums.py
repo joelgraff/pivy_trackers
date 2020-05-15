@@ -69,26 +69,6 @@ class PickStyles(Const):
     BOX_ON_TOP = coin.SoPickStyle.BOUNDING_BOX_ON_TOP
     FACES = coin.SoPickStyle.SHAPE_FRONTFACES
 
-class NodeTypes(Const):
-    """
-    Const class of enumerants correlating to coin node types
-    """
-
-    COLOR = coin.SoBaseColor
-    COORDINATE = coin.SoCoordinate3
-    DRAW_STYLE = coin.SoDrawStyle
-    EVENT_CB = coin.SoEventCallback
-    FONT = coin.SoFont
-    GROUP = coin.SoGroup
-    KEYBOARD_EVENT = coin.SoKeyboardEvent
-    LINE_SET = coin.SoLineSet
-    MARKER_SET = coin.SoMarkerSet
-    NODE = coin.SoNode
-    PICK_STYLE = coin.SoPickStyle
-    SWITCH = coin.SoSwitch
-    SEPARATOR = coin.SoSeparator
-    TEXT = coin.SoText2
-    TRANSFORM = coin.SoTransform
 
 class Keys(Const):
     """
@@ -122,12 +102,12 @@ class Keys(Const):
     G = coin.SoKeyboardEvent.G
     H = coin.SoKeyboardEvent.H
     I = coin.SoKeyboardEvent.I
-    J = coin.SoKeyboardEvent.J 
+    J = coin.SoKeyboardEvent.J
     K = coin.SoKeyboardEvent.K
     L = coin.SoKeyboardEvent.L
     M = coin.SoKeyboardEvent.M
     N = coin.SoKeyboardEvent.N
-    O = coin.SoKeyboardEvent.O  
+    O = coin.SoKeyboardEvent.O
     P = coin.SoKeyboardEvent.P
     Q = coin.SoKeyboardEvent.Q
     R = coin.SoKeyboardEvent.R
@@ -347,3 +327,28 @@ class MarkerStyles(Const):
             return _keys[_vals.index(value)]
 
         return ''
+
+
+class NodeTypes(Const):
+    """
+    Const class of enumerants correlating to coin node types
+    """
+
+    COLOR = coin.SoBaseColor
+    COORDINATE = coin.SoCoordinate3
+    DRAW_STYLE = coin.SoDrawStyle
+    EVENT_CB = coin.SoEventCallback
+    FONT = coin.SoFont
+    GEO_COORDINATE = coin.SoGeoCoordinate
+    GEO_ORIGIN = coin.SoGeoOrigin
+    GEO_SEPARATOR = coin.SoGeoSeparator
+    GROUP = coin.SoGroup
+    KEYBOARD_EVENT = coin.SoKeyboardEvent
+    LINE_SET = coin.SoLineSet
+    MARKER_SET = coin.SoMarkerSet
+    NODE = coin.SoNode
+    PICK_STYLE = coin.SoPickStyle
+    SWITCH = coin.SoSwitch
+    SEPARATOR = coin.SoSeparator
+    TEXT = coin.SoText2
+    TRANSFORM = coin.SoTransform
