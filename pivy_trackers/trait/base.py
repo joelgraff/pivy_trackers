@@ -160,15 +160,15 @@ class Base():
         todo.delay callback for node insertion into scenegraph
         """
 
-        Base.view_state.sg_root.insertChild(self.base.root, 0)
+        Base.view_state.root.addChild(self.base.root)
         Event.set_paths()
 
         #assign scenegraph root as parent after insertion, rather than
         #when creating the top-level tracker's base coin group.
-        self.base.parent = self.view_state.sg_root
+        self.base.parent = self.view_state.root
 
         if verbose:
-            self.base.dump()
+            self.base.dump(self.view_state.root)
 
             print(
                 'triggering {} callbacks...'.format(len(Base.on_insert_callbacks))
@@ -215,5 +215,6 @@ class Base():
         #    Base.mouse_state = None
 
         self.base.finalize()
+        todo.delay(self.sg_root.removeChild, self.root)
 
 Base.init_graph()
