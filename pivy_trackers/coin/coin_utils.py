@@ -50,6 +50,15 @@ def describe(node):
         return 'points ({}) = {}'\
             .format(str(node.point.getNum()), str(_pts))
 
+
+    if isinstance(node, coin.SoGeoCoordinate):
+
+        _pts = [_v.getValue() for _v in node.point.getValues()]
+
+        return 'system = {}; points ({}) = {}'.format(
+            str(node.geoSystem.getValues()), str(node.point.getNum()), str(_pts)
+        )
+
     if isinstance(node, coin.SoDrawStyle):
         return 'style={}, size={}, width={}, pattern={}'\
             .format(
@@ -75,6 +84,11 @@ def describe(node):
             str(node.rotation.getValue().getAxisAngle()[1]),
             str(node.center.getValue().getValue())
         )
+
+    if isinstance(node, coin.SoGeoOrigin):
+        return 'system={}; coordinates={}'.format(
+            str(node.geoSystem.getValues()),
+            str(node.geoCoords.getValue().getValue()))
 
     return ''
 

@@ -23,6 +23,7 @@
 Support class for creating Coin3D node structures
 """
 
+from collections.abc import Iterable
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
 
@@ -34,7 +35,7 @@ class CoinGroup(object):
     scenegraph_root = None
 
     def __init__(self, is_separated=False, is_switched=False,
-                 switch_first=True, parent=None, name=''):
+                 switch_first=True, parent=None, is_geo=False, name=''):
         """
         Constructor
         parent = CoinGroup or SoNode
@@ -69,9 +70,15 @@ class CoinGroup(object):
             self.root = self.switch
 
         if is_separated:
-            self.separator = utils.add_child(
-                Nodes.SEPARATOR, None, self.name + '__TopSeparator')
 
+            _type = Nodes.SEPARATOR
+            _name = self.name + '_Separator'
+
+            if is_geo:
+                _type = Nodes.GEO_SEPARATOR
+                _name = self.name + '_GeoSeparator'
+
+            self.separator = utils.add_child(_type, None, _name)
             _top_group = self.separator
 
         else:
@@ -145,7 +152,7 @@ class CoinGroup(object):
 
         utils.insert_child(node, parent, index)
 
-    def add_node(self, event_class, name='', index=-1):
+    def add_node(self, event_class, name='', parent=None, index=-1):
         """
         Add a new node to the current group
         """
@@ -153,9 +160,12 @@ class CoinGroup(object):
         if not name:
             name = str(event_class.getClassTypeId().getName())
 
+        if not parent:
+            parent = self.top
+
         _name = self.name + '__' + name
 
-        return utils.add_child(event_class, self.top, _name, index)
+        return utils.add_child(event_class, parent, _name, index)
 
     def remove_node(self, node, parent=None):
         """

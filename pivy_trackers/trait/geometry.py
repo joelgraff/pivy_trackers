@@ -45,13 +45,17 @@ class Geometry():
 
     is_switched = None
     is_separated = None
+    is_geo = None
     switch_first = None
 
     @staticmethod
-    def init_graph(is_switched=False, is_separated=False, switch_first=True):
+    def init_graph(
+        is_switched=False, is_separated=False, switch_first=True, is_geo=False):
+
         Geometry.is_switched = is_switched
         Geometry.is_separated = is_separated
         Geometry.switch_first = switch_first
+        Geometry.is_geo = is_geo
 
     def __init__(self):
         """
@@ -71,8 +75,16 @@ class Geometry():
         self.geometry.transform =\
             self.geometry.add_node(Nodes.TRANSFORM, self.name + '_transform')
 
-        self.geometry.coordinate =\
-            self.geometry.add_node(Nodes.COORDINATE, self.name + '_coordinate')
+        _type = Nodes.COORDINATE
+        _name = self.name + '_Coordinate'
+
+        #set up the GeoNode support structure
+        if self.is_geo:
+
+            _type = Nodes.GEO_COORDINATE
+            _name = self.name + '_GeoCoordinate'
+
+        self.geometry.coordinate = self.geometry.add_node(_type, _name)
 
         self.coordinates = []
         self.prev_coordinates = []
@@ -86,6 +98,27 @@ class Geometry():
         Geometry.init_graph()
 
         super().__init__()
+
+    def set_geo_reference(self, system, coords):
+        """
+        Set the system and coordinates of the passed node.
+        If none, then sets the existing separator and coordinate nodes
+        """
+
+        _top = None
+
+        if isinstance(self.geometry.top, Nodes.GEO_SEPARATOR):
+            _top = self.geometry.top
+
+        elif isinstance(self.geometry.root, Nodes.GEO_SEPARATOR):
+            _top = self.geometry.root
+
+        if _top:
+            _top.geoSystem.setValues(system)
+            _top.geoCoords.setValue(coords[0], coords[1], coords[2])
+
+        if isinstance(self.geometry.coordinate, Nodes.GEO_COORDINATE):
+            self.geometry.coordinate.geoSystem.setValues(system)
 
     def get_matrix(self):
         """

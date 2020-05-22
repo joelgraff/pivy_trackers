@@ -75,6 +75,12 @@ class ViewState(metaclass=Singleton):
             view.getViewer().getSoRenderManager().getViewportRegion()
 
         self.sg_root = self.view.getSceneGraph()
+        self.root = coin.SoSeparator()
+        self.root.setName('VIEWSTATE_ROOT')
+
+        self.geo_origin = None
+
+        self.sg_root.insertChild(self.root, 0)
 
         self.active_task_panel = None
         self._matrix = None
@@ -83,6 +89,20 @@ class ViewState(metaclass=Singleton):
 
         self.add_mouse_event(
             ViewState.global_view_mouse_event)
+
+    def set_geo_reference(self, system, coordinates):
+        """
+        Set the georeferencing parameters for the SoGeoOrigin
+        """
+
+        if not self.geo_origin:
+            self.geo_origin = coin.SoGeoOrigin()
+            self.geo_origin.setName('GEO_ORIGIN')
+            self.root.insertChild(self.geo_origin, 0)
+
+        self.geo_origin.geoSystem.setValues(system)
+        self.geo_origin.geoCoords.setValue(
+            coordinates[0], coordinates[1], coordinates[2])
 
     def dump(self, node=None):
         """

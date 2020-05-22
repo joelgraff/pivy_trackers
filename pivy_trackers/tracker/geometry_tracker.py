@@ -54,10 +54,12 @@ class GeometryTracker(
     #static alias for DragStyle class
     DragStyle = enums.DragStyle
 
-    def __init__(self, name, parent, view=None):
+    def __init__(self, name, parent, is_geo=False, view=None):
         """
         Constructor
         """
+
+        Geometry.init_graph(is_geo=is_geo)
 
         super().__init__(name=name, parent=parent, view=view)
 

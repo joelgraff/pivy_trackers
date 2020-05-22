@@ -44,15 +44,17 @@ class LineTracker(GeometryTracker, Text, Keyboard):
     Tracker object for SoLineSet
     """
 
-    def __init__(self, name, points, parent, view=None, selectable=True):
+    def __init__(
+        self, name, points, parent, view=None, selectable=True, is_geo=False):
+
         """
         Constructor
         """
 
-        super().__init__(name=name, parent=parent, view=view)
+        super().__init__(name=name, parent=parent, is_geo=is_geo, view=view)
 
         #build node structure for the node tracker
-        self.line = self.geometry.add_node(Nodes.LINE_SET, name)
+        self.line = self.geometry.add_node(Nodes.LINE_SET, name + '_LINE')
 
         self.markers =\
             MarkerTracker(name + '_marker_tracker', None, self.base)
