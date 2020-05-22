@@ -29,7 +29,7 @@ Specifically:
 
 Additionally, pivy_trackers relies on the following projects included as git submodules:
 
-* [FreeCAD_python_support (release branch] (https://github.com/joelgraff/freecad_python_support/tree/release)
+* [FreeCAD_python_support (release branch)](https://github.com/joelgraff/freecad_python_support/tree/release)
 
 IDE's which support git should update the submodules without issue.  However, the user is encouraged to refer to the [github submodule documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules) for furtrher assistance, as extra steps may be required to update the submodule paths in the project.
 
@@ -38,11 +38,11 @@ IDE's which support git should update the submodules without issue.  However, th
 
 ## Getting Started
 
-Clone the project into a path visible through your project's top-level module
+Clone the project into a path visible through your project's top-level module.  Note the `--recursive` switch, which ensures the [FreeCAD_python_support submodule](https://github.com/joelgraff/freecad_python_support/tree/release) is also cloned:
 
 ```bash
 cd /my/project/top/module/path
-git clone https://github.com/joelgraff/pivy_trackers.git
+git clone --recursive https://github.com/joelgraff/pivy_trackers.git
 ```
 
 ## Usage
