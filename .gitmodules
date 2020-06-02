@@ -2,6 +2,3 @@
 	path = support
 	url = https://github.com/joelgraff/freecad_python_support
 	branch = release
-[submodule "pivy_trackers/support"]
-	path = pivy_trackers/support
-	url = https://github.com/joelgraff/freecad_python_support
