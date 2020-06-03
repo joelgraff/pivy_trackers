@@ -1,4 +1,0 @@
-[submodule "support"]
-	path = support
-	url = https://github.com/joelgraff/freecad_python_support
-	ignore = dirty
