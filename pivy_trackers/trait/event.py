@@ -25,8 +25,7 @@ Event class for Tracker objects
 import weakref
 from types import SimpleNamespace
 
-
-from ..support.tuple_math import TupleMath
+from pivy_trackers import TupleMath
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes

@@ -28,7 +28,8 @@ import random
 from ..coin import coin_utils
 
 from collections.abc import Iterable
-from ..support.tuple_math import TupleMath
+
+from pivy_trackers import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
 from ..coin.todo import todo

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#**************************************************************************
-#*                                                                     *
+#***********************************************************************
 #* Copyright (c) 2019 Joel Graff <monograff76@gmail.com>               *
 #*                                                                     *
 #* This program is free software; you can redistribute it and/or modify*
@@ -21,16 +20,41 @@
 #*                                                                     *
 #***********************************************************************
 """
-Enumerant support for trait classes
+Provides SoKeyboardEvent support for tracker classes
 """
 
-from pivy_trackers import Const
+from pivy import coin
 
-class DragStyle(Const):
+from ..coin.coin_enums import NodeTypes as Nodes
+
+class GeoRef():
     """
-    Enumerants describing line rotation styles
+    Provides SoGeo node support
     """
 
-    CURSOR = 0      # Mouse cursor
-    AVERAGE = 1     # Average of line coordinates
-    ENDPOINT = 2    # Nearest coordinate
+    #Base prototypes
+    name = None
+    names = []
+    base = None
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        #Pylint doesn't see self.base members...
+        #pylint: disable=no-member
+
+        assert(self.names), """
+        Keyboard.__init__(): No names defined.  Is Base inherited?
+        """
+
+        assert(self.event), """
+        Keyboard.__init__(): No event node defined.  Is Event inherited?
+        """
+
+        self.handle_keyboard_events = False
+        self.keybaord_event_cb = None
+        self.keydown_callbacks = {}
+        self.keyup_callbacks = {}
+
+        super().__init__()

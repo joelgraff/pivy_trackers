@@ -30,7 +30,7 @@ from PySide import QtGui
 
 from ..coin import coin_utils
 
-from ..support.singleton import Singleton
+from pivy_trackers import Singleton
 
 _NEAR_ZERO = 10**-30
 

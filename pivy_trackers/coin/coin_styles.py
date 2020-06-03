@@ -25,7 +25,7 @@ Support class for managing Coin3D node styles
 
 from pivy import coin
 
-from ..support.const import Const
+from pivy_trackers import Const
 
 class CoinStyles(Const):
     """

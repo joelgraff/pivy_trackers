@@ -25,7 +25,7 @@ Geometry nodes for Tracker objects
 
 from collections.abc import Iterable
 
-from ..support.tuple_math import TupleMath
+from pivy_trackers import TupleMath
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes

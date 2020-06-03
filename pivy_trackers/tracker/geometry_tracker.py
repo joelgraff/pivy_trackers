@@ -25,7 +25,7 @@ Geometry tracker base class
 
 from collections.abc import Iterable
 
-from ..support.tuple_math import TupleMath
+from pivy_trackers import TupleMath
 
 from ..coin import coin_utils
 

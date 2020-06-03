@@ -23,7 +23,8 @@
 Task-level Singleton tracker for providing state at the task level
 """
 
-from ..support.singleton import Singleton
+from pivy_trackers import Singleton
+
 from ..trait.base import Base
 
 class TaskTracker(Base, metaclass=Singleton):
