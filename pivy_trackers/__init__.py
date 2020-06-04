@@ -1,5 +1,3 @@
-print(__name__)
-
 def import_module(path, name):
     """
     Return an import of a module specified by path and module name
