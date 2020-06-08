@@ -140,7 +140,7 @@ class SelectDragTracker(ContextTracker, Drag):
 
     def link_markers(self):
         """
-        Link markes to lines
+        Link markers to lines
         """
 
         #link the nodes with their corresponding lines.

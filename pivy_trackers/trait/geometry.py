@@ -125,7 +125,7 @@ class Geometry():
         Return the transformation matrix applied to the coordinate
         """
 
-        self.view_state.get_matrix(self.geometry.coordiante)
+        self.view_state.get_matrix(self.geometry.coordinate)
 
     def reset(self):
         """
