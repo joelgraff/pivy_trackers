@@ -27,7 +27,8 @@ from types import SimpleNamespace
 
 from pivy import coin
 
-from pivy_trackers import Singleton, TupleMath
+from freecad_python_support.singleton import Singleton
+from freecad_python_support.tuple_math import TupleMath
 
 from ..coin.todo import todo
 

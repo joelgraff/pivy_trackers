@@ -30,7 +30,7 @@ from PySide import QtGui
 
 from ..coin import coin_utils
 
-from pivy_trackers import Singleton
+from freecad_python_support.singleton import Singleton
 
 _NEAR_ZERO = 10**-30
 

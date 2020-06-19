@@ -25,7 +25,8 @@ MessageTypes class
 
 import types
 
-from pivy_trackers import Const, Singleton
+from freecad_python_support.const import Const
+from freecad_python_support.singleton import Singleton
 
 class MessageTypes(metaclass=Singleton):
 

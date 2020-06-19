@@ -25,7 +25,7 @@ Support class for managing Coin3D node styles
 
 from pivy import coin
 
-from pivy_trackers import Const
+from freecad_python_support.const import Const
 
 class CoinStyles(Const):
     """

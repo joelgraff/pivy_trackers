@@ -24,7 +24,7 @@
 Enumerant support for trait classes
 """
 
-from pivy_trackers import Const
+from freecad_python_support.const import Const
 
 class DragStyle(Const):
     """

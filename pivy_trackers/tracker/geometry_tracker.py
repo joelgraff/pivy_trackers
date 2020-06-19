@@ -25,7 +25,7 @@ Geometry tracker base class
 
 from collections.abc import Iterable
 
-from pivy_trackers import TupleMath
+from freecad_python_support.tuple_math import TupleMath
 
 from ..coin import coin_utils
 

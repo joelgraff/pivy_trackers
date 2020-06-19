@@ -23,7 +23,7 @@
 Task-level Singleton tracker for providing state at the task level
 """
 
-from pivy_trackers import Singleton
+from freecad_python_support.singleton import Singleton
 
 from ..trait.base import Base
 

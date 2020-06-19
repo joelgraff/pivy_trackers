@@ -23,7 +23,7 @@
 Coin-based enumerations
 """
 
-from pivy_trackers import Const
+from freecad_python_support.const import Const
 
 from pivy import coin
 

@@ -26,7 +26,8 @@ Mouse state class
 from pivy import coin
 from PySide.QtGui import QCursor
 
-from pivy_trackers import Singleton, TupleMath
+from freecad_python_support.singleton import Singleton
+from freecad_python_support.tuple_math import TupleMath
 
 from ..state.button_state import ButtonState
 
