@@ -23,9 +23,9 @@
 Coin-based enumerations
 """
 
-from pivy_trackers import Const
-
 from pivy import coin
+
+from pivy_trackers.pivy_trackers import Const
 
 class Axis(Const):
     """
