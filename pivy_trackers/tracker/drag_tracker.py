@@ -124,7 +124,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #increment translation / rotation by a fixed value during drag
         #0.0 = free movement
-        self.translate_incrememnt = 0.0
+        self.translate_increment = 0.0
         self.rotate_increment = 0.0
 
         self.lock_axis = ()

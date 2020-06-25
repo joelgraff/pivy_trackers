@@ -33,17 +33,18 @@ class MarkerTracker(GeometryTracker):
     Tracker object for nodes
     """
 
-    def __init__(self, name, point, parent, view=None):
+    def __init__(self, name, point, parent, view=None, index=-1):
         """
         Constructor
         """
 
-        super().__init__(name=name, parent=parent, view=view)
+        super().__init__(name=name, parent=parent, view=view, index=index)
 
         self.point = None
 
         #build node structure for the node tracker
-        self.marker = self.geometry.add_node(Nodes.MARKER_SET, name)
+        self.marker =\
+            self.geometry.add_node(Nodes.MARKER_SET, name)
 
         self.add_node_events(self.marker)
         self.set_style()
@@ -55,9 +56,9 @@ class MarkerTracker(GeometryTracker):
         self.point = tuple(point)
         self.update(notify=False)
 
-    def update(self, coordinates=None, notify=True):
+    def update(self, coordinates=None, matrix=None, groups=None, notify=True):
         """
-        Update the coordinate position
+        Override of Geometry method
         """
 
         _c = coordinates
@@ -71,7 +72,7 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = tuple(_c)
 
-        super().update(coordinates=_c, notify=notify)
+        super().update(coordinates=_c, matrix=matrix, notify=notify)
 
     def update_drag_center(self):
         """

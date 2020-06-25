@@ -83,7 +83,7 @@ class Base():
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Class Defiintion
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    def __init__(self, name, view=None, parent=None):
+    def __init__(self, name, view=None, parent=None, index=-1):
         """
         Constructor
         """
@@ -115,7 +115,7 @@ class Base():
             is_separated=Base.is_separated,
             is_switched=Base.is_switched,
             switch_first=Base.switch_first,
-            name=self.name + '_base', parent=parent)
+            name=self.name + '_base', parent=parent, index=index)
 
         self.path_node = None
         self.transform = self.base.add_node(Nodes.TRANSFORM, 'Transform')

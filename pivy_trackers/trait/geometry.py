@@ -90,6 +90,7 @@ class Geometry():
         self.prev_coordinates = []
         self.linked_geometry = {}
         self.in_update = False
+        self.linked_parent = None
 
         #flag to update the transform node instead of the coordinate node
         self.update_transform = False
@@ -164,6 +165,9 @@ class Geometry():
         _indices = []
         _deltas = _c
 
+        if not isinstance(_c[0], Iterable):
+            _c = (_c)
+
         if self.coordinates:
 
             #abort if there are a different number of new coordinates
@@ -172,6 +176,9 @@ class Geometry():
 
         #compute the changes in coordinates
         _deltas = TupleMath.subtract(_c, self.coordinates)
+
+        if not isinstance(_deltas[0], Iterable):
+            _deltas = (_deltas,)
 
         #no changes, either by coordinate update or matrix transformation.
         if not _deltas or all([_v==(0.0, 0.0, 0.0) for _v in _deltas]):
@@ -188,6 +195,10 @@ class Geometry():
         if self.coordinates and self in self.linked_geometry:
 
             for _v in self.linked_geometry[self]:
+
+                if _v is self.linked_parent:
+                    continue
+
                 _v.linked_update(self, _indices, _deltas)
 
         self.in_update = False
@@ -197,11 +208,13 @@ class Geometry():
 
         #process updates to the current geometry
         if not self.update_transform:
-            todo.delay(self.set_coordinates, _c)
+           todo.delay(self.set_coordinates, _c)
 
         else:
             _t = self.geometry.get_translation()
             self.geometry.set_translation(TupleMath.add(_t, _c[0]))
+
+        self.linked_parent = None
 
     def linked_update(self, parent, indices, deltas):
         """
@@ -234,6 +247,7 @@ class Geometry():
                     _link_coords[_x] =\
                         TupleMath.add(deltas[_i], _link_coords[_x])
 
+        self.linked_parent = parent
         self.update(_link_coords)
 
     def transform_points(self, points=None):

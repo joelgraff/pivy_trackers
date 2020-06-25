@@ -45,8 +45,8 @@ class LineTracker(GeometryTracker, Text, Keyboard):
     Tracker object for SoLineSet
     """
 
-    def __init__(
-        self, name, points, parent, view=None, selectable=True, is_geo=False):
+    def __init__(self, name, points, parent, view=None, selectable=True,
+        is_geo=False, index=-1):
 
         """
         Constructor
@@ -54,13 +54,11 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         super().__init__(name=name, parent=parent, is_geo=is_geo, view=view)
 
+        self.markers =[]
+
         #build node structure for the node tracker
-        self.line = self.geometry.add_node(Nodes.LINE_SET, name + '_LINE')
-
-        self.markers =\
-            MarkerTracker(name + '_marker_tracker', None, self.base)
-
-        self.markers.set_visibility(False)
+        self.line =\
+            self.geometry.add_node(Nodes.LINE_SET, name + '_LINE', index=index)
 
         #add events to specific geometry
         self.add_node_events(self.line)
@@ -83,11 +81,43 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         self.drag_style = self.DragStyle.CURSOR
         self.drag_axis = None
 
-        _fn = lambda:\
-            self.markers.geometry.remove_node(self.markers.geometry.coordinate)
+        #_fn = lambda:\
+        #    self.markers.geometry.remove_node(self.markers.geometry.coordinate)
 
         #callback to be triggered after graph is inserted into scenegraph
-        self.on_insert_callbacks.append(_fn)
+        #self.on_insert_callbacks.append(self.remove_marker_coords)
+
+    def enable_markers(self, indices=[]):
+        """
+        Enable marker nodes on the lines.
+        Optional array of indices to select specific markers
+        """
+
+        if not indices:
+            indices = list(range(0, len(self.coordinates)))
+
+        for _p in [self.coordinates[_i] for _i in indices]:
+
+            _m = MarkerTracker(
+                self.name + '_marker_tracker', _p, self.base.parent, index=0)
+
+            self.markers.append(_m)
+
+        for _i, _m in enumerate(self.markers):
+            self.link_geometry(_m, _i, [0])
+
+        self.show_markers(False)
+
+
+    def remove_marker_coords(self):
+        """
+        Callback to remove marker nodes
+        """
+
+        for _m in self.markers:
+            _m.geometry.remove_node(_m.geometry.coordinate)
+
+        _m.geometry.coordinate = None
 
     def get_drag_nodes(self):
         """
@@ -152,19 +182,27 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         self.update(coordinates=_coords)
         self.set_text(str(length))
 
-    def show_markers(self):
+    def show_markers(self, marker_list = []):
         """
         Show the SoMarkerSet
         """
 
-        self.markers.set_visibility(True)
+        if not marker_list:
+            marker_list = list(range(0, len(self.markers)))
 
-    def hide_markers(self):
+        for _i in marker_list:
+            self.markers[_i].set_visibility(True)
+
+    def hide_markers(self, marker_list = []):
         """
         hide the SoMarkerSet
         """
 
-        self.markers.set_visibility(False)
+        if not marker_list:
+            marker_list = list(range(0, len(self.markers)))
+
+        for _i in marker_list:
+            self.markers[_i].set_visibility(False)
 
     def set_vertex_groups(self, groups):
         """

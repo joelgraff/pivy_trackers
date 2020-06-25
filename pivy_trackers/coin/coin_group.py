@@ -34,8 +34,8 @@ class CoinGroup(object):
 
     scenegraph_root = None
 
-    def __init__(self, is_separated=False, is_switched=False,
-                 switch_first=True, parent=None, is_geo=False, name=''):
+    def __init__(self, is_separated=False, is_switched=False, switch_first=True,
+                 parent=None, is_geo=False, name='', index=-1):
         """
         Constructor
         parent = CoinGroup or SoNode
@@ -108,7 +108,7 @@ class CoinGroup(object):
             assert (isinstance(self.parent, Nodes.NODE)),\
                 'CoinGroup parent not of CoinGroup or SoNode type'
 
-        utils.insert_child(self.root, self.parent)
+        utils.insert_child(self.root, self.parent, index=index)
 
     def set_visibility(self, visible=True, child=-3):
         """
