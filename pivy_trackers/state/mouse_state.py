@@ -64,6 +64,8 @@ class MouseState(metaclass=Singleton):
             self.world_position, self.screen_position
         ]
 
+        self.callbacks = []
+
     def _update_button_state(self, arg, view_state):
         """
         Process mouse clicks
@@ -165,6 +167,9 @@ class MouseState(metaclass=Singleton):
 
         self._update_component_state(
             view_state.getObjectInfo(self.screen_position))
+
+        for _cb in self.callbacks:
+            _cb(self)
 
     def set_mouse_position(self, view_state, coord=None):
         """
