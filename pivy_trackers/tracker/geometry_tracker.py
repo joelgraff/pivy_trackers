@@ -130,7 +130,7 @@ class GeometryTracker(
 
     def setup_linked_drag(self, parent=None):
         """
-        Set up all linked geometry for a drag oepration
+        Set up all linked geometry for a drag operation
         """
 
         #abort nested calls
@@ -232,7 +232,6 @@ class GeometryTracker(
         """
         Proxy function to handle delayed calls
         """
-
         self.update(matrix=matrix)
 
     def update(self, coordinates, matrix=None, notify = False):

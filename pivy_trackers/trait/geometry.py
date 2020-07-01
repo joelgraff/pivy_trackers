@@ -146,10 +146,7 @@ class Geometry():
         #Examine the passed coordinates, identifying which have changed
         #Pass a list of the changed indices and coordinates to linked_update
 
-        if self.in_update:
-            return
-
-        if not coordinates and not matrix:
+        if self.in_update or (not coordinates and not matrix):
             return
 
         _c = coordinates
@@ -170,6 +167,10 @@ class Geometry():
 
         if self.coordinates:
 
+            #abort if no change
+            if self.coordinates == _c:
+                return
+
             #abort if there are a different number of new coordinates
             if len(self.coordinates) != len(_c):
                 return
@@ -182,7 +183,7 @@ class Geometry():
 
         #no changes, either by coordinate update or matrix transformation.
         if not _deltas or all([_v==(0.0, 0.0, 0.0) for _v in _deltas]):
-            return
+           return
 
         #get a list of the coordinates which differ from current
         _indices = [_i for _i, _v in enumerate(self.coordinates)\
@@ -208,13 +209,11 @@ class Geometry():
 
         #process updates to the current geometry
         if not self.update_transform:
-           todo.delay(self.set_coordinates, _c)
+            todo.delay(self.set_coordinates, _c)
 
         else:
             _t = self.geometry.get_translation()
             self.geometry.set_translation(TupleMath.add(_t, _c[0]))
-
-        self.linked_parent = None
 
     def linked_update(self, parent, indices, deltas):
         """
@@ -249,6 +248,7 @@ class Geometry():
 
         self.linked_parent = parent
         self.update(_link_coords)
+        self.linked_parent = None
 
     def transform_points(self, points=None):
         """

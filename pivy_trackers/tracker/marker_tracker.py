@@ -78,8 +78,7 @@ class MarkerTracker(GeometryTracker):
         """
         Override of Drag base function
         """
-
-        return self.point
+        return self.coordinates[0]
 
     def set_style(self, style=None, draw=None, color=None):
         """

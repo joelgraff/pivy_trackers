@@ -258,6 +258,7 @@ class Drag():
         Called before drag operations begin
         """
 
+        #call user-specific callbacks first
         for _cb in self.before_drag_callbacks:
             _cb(user_data)
 
@@ -267,7 +268,6 @@ class Drag():
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Drag.drag_list:
-
             #remove duplicates
             _v.drag_indices = list(set(_v.drag_indices))
 

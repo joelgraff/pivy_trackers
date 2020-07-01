@@ -191,7 +191,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if _len == 1:
             _len = 0
 
-        #get the active view matrix form the node group
+        #get the active view matrix from the node group
+        #first call made to clear out previous transform... bug?
+        _matrix = self.view_state.get_matrix(self.base.parent)
         _matrix = self.view_state.get_matrix(node_group.getChild(1))
 
         #transform coordinates by the transformation active on the node
@@ -278,6 +280,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
         self.partial.drag_indices = []
+        self.partial.transformed = []
         self.full_drag_nodes = []
 
         self.geometry.set_visibility(False)
