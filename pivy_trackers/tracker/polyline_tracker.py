@@ -72,8 +72,7 @@ class PolyLineTracker(GeometryTracker):
 
                     if _count > 1:
 
-                        self.lines[_count - 2].link_geometry(
-                            self.lines[-1], 1, [0])
+                        self.lines[-2].link_geometry(self.lines[-1], 1, [0])
 
                     _indices = [0]
 
@@ -97,6 +96,9 @@ class PolyLineTracker(GeometryTracker):
                 self.lines.append(LineTracker('segment' + str(len(points) + 1),
                     [_prev, self.points[0]], self.base, index=index
                 ))
+
+                self.lines[-2].link_geometry(self.lines[-1], 1, [0])
+                self.lines[-1].link_geometry(self.lines[0], 1, [0])
 
         if not self.lines:
 

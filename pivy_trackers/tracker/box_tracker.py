@@ -28,10 +28,9 @@ from pivy_trackers.pivy_trackers import TupleMath
 from ..trait.base import Base
 from ..trait.geometry import Geometry
 
-from .line_tracker import LineTracker
-from .geometry_tracker import GeometryTracker
+from .polyline_tracker import PolyLineTracker
 
-class BoxTracker(GeometryTracker):
+class BoxTracker(PolyLineTracker):
     """
     Box tracker class
     """
@@ -48,7 +47,6 @@ class BoxTracker(GeometryTracker):
         update_transform - when linked to other geomtry, update single transform
         """
 
-        super().__init__(name=name, parent=parent, view=view)
 
         self.dimensions = TupleMath.subtract(corners[1], corners[0])[0:2]
         self.corners = []
@@ -66,21 +64,8 @@ class BoxTracker(GeometryTracker):
             self.corners[1], (self.corners[0][0], self.corners[1][1], 0.0)
         )
 
-        if is_resizeable:
-            self.lines = [
-                LineTracker('left', [_points[0], _points[1]], self.base),
-                LineTracker('front', [_points[1], _points[2]], self.base),
-                LineTracker('right', [_points[2], _points[3]], self.base),
-                LineTracker('rear', [_points[3], _points[0]], self.base)
-            ]
-
-            self.lines[0].link_geometry(self.lines[1], 1, [0])   #left to front
-            self.lines[0].link_geometry(self.lines[3], 0, [1])   #left to rear
-            self.lines[1].link_geometry(self.lines[2], 1, [0])   #front to right
-            self.lines[2].link_geometry(self.lines[3], 1, [0])   #right to rear
-
-        else:
-            self.lines = [LineTracker('box', _points + (_points[0],), self.base)]
+        super().__init__(
+            name=name, parent=parent, view=view, is_adjustable=is_resizeable, points=_points, is_closed=True)
 
         self.set_visibility()
 
