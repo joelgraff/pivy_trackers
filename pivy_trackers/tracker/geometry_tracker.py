@@ -224,7 +224,7 @@ class GeometryTracker(
         """
         End-of-drag operations
         """
-        #self.view_state.dump()
+
         todo.delay(self._after_drag, Drag.drag_tracker.get_matrix())
         super().after_drag(user_data)
 

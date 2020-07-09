@@ -177,7 +177,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         indices - the list of indices of coordinates to be dragged
         """
 
-        #self.view_state.dump()
         _point = self.drag.part.coordinate.point
         _num = self.drag.part.line.numVertices
         _len = len(_point.getValues())
@@ -288,8 +287,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.full.set_translation((0.0, 0.0, 0.0))
         self.drag.full.set_rotation(0.0)
 
-        #self.view_state.dump()
-
 ##########################
 ## Transformation routines
 ##########################
@@ -326,7 +323,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
                 _delta = (0.0, _delta[1], 0.0)
 
             elif self.lock_axis[2] == 1.0:
-                _delta = (0.0, 0.0, _deltas[2])
+                _delta = (0.0, 0.0, _delta[2])
 
             else:
                 _delta =\
