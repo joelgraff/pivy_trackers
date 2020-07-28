@@ -134,6 +134,28 @@ class MarkerTracker(GeometryTracker):
 
         super().notify_widget(event, message)
 
+    def on_full_drag(self, user_data):
+        """
+        Callback from DragTracker ops when object is fully-dragged
+        """
+
+        print(self.name, 'MarkerTracker::on_full_drag()')
+        super().on_full_drag(user_data)
+
+    def on_partial_drag(self, user_data):
+        """
+        Callback from DragTracker ops when object is partially-dragged
+        """
+
+        print(self.name, 'MarkerTracker::on_partial_drag()')
+        super().on_partial_drag(user_data)
+
+    def on_drag(self, user_data):
+
+        print(self.name, 'on_drag()')
+
+        super().on_drag(user_data)
+
     def finish(self):
         """
         Cleanup

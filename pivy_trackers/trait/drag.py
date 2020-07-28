@@ -47,6 +47,9 @@ class Drag():
     select = None
     coordinates = None
 
+    on_partial_drag_callbacks = []
+    on_full_drag_callbacks = []
+
     def set_event_path(self, callback, is_pathed=True): """prototype"""
     def is_selected(self): """prototype"""
 
@@ -268,6 +271,7 @@ class Drag():
         Drag.drag_tracker.drag_center = self.update_drag_center()
 
         for _v in Drag.drag_list:
+
             #remove duplicates
             _v.drag_indices = list(set(_v.drag_indices))
 
@@ -275,7 +279,8 @@ class Drag():
             _v.is_full_drag = len(_v.drag_indices) == len(_v.coordinates)
 
             if _v.is_full_drag:
-                Drag.drag_tracker.insert_full_drag(_v.drag_copy)
+
+                Drag.drag_tracker.insert_full_drag(_v.drag_copy, callback=_v.on_full_drag)
                 continue
 
             if not _v.drag_indices:
@@ -291,12 +296,28 @@ class Drag():
             if _idx_range[1] >= len(_v.coordinates):
                 _idx_range[1] = len(_v.coordinates) - 1
 
-            Drag.drag_tracker.insert_partial_drag(
-                _v.drag_copy, _idx_range, _v.drag_indices)
+            Drag.drag_tracker.insert_partial_drag(_v.drag_copy, _idx_range,
+                _v.drag_indices, callback=_v.on_partial_drag)
 
             #add extra child class drag nodes as fully-dragged
             for _w in _v.get_drag_nodes():
-                Drag.drag_tracker.insert_full_drag(_w)
+                Drag.drag_tracker.insert_full_drag(_w, callback=_w.on_full_drag)
+
+    def on_partial_drag(self, user_data):
+        """
+        Callback stub for partial drag  operations in the drag tracker
+        """
+
+        for _cb in  self.on_partial_drag_callbacks:
+            _cb(SimpleNamespace(name=self.name, matrix=user_data))
+
+    def on_full_drag(self, user_data):
+        """
+        Callback stub for full drag  operations in the drag tracker
+        """
+
+        for _cb in self.on_full_drag_callbacks:
+            _cb(SimpleNamespace(name=self.name, matrix=user_data))
 
     def on_drag(self, user_data):
         """
@@ -306,10 +327,10 @@ class Drag():
         if not self.is_dragging:
             return
 
+        self.drag_tracker.update_drag()
+
         for _cb in self.on_drag_callbacks:
             todo.delay(_cb, user_data)
-
-        self.drag_tracker.update_drag()
 
     def after_drag(self, user_data):
         """

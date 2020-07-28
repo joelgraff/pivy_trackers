@@ -176,7 +176,10 @@ class Geometry():
                 return
 
         #compute the changes in coordinates
-        _deltas = TupleMath.subtract(_c, self.coordinates)
+        _deltas = _c
+
+        if self.coordinates:
+            _deltas = TupleMath.subtract(_c, self.coordinates)
 
         if not isinstance(_deltas[0], Iterable):
             _deltas = (_deltas,)

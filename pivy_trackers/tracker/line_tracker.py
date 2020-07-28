@@ -108,7 +108,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.show_markers(False)
 
-
     def remove_marker_coords(self):
         """
         Callback to remove marker nodes
