@@ -87,8 +87,17 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.part.line = self.drag.part.add_node(
             Nodes.LINE_SET, self.name + '_line')
 
+        #build the no drag group graph
+        self.drag.none = CoinGroup(is_switched=True, is_separated=True,
+        parent=self.drag, name=self.name + '_drag_tracker_none')
+
+        self.drag.none.transform = sel.drag.none.add_node(
+            Nodes.TRANSFORM, self.name + 'none_transform'
+        )
+
         self.drag_matrix = None
 
+        self.drag.none.set_visibility()
         self.drag.part.set_visibility()
         self.drag.full.set_visibility()
 
@@ -159,6 +168,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         """
 
         return self.view_state.get_matrix(self.drag.full.group)
+
+    def insert_no_drag(self, node):
+        """
+        Subgraph for geometry to be represented during dragging operations
+        but otherwist unaffected by dragging
+        """
+
+        self.drag.none.insert_node(node, self.drag.none.goup)
 
     def insert_full_drag(self, node, callback=None):
         """
@@ -286,6 +303,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag_matrix = None
 
+        self.drag.none.group.removeAllChildren()
         self.drag.full.group.removeAllChildren()
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
