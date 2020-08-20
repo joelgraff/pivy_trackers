@@ -15,3 +15,9 @@ def import_class(path, name):
 TupleMath = import_class('freecad_python_support.tuple_math', 'TupleMath')
 Singleton = import_class('freecad_python_support.singleton', 'Singleton')
 Const = import_class('freecad_python_support.const', 'Const')
+
+import pivy
+
+#Runtime-flag to indicate whether or not SoGeo nodes are supported.
+GEO_SUPPORT = int(pivy.__version__.split('.')[1]) >=6 & \
+    int(pivy.__version__.split('.')[2][0]) >= 5

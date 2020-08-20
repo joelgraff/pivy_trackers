@@ -27,6 +27,8 @@ from pivy import coin
 
 from .todo import todo
 
+from pivy_trackers.pivy_trackers import GEO_SUPPORT
+
 from .coin_enums import MarkerStyles
 
 def describe(node):
@@ -51,13 +53,15 @@ def describe(node):
             .format(str(node.point.getNum()), str(_pts))
 
 
-    if isinstance(node, coin.SoGeoCoordinate):
+    if GEO_SUPPORT:
 
-        _pts = [_v.getValue() for _v in node.point.getValues()]
+        if isinstance(node, coin.SoGeoCoordinate):
 
-        return 'system = {}; points ({}) = {}'.format(
-            str(node.geoSystem.getValues()), str(node.point.getNum()), str(_pts)
-        )
+            _pts = [_v.getValue() for _v in node.point.getValues()]
+
+            return 'system = {}; points ({}) = {}'.format(
+                str(node.geoSystem.getValues()), str(node.point.getNum()), str(_pts)
+            )
 
     if isinstance(node, coin.SoDrawStyle):
         return 'style={}, size={}, width={}, pattern={}'\
@@ -85,10 +89,12 @@ def describe(node):
             str(node.center.getValue().getValue())
         )
 
-    if isinstance(node, coin.SoGeoOrigin):
-        return 'system={}; coordinates={}'.format(
-            str(node.geoSystem.getValues()),
-            str(node.geoCoords.getValue().getValue()))
+    if GEO_SUPPORT:
+
+        if isinstance(node, coin.SoGeoOrigin):
+            return 'system={}; coordinates={}'.format(
+                str(node.geoSystem.getValues()),
+                str(node.geoCoords.getValue().getValue()))
 
     return ''
 

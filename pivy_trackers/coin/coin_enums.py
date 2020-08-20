@@ -26,6 +26,7 @@ Coin-based enumerations
 from pivy import coin
 
 from pivy_trackers.pivy_trackers import Const
+from pivy_trackers.pivy_trackers import GEO_SUPPORT
 
 class Axis(Const):
     """
@@ -339,9 +340,13 @@ class NodeTypes(Const):
     DRAW_STYLE = coin.SoDrawStyle
     EVENT_CB = coin.SoEventCallback
     FONT = coin.SoFont
-    GEO_COORDINATE = coin.SoGeoCoordinate
-    GEO_ORIGIN = coin.SoGeoOrigin
-    GEO_SEPARATOR = coin.SoGeoSeparator
+
+    if GEO_SUPPORT:
+
+        GEO_COORDINATE = coin.SoGeoCoordinate
+        GEO_ORIGIN = coin.SoGeoOrigin
+        GEO_SEPARATOR = coin.SoGeoSeparator
+
     GROUP = coin.SoGroup
     KEYBOARD_EVENT = coin.SoKeyboardEvent
     LINE_SET = coin.SoLineSet
