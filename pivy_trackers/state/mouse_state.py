@@ -90,8 +90,12 @@ class MouseState(metaclass=Singleton):
 
         self.world_position = view_state.getPoint(self.screen_position)
 
-        self.vector = TupleMath.subtract(
-            self.world_position, self.prev_position)
+        if not self.prev_position:
+            self.vector = self.world_position
+
+        else:
+            self.vector = TupleMath.subtract(
+                self.world_position, self.prev_position)
 
         self.alt_down = arg['AltDown']
         self.ctrl_down = arg['CtrlDown']
