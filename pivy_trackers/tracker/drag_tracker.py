@@ -91,7 +91,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.none = CoinGroup(is_switched=True, is_separated=True,
         parent=self.drag, name=self.name + '_drag_tracker_none')
 
-        self.drag.none.transform = sel.drag.none.add_node(
+        self.drag.none.group =\
+            self.drag.none.add_node(Nodes.GROUP, self.name + 'none_group')
+
+        self.drag.none.transform = self.drag.none.add_node(
             Nodes.TRANSFORM, self.name + 'none_transform'
         )
 
@@ -114,8 +117,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         )
 
         self.callbacks = SimpleNamespace(
-            partial=[],
-            full=[]
+            before_drag = SimpleNamespace(none=[], partial=[], full=[]),
+            on_drag = SimpleNamespace(none=[], partial=[], full=[]),
+            after_drag = SimpleNamespace(none=[], partial=[], full=[])
         )
 
         self.update_center_fn = lambda: print('update_center_fn')
@@ -169,15 +173,26 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         return self.view_state.get_matrix(self.drag.full.group)
 
-    def insert_no_drag(self, node):
+    def insert_no_drag(self, node, cb_before=None, cb_on=None, cb_after=None):
         """
         Subgraph for geometry to be represented during dragging operations
         but otherwist unaffected by dragging
         """
 
-        self.drag.none.insert_node(node, self.drag.none.goup)
+        self.drag.none.insert_node(node, self.drag.none.group)
 
-    def insert_full_drag(self, node, callback=None):
+        _cbs = self.callbacks
+
+        if cb_before:
+            _cbs.before_drag.none.append(cb_before)
+
+        if cb_on:
+            _cbs.on_drag.none.append(cb_on)
+
+        if cb_after:
+            _cbs.after_drag.none.append(cb_after)
+
+    def insert_full_drag(self, node, cb_before=None, cb_on=None, cb_after=None):
         """
         Insert a graph to be fully transformed by dragging
 
@@ -186,11 +201,19 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag.full.insert_node(node, self.drag.full.group)
 
-        if callback:
-            self.callbacks.full.append(callback)
+        _cbs = self.callbacks
 
-    def insert_partial_drag(
-        self, node_group, index_range, indices, callback=None):
+        if cb_before:
+            _cbs.before_drag.full.append(cb_before)
+
+        if cb_on:
+            _cbs.on_drag.full.append(cb_on)
+
+        if cb_after:
+            _cbs.after_drag.full.append(cb_after)
+
+    def insert_partial_drag(self, node_group, index_range, indices,
+        cb_before=None, cb_on=None, cb_after=None):
 
         """
         Insert a graph to be partially transformed by dragging
@@ -198,6 +221,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         node_group - the SoCoordinate node to be added
         index_range - list of two indices indicating first and last coordinate
         indices - the list of indices of coordinates to be dragged
+        cb_before, cb_on, cb_after - custom callbacks
         """
 
         _point = self.drag.part.coordinate.point
@@ -244,8 +268,16 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.partial.coordinates += _coords
         self.partial.transformed.append(_coords)
 
-        if callback:
-            self.callbacks.partial.append(callback)
+        _cbs = self.callbacks
+
+        if cb_before:
+            _cbs.before_drag.partial.append(cb_before)
+
+        if cb_on:
+            _cbs.on_drag.partial.append(cb_on)
+
+        if cb_after:
+            _cbs.after_drag.partial.append(cb_after)
 
     def set_drag_axis(self, axis):
         """
@@ -268,6 +300,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
                 for _v in self.drag.part.coordinate.point.getValues()]
 
         self.update([self.drag_center, self.drag_center])
+
+        _matrix = self.get_matrix()
+        _cbs = self.callbacks.before_drag
+
+        for _v in [_cbs.none, _cbs.partial, _cbs.full]:
+            for _w in _v:
+                _w(_matrix)
 
     def update_drag(self):
         """
@@ -293,13 +332,25 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
             self.geometry.set_visibility(True)
 
-        for _v in self.callbacks.full:
-            _v(self.view_state.get_matrix(self.drag.full.group))
+        _matrix = self.get_matrix()
+        _cbs = self.callbacks.on_drag
+
+        for _v in [_cbs.none, _cbs.partial, _cbs.full]:
+            for _w in _v:
+                _w(_matrix)
 
     def end_drag(self):
         """
         Terminate dragging operation
         """
+
+        _matrix = self.get_matrix()
+        _cbs = self.callbacks.after_drag
+
+        for _v in [_cbs.none, _cbs.partial, _cbs.full]:
+            for _w in _v:
+                _w(_matrix)
+
 
         self.drag_matrix = None
 
@@ -311,7 +362,12 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.partial.transformed = []
         self.full_drag_nodes = []
 
-        self.callbacks.partial = []
+        _cbs = self.callbacks
+
+        for _v in [_cbs.before_drag, _cbs.on_drag, _cbs.after_drag]:
+            for _w in [_v.none, _v.partial, _v.full]:
+                _w = []
+
         self.callbacks.full = []
 
         self.geometry.set_visibility(False)
@@ -442,7 +498,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         for _i, _j in enumerate(self.partial.drag_indices):
             _p[_j] = _selected[_i]
-            self.callbacks.partial[_i](_selected[_i])
+            self.callbacks.on_drag.partial[_i](_selected[_i])
 
         self.drag.part.coordinate.point.setValues(0, len(_p), _p)
 

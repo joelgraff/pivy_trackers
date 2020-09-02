@@ -64,8 +64,16 @@ class GeometryTracker(
         super().__init__(name=name, parent=parent, view=view, index=index)
 
         self.coin_style = CoinStyles.DEFAULT
+
+        #enable / disable drag support
         self.is_draggable = True
+
+        #internal flag to prevent recursion and conflicts
         self._setting_up_linked_drag = False
+
+        #callbacks to be called when the geometry has been finally updated
+        #in the scenegraph, which is triggered on a UI delay
+        self._after_drag_callbacks = []
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
         """
@@ -234,12 +242,15 @@ class GeometryTracker(
         """
         self.update(matrix=matrix)
 
-    def update(self, coordinates, matrix=None, notify = False):
+        for _cb in self._after_drag_callbacks:
+            _cb(matrix)
+
+    def update(self, coordinates, matrix=None, notify = False, tab=0):
         """
         Override of geometry.update()
         """
 
-        super().update(coordinates, matrix)
+        super().update(coordinates, matrix, tab=tab)
 
     def notify_geometry(self, event, message):
         """

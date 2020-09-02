@@ -96,15 +96,16 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         if not indices:
             indices = list(range(0, len(self.coordinates)))
 
-        for _p in [self.coordinates[_i] for _i in indices]:
+        for _i, _p in enumerate([self.coordinates[_i] for _i in indices]):
 
             _m = MarkerTracker(
-                self.name + '_marker_tracker', _p, self.base.parent, index=0)
+                self.name + '_marker_tracker_' + str(_i),
+                _p, self.base.parent, index=0)
 
             self.markers.append(_m)
 
         for _i, _m in enumerate(self.markers):
-            self.link_geometry(_m, _i, [0])
+            _m.link_geometry(self, 0, [_i], target_only=True)
 
         self.show_markers(False)
 
@@ -215,12 +216,12 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, coordinates=None, matrix=None, groups=None, notify=True):
+    def update(self, coordinates=None, matrix=None, groups=None, notify=True, tab=0):
         """
         Override of Geometry method
         """
 
-        super().update(coordinates=coordinates, matrix=matrix, notify=notify)
+        super().update(coordinates=coordinates, matrix=matrix, notify=notify, tab=tab)
 
         if self.text and self.text.is_visible():
 
@@ -237,6 +238,19 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         if self.coordinates:
             self.center = TupleMath.mean(self.coordinates)
+
+
+        for _i, _m in enumerate(self.markers):
+
+            _p = _m.do_linked_update
+
+            if _p:
+                _m.do_linked_update = False
+
+            _m.update(self.coordinates[_i], )
+
+            if _p:
+                _m.do_linked_update = True
 
         self.text_center = self.center
         self.set_text_translation((0.0, 0.0, 0.0))
@@ -287,7 +301,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         Link a marker node to the line for automatic updates
         """
 
-        self.link_geometry(marker, index, 0)
+        marker.link_geometry(self, 0, index, target_only=True)
 
     def update_drag_center(self):
         """

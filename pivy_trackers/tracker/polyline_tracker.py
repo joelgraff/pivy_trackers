@@ -64,22 +64,23 @@ class PolyLineTracker(GeometryTracker):
 
                 if self.points:
 
-                    self.lines.append(LineTracker('segment ' + str(_i),
+                    _line = LineTracker(self.name + '_segment ' + str(_i),
                         [_prev, _p], self.base, index=index)
-                    )
+
+                    self.lines.append(_line)
 
                     _count = len(self.lines)
 
                     if _count > 1:
 
-                        self.lines[-2].link_geometry(self.lines[-1], 1, [0])
+                        self.lines[-2].link_geometry(_line, 1, [0])
 
                     _indices = [0]
 
                     if _i == len(points) - 1:
                         _indices = []
 
-                    self.lines[-1].enable_markers(_indices)
+                    _line.enable_markers(_indices)
 
             self.points.append(_p)
 
@@ -93,7 +94,8 @@ class PolyLineTracker(GeometryTracker):
 
             if is_adjustable:
 
-                self.lines.append(LineTracker('segment' + str(len(points) + 1),
+                self.lines.append(
+                    LineTracker(self.name + '_segment' + str(len(points) + 1),
                     [_prev, self.points[0]], self.base, index=index
                 ))
 
@@ -103,9 +105,40 @@ class PolyLineTracker(GeometryTracker):
         if not self.lines:
 
             self.lines = [
-                LineTracker('segment 0', _points, self.base, index=index)]
+                LineTracker(self.name + '_segment 0', _points, self.base, index=index)]
 
         self.set_visibility()
+
+    def get_coordinates(self):
+        """
+        Return the line coordinates
+        """
+
+        #return every other item starting with the first as each endpoint
+        #is duplicated as the start point of the next line
+        _t = [_w for _v in self.lines for _w in _v.coordinates][0::2]
+        _t.append(self.lines[-1].coordinates[-1])
+
+        return _t
+
+    def update(self, coordinates):
+        """
+        Updates line coordinates.  List is mapped 1:1 to lines in order of
+        creation.  Terminates early with shorter lists, ignores coordinates
+        exceeding line count with longer lists
+        """
+
+        _prev = coordinates[0]
+
+        for _i, _v in enumerate(coordinates[1:]):
+
+            _line = self.lines[_i]
+
+            _line.do_linked_update = False
+            _line.update([_prev, _v])
+            _line.do_linked_update = True
+
+            _prev = _v
 
     def finish(self):
         """

@@ -261,9 +261,11 @@ class Drag():
         Called before drag operations begin
         """
 
+        _ud = SimpleNamespace(user_data=user_data, obj=self)
+
         #call user-specific callbacks first
         for _cb in self.before_drag_callbacks:
-            _cb(user_data)
+            _cb(_ud)
 
         self.drag_copy = self.geometry.copy()
 
@@ -280,7 +282,12 @@ class Drag():
 
             if _v.is_full_drag:
 
-                Drag.drag_tracker.insert_full_drag(_v.drag_copy, callback=_v.on_full_drag)
+                #refresh the drag copy for latest changes
+                _v.drag_copy = _v.geometry.copy()
+
+                Drag.drag_tracker.insert_full_drag(
+                    _v.drag_copy, cb_on=_v.on_full_drag)
+
                 continue
 
             if not _v.drag_indices:
@@ -297,11 +304,11 @@ class Drag():
                 _idx_range[1] = len(_v.coordinates) - 1
 
             Drag.drag_tracker.insert_partial_drag(_v.drag_copy, _idx_range,
-                _v.drag_indices, callback=_v.on_partial_drag)
+                _v.drag_indices, cb_on=_v.on_partial_drag)
 
             #add extra child class drag nodes as fully-dragged
             for _w in _v.get_drag_nodes():
-                Drag.drag_tracker.insert_full_drag(_w, callback=_w.on_full_drag)
+                Drag.drag_tracker.insert_full_drag(_w, cb_on=_w.on_full_drag)
 
     def on_partial_drag(self, user_data):
         """
@@ -329,8 +336,13 @@ class Drag():
 
         self.drag_tracker.update_drag()
 
+        _ud = SimpleNamespace(
+            user_data=user_data,
+            obj=self,
+            matrix=Drag.drag_tracker.get_matrix())
+
         for _cb in self.on_drag_callbacks:
-            todo.delay(_cb, user_data)
+            todo.delay(_cb, _ud)
 
     def after_drag(self, user_data):
         """

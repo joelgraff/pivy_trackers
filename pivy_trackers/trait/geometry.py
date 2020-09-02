@@ -91,6 +91,7 @@ class Geometry():
         self.linked_geometry = {}
         self.in_update = False
         self.linked_parent = None
+        self.do_linked_update = True
 
         #flag to update the transform node instead of the coordinate node
         self.update_transform = False
@@ -156,14 +157,14 @@ class Geometry():
         if matrix and self.coordinates:
             _c = self.view_state.transform_points(self.coordinates, matrix)
 
-        elif not isinstance(_c[0], Iterable):
-            _c = [_c]
+        if _c[0] is not None and not isinstance(_c[0], Iterable):
+            _c = (_c,)
 
-        _indices = []
-        _deltas = _c
+        #replace any None values with the current coordinate to ensure a zero delta
+        for _i, _v in enumerate(_c):
 
-        if not isinstance(_c[0], Iterable):
-            _c = (_c)
+            if _v is None:
+                _c[_i] = self.coordinates[_i]
 
         if self.coordinates:
 
@@ -181,6 +182,8 @@ class Geometry():
         if self.coordinates:
             _deltas = TupleMath.subtract(_c, self.coordinates)
 
+        #deltas need to be encapsulated as tuples in a tuple as it's assumed
+        #a separate delta for each coordinate
         if not isinstance(_deltas[0], Iterable):
             _deltas = (_deltas,)
 
@@ -190,22 +193,24 @@ class Geometry():
 
         #get a list of the coordinates which differ from current
         _indices = [_i for _i, _v in enumerate(self.coordinates)\
-            if _v != (0.0, 0.0, 0.0)
+            if _v and _v != (0.0, 0.0, 0.0)
         ]
 
-        self.in_update = True
+        if self.do_linked_update:
 
-        #process linked updates if responsible for any
-        if self.coordinates and self in self.linked_geometry:
+            self.in_update = True
 
-            for _v in self.linked_geometry[self]:
+            #process linked updates if responsible for any
+            if self.coordinates and self in self.linked_geometry:
 
-                if _v is self.linked_parent:
-                    continue
+                for _v in self.linked_geometry[self]:
 
-                _v.linked_update(self, _indices, _deltas)
+                    if _v is self.linked_parent:
+                        continue
 
-        self.in_update = False
+                    _v.linked_update(self, _indices, _deltas)
+
+            self.in_update = False
 
         self.prev_coordinates = self.get_coordinates()
         self.coordinates = _c
@@ -224,8 +229,11 @@ class Geometry():
         """
 
         if not parent in self.linked_geometry:
+            print('ABORT: {} not linked to {}'.format(parent.name, self.name))
             return
 
+        if self.in_update:
+            print('ABORT:{} already updating!!'.format(self.name))
         #indices in this object which are linked to the parent
         _link_indices = self.linked_geometry[parent]
         _link_coords = [_v.getValue()\
