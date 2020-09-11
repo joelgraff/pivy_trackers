@@ -245,12 +245,12 @@ class GeometryTracker(
         for _cb in self._after_drag_callbacks:
             _cb(matrix)
 
-    def update(self, coordinates, matrix=None, notify = False, tab=0):
+    def update(self, coordinates, matrix=None, notify = False):
         """
         Override of geometry.update()
         """
 
-        super().update(coordinates, matrix, tab=tab)
+        super().update(coordinates, matrix)
 
     def notify_geometry(self, event, message):
         """

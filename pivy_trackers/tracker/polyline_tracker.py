@@ -95,7 +95,7 @@ class PolyLineTracker(GeometryTracker):
             if is_adjustable:
 
                 self.lines.append(
-                    LineTracker(self.name + '_segment' + str(len(points) + 1),
+                    LineTracker(self.name + '_segment' + str(len(points)),
                     [_prev, self.points[0]], self.base, index=index
                 ))
 

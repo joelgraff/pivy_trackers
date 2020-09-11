@@ -56,7 +56,7 @@ class MarkerTracker(GeometryTracker):
         self.point = tuple(point)
         self.update(notify=False)
 
-    def update(self, coordinates=None, matrix=None, groups=None, notify=True, tab=0):
+    def update(self, coordinates=None, matrix=None, groups=None, notify=True):
         """
         Override of Geometry method
         """
@@ -72,7 +72,7 @@ class MarkerTracker(GeometryTracker):
         else:
             self.point = tuple(_c)
 
-        super().update(coordinates=_c, matrix=matrix, notify=notify, tab=tab)
+        super().update(coordinates=_c, matrix=matrix, notify=notify)
 
     def update_drag_center(self):
         """

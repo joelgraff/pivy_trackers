@@ -216,12 +216,12 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         self.line.numVertices.setValues(0, len(groups), groups)
 
-    def update(self, coordinates=None, matrix=None, groups=None, notify=True, tab=0):
+    def update(self, coordinates=None, matrix=None, groups=None, notify=True):
         """
         Override of Geometry method
         """
 
-        super().update(coordinates=coordinates, matrix=matrix, notify=notify, tab=tab)
+        super().update(coordinates=coordinates, matrix=matrix, notify=notify)
 
         if self.text and self.text.is_visible():
 
