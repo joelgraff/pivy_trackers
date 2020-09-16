@@ -139,7 +139,6 @@ class MarkerTracker(GeometryTracker):
         Callback from DragTracker ops when object is fully-dragged
         """
 
-        print(self.name, 'MarkerTracker::on_full_drag()')
         super().on_full_drag(user_data)
 
     def on_partial_drag(self, user_data):
@@ -151,8 +150,6 @@ class MarkerTracker(GeometryTracker):
         super().on_partial_drag(user_data)
 
     def on_drag(self, user_data):
-
-        print(self.name, 'on_drag()')
 
         super().on_drag(user_data)
 
