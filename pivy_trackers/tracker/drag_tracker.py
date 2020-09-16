@@ -147,7 +147,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.translate_increment = 0.0
         self.rotate_increment = 0.0
 
-        self.proj_origin = (0.0, 0.0, 0.0)
+        self.proj_origin = ()
         self.lock_axis = ()
 
         #------------------------
@@ -342,11 +342,18 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _drag_coords = _coords[1]
         _prev = None
 
+
+        #store the projected origin...
+        if not self.proj_origin:
+
+            self.proj_origin =\
+                TupleMath.project(_coords[0], self.constraints.axis)
+
+        #project to the constraining axis
         if self.constraints.axis:
 
-            _proj = TupleMath.project(_coords[1], self.constraints.axis)
-
-            _delta = TupleMath.subtract(_proj, self.proj_orogin)
+            _delta = TupleMath.project(_coords[1], self.constraints.axis)
+            _delta = TupleMath.subtract(_delta, self.proj_origin)
 
             _drag_coords = TupleMath.add(_coords[0], _delta)
 
@@ -365,18 +372,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
                     _drag_coords = _proj
                     _prev=_dist
 
-        _coords[1] = _drag_coords
-
         #update the transform
         if self.mouse_state.alt_down:
-            self.rotate(_coords[0], _coords[1], self.mouse_state.shift_down)
+            self.rotate(_coords[0], _drag_coords, self.mouse_state.shift_down)
 
         else:
-            self.translate(_coords[0], _coords[1], self.mouse_state.shift_down)
-
-        #store the origin...
-        if not self.prev_coords:
-            self.prev_coords = TupleMath.project(_coords[0], self.constraints.axis)
+            self.translate(
+                _coords[0], _drag_coords, self.mouse_state.shift_down)
 
         if self.show_drag_line and not self.geometry.is_visible():
 
