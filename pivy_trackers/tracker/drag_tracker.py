@@ -109,6 +109,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.set_pick_style(False)
 
+        self.constraints = SimpleNamespace(axis=None, points=[])
+
         self.partial = SimpleNamespace(
             coordinates=[],
             transformed=[],
@@ -145,6 +147,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.translate_increment = 0.0
         self.rotate_increment = 0.0
 
+        self.proj_origin = (0.0, 0.0, 0.0)
         self.lock_axis = ()
 
         #------------------------
@@ -159,12 +162,34 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         #drag center point defined by inheriting class
         self.drag_center = (0.0, 0.0, 0.0)
-
         self.drag_style = DragStyle.CURSOR
-
         self.is_rotating = False
-
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
+
+    def set_constraint_geometry(self, axis=None, points=None):
+        """
+        Define geometry which constrains drag movements.
+        Axes - a list of one or more 2 or 3-tuples defining axial movement
+        Points - a list of one or more 2 or 3-tuples defining linear movement
+        """
+
+        if axis:
+            self.constraints.axis = TupleMath.unit(axis)
+
+        if points:
+
+            _prev = points[0]
+
+            for _p in points[1:]:
+
+                _delta = TupleMath.subtract(_p, _prev)
+
+                self.constraints.points.append(
+                    SimpleNamespace(
+                        points=(_prev, _p),
+                        delta=_delta,
+                        _delta_sq=_delta[0]**2 + _delta[1]**2)
+                )
 
     def get_matrix(self):
         """
@@ -314,6 +339,33 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         """
 
         _coords = [self.drag_center, self.mouse_state.world_position]
+        _drag_coords = _coords[1]
+        _prev = None
+
+        if self.constraints.axis:
+
+            _proj = TupleMath.project(_coords[1], self.constraints.axis)
+
+            _delta = TupleMath.subtract(_proj, self.proj_orogin)
+
+            _drag_coords = TupleMath.add(_coords[0], _delta)
+
+        _proj = []
+
+        if self.constraints.points:
+
+            for _p in self.constraints.points:
+
+                _proj = \
+                    (_coords[1][0]-_p.points[0]) * _p.delta[0] + (_coords[1][1]-_p.points[1]) * _p.delta[1] / _p._delta_sq
+
+                _dist = TupleMath.manhattan(_coords[1], _proj)
+
+                if _prev is None or _dist < _prev:
+                    _drag_coords = _proj
+                    _prev=_dist
+
+        _coords[1] = _drag_coords
 
         #update the transform
         if self.mouse_state.alt_down:
@@ -321,6 +373,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         else:
             self.translate(_coords[0], _coords[1], self.mouse_state.shift_down)
+
+        #store the origin...
+        if not self.prev_coords:
+            self.prev_coords = TupleMath.project(_coords[0], self.constraints.axis)
 
         if self.show_drag_line and not self.geometry.is_visible():
 
