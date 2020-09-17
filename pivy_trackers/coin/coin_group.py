@@ -138,6 +138,17 @@ class CoinGroup(object):
 
         return self.switch.whichChild.getValue() == 0
 
+    def add_group(self, name='', parent=None, index=-1):
+        """
+        Add a Group node to the specified parent.
+
+        name - name of node
+        parent - parent node = top node (default)
+        index - position in child list = -1m end-of-list (default)
+        """
+
+        return self.add_node(Nodes.GROUP, name, parent, index)
+
     def insert_node(self, node, parent=None, index=-1):
         """
         Insert an existing node into the current group default node

@@ -343,14 +343,14 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _prev = None
 
 
-        #store the projected origin...
-        if not self.proj_origin:
-
-            self.proj_origin =\
-                TupleMath.project(_coords[0], self.constraints.axis)
-
         #project to the constraining axis
         if self.constraints.axis:
+
+            #store the projected origin...
+            if not self.proj_origin:
+
+                self.proj_origin =\
+                    TupleMath.project(_coords[0], self.constraints.axis)
 
             _delta = TupleMath.project(_coords[1], self.constraints.axis)
             _delta = TupleMath.subtract(_delta, self.proj_origin)
@@ -419,6 +419,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.partial.drag_indices = []
         self.partial.transformed = []
         self.full_drag_nodes = []
+        self.proj_origin = ()
+        self.constraints.axis = None
+        self.constraints.points = []
 
         _cbs = self.callbacks
 
