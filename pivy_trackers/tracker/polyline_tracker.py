@@ -60,27 +60,27 @@ class PolyLineTracker(GeometryTracker):
             if len(_p) == 2:
                _p += (0.0,)
 
-            if is_adjustable:
+            if self.points:
 
-                if self.points:
+                _line = LineTracker(self.name + '_segment ' + str(_i),
+                    [_prev, _p], self.base, index=index)
 
-                    _line = LineTracker(self.name + '_segment ' + str(_i),
-                        [_prev, _p], self.base, index=index)
+                self.lines.append(_line)
 
-                    self.lines.append(_line)
+                _count = len(self.lines)
 
-                    _count = len(self.lines)
+                if is_adjustable:
 
                     if _count > 1:
 
                         self.lines[-2].link_geometry(_line, 1, [0])
 
-                    _indices = [0]
+                _indices = [0]
 
-                    if _i == len(points) - 1:
-                        _indices = []
+                if _i == len(points) - 1:
+                    _indices = []
 
-                    _line.enable_markers(_indices)
+                _line.enable_markers(_indices)
 
             self.points.append(_p)
 
@@ -92,12 +92,12 @@ class PolyLineTracker(GeometryTracker):
 
             _points.append(_points[0])
 
-            if is_adjustable:
+            self.lines.append(
+                LineTracker(self.name + '_segment' + str(len(points)),
+                [_prev, self.points[0]], self.base, index=index
+            ))
 
-                self.lines.append(
-                    LineTracker(self.name + '_segment' + str(len(points)),
-                    [_prev, self.points[0]], self.base, index=index
-                ))
+            if is_adjustable:
 
                 self.lines[-2].link_geometry(self.lines[-1], 1, [0])
                 self.lines[-1].link_geometry(self.lines[0], 1, [0])

@@ -39,7 +39,7 @@ class Message(Publish, Subscribe): # lgtm[py/missing-call-to-init] lgtm[py/confl
         """
         Constructor
         """
-        
+
         self.is_valid_notify = False
         self.ignore_notify = False
 

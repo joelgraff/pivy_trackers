@@ -45,9 +45,8 @@ class Widget():
         """
         Constructor
         """
-        
-        super().__init__()
 
+        super().__init__()
         self.trackers = {}
         self.widgets = {}
         self.formatters = {}

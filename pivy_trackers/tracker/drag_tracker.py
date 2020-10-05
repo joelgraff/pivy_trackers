@@ -406,9 +406,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _cbs = self.callbacks.after_drag
 
         for _v in [_cbs.none, _cbs.partial, _cbs.full]:
+
             for _w in _v:
                 _w(_matrix)
-
 
         self.drag_matrix = None
 

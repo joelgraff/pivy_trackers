@@ -239,7 +239,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         if self.coordinates:
             self.center = TupleMath.mean(self.coordinates)
 
-
         for _i, _m in enumerate(self.markers):
 
             _p = _m.do_linked_update
@@ -247,7 +246,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
             if _p:
                 _m.do_linked_update = False
 
-            _m.update(self.coordinates[_i], )
+            _m.update(self.coordinates[_i])
 
             if _p:
                 _m.do_linked_update = True
