@@ -134,9 +134,9 @@ class CoinGroup(object):
         #pylint: disable=no-member
 
         if not self.switch:
-            return False
+            return True
 
-        return self.switch.whichChild.getValue() == 0
+        return self.switch.whichChild.getValue() != -1
 
     def add_group(self, name='', parent=None, index=-1):
         """

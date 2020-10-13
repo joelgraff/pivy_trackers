@@ -52,6 +52,7 @@ class PolyLineTracker(GeometryTracker):
 
         self.points = []
         self.lines = []
+        self.is_linked = is_adjustable
 
         _prev = None
 
@@ -69,7 +70,7 @@ class PolyLineTracker(GeometryTracker):
 
                 _count = len(self.lines)
 
-                if is_adjustable:
+                if self.is_linked:
 
                     if _count > 1:
 
@@ -80,7 +81,7 @@ class PolyLineTracker(GeometryTracker):
                 if _i == len(points) - 1:
                     _indices = []
 
-                _line.enable_markers(_indices)
+                _line.enable_markers(_indices, self.is_linked)
 
             self.points.append(_p)
 
@@ -135,8 +136,15 @@ class PolyLineTracker(GeometryTracker):
             _line = self.lines[_i]
 
             _line.do_linked_update = False
-            _line.update([_prev, _v])
-            _line.do_linked_update = True
+
+            _line.update([_prev, _v], notify='2')
+
+            _line.do_linked_update = self.is_linked
+
+            if not self.is_linked:
+
+                for _i, _m in enumerate(_line.markers):
+                    _m.update(_line.coordinates[_i])
 
             _prev = _v
 

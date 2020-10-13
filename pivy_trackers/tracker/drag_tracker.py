@@ -99,6 +99,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         )
 
         self.drag_matrix = None
+        self.drag_position = None
 
         self.drag.none.set_visibility()
         self.drag.part.set_visibility()
@@ -123,8 +124,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             on_drag = SimpleNamespace(none=[], partial=[], full=[]),
             after_drag = SimpleNamespace(none=[], partial=[], full=[])
         )
-
-        self.update_center_fn = lambda: print('update_center_fn')
 
         #initialize the drag line
         self.show_drag_line = True
@@ -359,6 +358,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         _proj = []
 
+        #project drag point to constraint geometry, if applicable.
         if self.constraints.points:
 
             for _p in self.constraints.points:
@@ -393,6 +393,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _matrix = self.get_matrix()
         _cbs = self.callbacks.on_drag
 
+        self.drag_position = _drag_coords
+
         for _v in [_cbs.none, _cbs.partial, _cbs.full]:
             for _w in _v:
                 _w(_matrix)
@@ -416,8 +418,10 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.drag.full.group.removeAllChildren()
         self.drag.part.coordinate.point.setValue((0.0, 0.0, 0.0))
         self.drag.part.line.numVertices.setValue(-1)
+
         self.partial.drag_indices = []
         self.partial.transformed = []
+        self.partial.coordinates = []
         self.full_drag_nodes = []
         self.proj_origin = ()
         self.constraints.axis = None
@@ -435,6 +439,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.drag.full.set_translation((0.0, 0.0, 0.0))
         self.drag.full.set_rotation(0.0)
+
+        self.drag.none.set_translation((0.0, 0.0, 0.0))
+        self.drag.none.set_rotation(0.0)
 
 ##########################
 ## Transformation routines
@@ -497,9 +504,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Manage rotation during dragging
         coords - pair of coordinates for the rotation update in tuple form
         """
-
-        #if not self.rotation_enabled:
-        #    return
 
         #if already rotating get the updated bearing from the center
         if self.is_rotating:
@@ -589,7 +593,6 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.partial.coordinates = []
         self.partial.drag_indices = []
 
-        self.update_center_fn = None
         self.coin_style = None
         self.drag_center = None
 

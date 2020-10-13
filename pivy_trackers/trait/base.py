@@ -108,8 +108,8 @@ class Base():
         CoinGroup.scenegraph_root = Base.view_state.sg_root
 
         self.sg_root = Base.view_state.sg_root
-
         self.callbacks = {}
+        self.parent = parent
 
         self.base = CoinGroup(
             is_separated=Base.is_separated,

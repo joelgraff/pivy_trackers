@@ -75,7 +75,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         self.set_visibility(True)
 
         self.update_cb = None
-        self.update(coordinates=points, notify=False)
+        self.update(coordinates=points, notify='6')
 
         self.draggable_text = True
         self.drag_style = self.DragStyle.CURSOR
@@ -87,7 +87,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         #callback to be triggered after graph is inserted into scenegraph
         #self.on_insert_callbacks.append(self.remove_marker_coords)
 
-    def enable_markers(self, indices=[]):
+    def enable_markers(self, indices=[], is_linked = True):
         """
         Enable marker nodes on the lines.
         Optional array of indices to select specific markers
@@ -104,8 +104,9 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
             self.markers.append(_m)
 
-        for _i, _m in enumerate(self.markers):
-            _m.link_geometry(self, 0, [_i], target_only=True)
+        if is_linked:
+            for _i, _m in enumerate(self.markers):
+                _m.link_geometry(self, 0, [_i], target_only=True)
 
         self.show_markers(False)
 
@@ -179,7 +180,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
             _delta = TupleMath.scale(_delta, _scale)
             _coords[_i] = TupleMath.add(_delta, self.center)
 
-        self.update(coordinates=_coords)
+        self.update(coordinates=_coords, notify='5')
         self.set_text(str(length))
 
     def show_markers(self, marker_list = []):
@@ -221,8 +222,9 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         Override of Geometry method
         """
 
-        super().update(coordinates=coordinates, matrix=matrix, notify=notify)
+        super().update(coordinates=coordinates, matrix=matrix, notify='4')
 
+        return
         if self.text and self.text.is_visible():
 
             self.text.set_translation(
@@ -313,34 +315,24 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         #average the coordinates to calculate the centerpoint
         if self.drag_style == self.DragStyle.AVERAGE:
 
-            _pt = (0.0, 0.0, 0.0)
-
-            for _p in self.coordinates:
-                _pt = TupleMath.add(_pt, _p)
-
-            _pt = TupleMath.multiply(_pt, 0.5)
+            _pt = TupleMath.mean(self.coordinates)
 
         #use Manhattan distance to find nearest endpoint
         elif self.drag_style == self.DragStyle.ENDPOINT:
 
             _dist = -1
             _cursor = self.mouse_state.world_position
-            _pt = _cursor
-
-            _fn = lambda p1, p2: abs(_pt[0] - _p[0])\
-                        + abs(_pt[1] - _p[1])\
-                        + abs(_pt[2 - _p[2]])
 
             for _p in self.coordinates:
 
                 if _dist == -1:
-                    _dist = _fn(_cursor, _p)
+                    _dist = TupleMath.manhattan(_cursor, _p)
                     continue
 
-                _new_dist = _fn(_cursor, _p)
+                _d =TupleMath.manhattan(_cursor, _p)
 
-                if _new_dist < _dist:
-                    _dist = _new_dist
+                if _d < _dist:
+                    _dist = _d
                     _pt = _p
 
         return _pt
@@ -372,7 +364,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         #Add sender to the excluded subscribers list, call update and
         #dispatch messages, then remove the sender
         self.excluded_subscribers.append(message.sender)
-        self.update(coordinates=self.coordinates)
+        self.update(coordinates=self.coordinates, notify='3')
         del self.excluded_subscribers[-1]
 
     def notify_widget(self, event, message):

@@ -65,6 +65,8 @@ class GeometryTracker(
 
         self.coin_style = CoinStyles.DEFAULT
 
+        self.update_after_drag = True
+
         #enable / disable drag support
         self.is_draggable = True
 
@@ -212,12 +214,29 @@ class GeometryTracker(
         self.geometry.set_rotation(0.0, (0.0, 0.0, 0.0))
         self.geometry.set_translation((0.0, 0.0, 0.0))
 
+    def update_drag_center(self):
+        """
+        Default implementation
+        """
+
+        _point = (0.0, 0.0, 0.0)
+
+        if self.coordinates:
+            _point = self.coordinates[0]
+
+        return _point
+
     def before_drag(self, user_data):
         """
         Start of drag operations
         """
 
         self.setup_linked_drag()
+
+        #establish the drag center point based on the average of the
+        #coordinates if it is not already defined
+        if not self.drag_center:
+            self.drag_center = self.update_drag_center()
 
         super().before_drag(user_data)
 
@@ -240,7 +259,9 @@ class GeometryTracker(
         """
         Proxy function to handle delayed calls
         """
-        self.update(matrix=matrix)
+
+        if self.update_after_drag:
+            self.update(matrix=matrix, notify='8')
 
         for _cb in self._after_drag_callbacks:
             _cb(matrix)
@@ -250,7 +271,7 @@ class GeometryTracker(
         Override of geometry.update()
         """
 
-        super().update(coordinates, matrix)
+        super().update(coordinates, matrix, notify='7')
 
     def notify_geometry(self, event, message):
         """

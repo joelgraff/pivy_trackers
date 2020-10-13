@@ -479,7 +479,7 @@ class CurveTracker(WireTracker):
         if not _points and not curve.points:
             return
 
-        super().update(curve.points)
+        super().update(curve.points, notify='9')
 
         if not temporary:
             self.curve = curve

@@ -163,7 +163,7 @@ class Geometry():
         #replace any None values with the current coordinate to ensure a zero delta
         for _i, _v in enumerate(_c):
 
-            if _v is None:
+            if _v is None and self.coordinates:
                 _c[_i] = self.coordinates[_i]
 
         if self.coordinates:
@@ -258,7 +258,7 @@ class Geometry():
                         TupleMath.add(deltas[_i], _link_coords[_x])
 
         self.linked_parent = parent
-        self.update(_link_coords)
+        self.update(_link_coords, notify = "1")
         self.linked_parent = None
 
     def transform_points(self, points=None):

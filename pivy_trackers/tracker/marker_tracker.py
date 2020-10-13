@@ -74,12 +74,6 @@ class MarkerTracker(GeometryTracker):
 
         super().update(coordinates=_c, matrix=matrix, notify=notify)
 
-    def update_drag_center(self):
-        """
-        Override of Drag base function
-        """
-        return self.coordinates[0]
-
     def set_style(self, style=None, draw=None, color=None):
         """
         Override style implementation

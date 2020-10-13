@@ -53,9 +53,6 @@ class Drag():
     def set_event_path(self, callback, is_pathed=True): """prototype"""
     def is_selected(self): """prototype"""
 
-    #prototype to be implemented by inheriting class
-    def update_drag_center(self): """prototype"""
-
     #default lambda for place-holder functions
     #returns tuple of passed parameters
     default_fn = lambda _self, _x:\
@@ -79,13 +76,13 @@ class Drag():
         # and adds callback for global tracker updating
         if not Drag.drag_tracker:
             Drag.drag_tracker = DragTracker(self.root)
-            Drag.drag_tracker.update_center_fn = self.update_drag_center
 
         self.handle_drag_events = True
         self.drag_copy = None
         self.is_dragging = False
         self.is_full_drag = False
         self.drag_indices = []
+        self.drag_center = None
         self._is_setting_up = False
 
         self.drag_mouse_cb = None
@@ -270,7 +267,7 @@ class Drag():
         self.drag_copy = self.geometry.copy()
 
         #enabling sinks mouse events at the drag tracker
-        Drag.drag_tracker.drag_center = self.update_drag_center()
+        Drag.drag_tracker.drag_center = self.drag_center
 
         for _v in Drag.drag_list:
 
@@ -278,13 +275,12 @@ class Drag():
             _v.drag_indices = list(set(_v.drag_indices))
 
             #if all the coordinate indices are added, switch to full drag
-            _v.is_full_drag = len(_v.drag_indices) == len(_v.coordinates)
+            _v.is_full_drag = _v.len(_v.drag_indices) == len(_v.coordinates)
 
             if _v.is_full_drag:
 
                 #refresh the drag copy for latest changes
                 _v.drag_copy = _v.geometry.copy()
-
                 Drag.drag_tracker.insert_full_drag(
                     _v.drag_copy, cb_on=_v.on_full_drag)
 
@@ -292,6 +288,9 @@ class Drag():
 
             if not _v.drag_indices:
                 continue
+
+            #Drag indices are defined, but not all indicates are drag indices.
+            #Threfore, we have a partial drag case
 
             #get the starting and ending points of the range
             _idx_range = [_v.drag_indices[0] - 1, _v.drag_indices[-1] + 1]
@@ -351,6 +350,8 @@ class Drag():
 
         for _cb in self.after_drag_callbacks:
             _cb(user_data)
+
+        self.drag_center = None
 
     def teardown_drag(self):
         """
