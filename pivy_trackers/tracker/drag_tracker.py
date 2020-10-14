@@ -172,6 +172,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         Points - a list of one or more 2 or 3-tuples defining linear movement
         """
 
+        self.constraints.axis = None
+        self.constraints.points = []
+
         if axis:
             self.constraints.axis = TupleMath.unit(axis)
 

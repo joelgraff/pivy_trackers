@@ -275,7 +275,7 @@ class Drag():
             _v.drag_indices = list(set(_v.drag_indices))
 
             #if all the coordinate indices are added, switch to full drag
-            _v.is_full_drag = _v.len(_v.drag_indices) == len(_v.coordinates)
+            _v.is_full_drag = len(_v.drag_indices) == len(_v.coordinates)
 
             if _v.is_full_drag:
 

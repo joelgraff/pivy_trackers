@@ -224,7 +224,6 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         super().update(coordinates=coordinates, matrix=matrix, notify='4')
 
-        return
         if self.text and self.text.is_visible():
 
             self.text.set_translation(

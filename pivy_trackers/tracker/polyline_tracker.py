@@ -98,7 +98,7 @@ class PolyLineTracker(GeometryTracker):
                 [_prev, self.points[0]], self.base, index=index
             ))
 
-            if is_adjustable:
+            if self.is_linked:
 
                 self.lines[-2].link_geometry(self.lines[-1], 1, [0])
                 self.lines[-1].link_geometry(self.lines[0], 1, [0])
@@ -134,11 +134,8 @@ class PolyLineTracker(GeometryTracker):
         for _i, _v in enumerate(coordinates[1:]):
 
             _line = self.lines[_i]
-
             _line.do_linked_update = False
-
             _line.update([_prev, _v], notify='2')
-
             _line.do_linked_update = self.is_linked
 
             if not self.is_linked:
