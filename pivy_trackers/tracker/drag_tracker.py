@@ -110,7 +110,8 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         self.set_pick_style(False)
 
-        self.constraints = SimpleNamespace(axis=None, points=[])
+        self.constraints = SimpleNamespace(
+            axis=None, origin=(0.0, 0.0, 0.0), points=[])
 
         self.partial = SimpleNamespace(
             coordinates=[],
@@ -165,7 +166,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.is_rotating = False
         self.update([(0.0, 0.0, 0.0), (0.0, 0.0, 0.0)])
 
-    def set_constraint_geometry(self, axis=None, points=None):
+    def set_constraint_geometry(self, axis=None, origin=None, points=None):
         """
         Define geometry which constrains drag movements.
         Axes - a list of one or more 2 or 3-tuples defining axial movement
@@ -177,6 +178,9 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         if axis:
             self.constraints.axis = TupleMath.unit(axis)
+
+        if origin:
+            self.constraints.origin = origin
 
         if points:
 
@@ -342,22 +346,30 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         _coords = [self.drag_center, self.mouse_state.world_position]
         _drag_coords = _coords[1]
+        _p_origin = self.constraints.origin
         _prev = None
-
 
         #project to the constraining axis
         if self.constraints.axis:
 
             #store the projected origin...
-            if not self.proj_origin:
+            if not _p_origin:
 
-                self.proj_origin =\
-                    TupleMath.project(_coords[0], self.constraints.axis)
+                _p_origin = TupleMath.project(_coords[0], self.constraints.axis)
 
-            _delta = TupleMath.project(_coords[1], self.constraints.axis)
-            _delta = TupleMath.subtract(_delta, self.proj_origin)
+            else:
 
-            _drag_coords = TupleMath.add(_coords[0], _delta)
+                _p_origin = TupleMath.project(_p_origin, self.constraints.axis)
+
+            _p_drag = TupleMath.project(_coords[1], self.constraints.axis)
+
+            _drag_coords = TupleMath.add(self.constraints.origin,
+                TupleMath.subtract(_p_drag, _p_origin))
+
+            #_delta = TupleMath.project(_coords[1], self.constraints.axis)
+            #_delta = TupleMath.subtract(_delta, self.constraints.origin)
+
+            #_drag_coords = TupleMath.add(_coords[0], _delta)
 
         _proj = []
 
