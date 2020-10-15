@@ -229,7 +229,6 @@ class Event():
         Convenience function
         """
 
-        print('adding keyboard event...')
         return self.add_event_callback(InputEvent.KEYBOARD, callback, pathed)
 
     def add_mouse_event(self, callback, pathed=True):
