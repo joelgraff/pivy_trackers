@@ -23,6 +23,7 @@
 Drag tracker for providing drag support to other trackers
 """
 
+import math
 from types import SimpleNamespace
 
 from pivy import coin
@@ -441,6 +442,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.proj_origin = ()
         self.constraints.axis = None
         self.constraints.points = []
+        self.is_rotating = False
 
         _cbs = self.callbacks
 
@@ -529,7 +531,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _start = TupleMath.add(_center, _offset)
             _vec = TupleMath.subtract(radius_coord, _start)
 
+            _len = TupleMath.length(_vec)
+
             _angle = coin_math.get_bearing(_vec)
+
+            if self.angle == 0.0:
+                self.angle = _angle
+
             _delta = self.angle - _angle
 
             if self.rotate_increment > 0.0:
