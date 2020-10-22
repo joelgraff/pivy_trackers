@@ -27,7 +27,7 @@ from pivy import coin
 
 from .todo import todo
 
-from pivy_trackers.pivy_trackers import GEO_SUPPORT
+from pivy_trackers import GEO_SUPPORT
 
 from .coin_enums import MarkerStyles
 

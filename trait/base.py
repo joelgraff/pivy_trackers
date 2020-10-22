@@ -151,7 +151,7 @@ class Base():
         if not parent:
             parent = self.view_state.sg_root
 
-        _matrix = self.view_state_get_matrix(node, parent)
+        _matrix = self.view_state.get_matrix(node, parent)
 
         return self.view_state.transform_points(points, _matrix)
 

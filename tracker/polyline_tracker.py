@@ -23,7 +23,7 @@
 Polyline tracker class
 """
 
-from pivy_trackers.pivy_trackers import TupleMath
+from pivy_trackers import TupleMath
 
 from ..trait.base import Base
 from ..trait.geometry import Geometry

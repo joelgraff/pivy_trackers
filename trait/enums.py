@@ -24,7 +24,7 @@
 Enumerant support for trait classes
 """
 
-from pivy_trackers.pivy_trackers import Const
+from pivy_trackers import Const
 
 class DragStyle(Const):
     """
