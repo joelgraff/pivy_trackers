@@ -23,7 +23,7 @@
 Box tracker class
 """
 
-from pivy_trackers import TupleMath
+from ..support.core.tuple_math import TupleMath
 
 from ..trait.base import Base
 from ..trait.geometry import Geometry
