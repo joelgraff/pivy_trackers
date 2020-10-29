@@ -1,0 +1,3 @@
+[submodule "support/core"]
+	path = support/core
+	url = https://github.com/joelgraff/freecad_python_support
