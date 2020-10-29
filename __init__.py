@@ -12,9 +12,9 @@ def import_class(path, name):
 
     return getattr(import_module(path, name), name)
 
-TupleMath = import_class('freecad_python_support.tuple_math', 'TupleMath')
-Singleton = import_class('freecad_python_support.singleton', 'Singleton')
-Const = import_class('freecad_python_support.const', 'Const')
+TupleMath = import_class('support.core.tuple_math', 'TupleMath')
+Singleton = import_class('support.core.singleton', 'Singleton')
+Const = import_class('support.core.const', 'Const')
 
 import pivy
 
