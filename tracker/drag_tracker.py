@@ -23,15 +23,12 @@
 Drag tracker for providing drag support to other trackers
 """
 
-import math
 from types import SimpleNamespace
 
 from pivy import coin
 
 from ..support.core.singleton import Singleton
 from ..support.core.tuple_math import TupleMath
-
-from ..coin.todo import todo
 
 from ..coin.coin_group import CoinGroup
 from ..coin.coin_enums import NodeTypes as Nodes

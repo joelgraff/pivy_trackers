@@ -81,10 +81,10 @@ class BoxTracker(PolyLineTracker):
                 self.pad_points(points)
 
                 _result = (
-                    self.corners[0],
-                    (self.corners[1][0], self.corners[0][1], 0.0),
-                    self.corners[1],
-                    (self.corners[0][0], self.corners[1][1], 0.0)
+                    self.coordinates[0],
+                    (self.coordinates[1][0], self.coordinates[0][1], 0.0),
+                    self.coordinates[1],
+                    (self.coordinates[0][0], self.coordinates[1][1], 0.0)
                 )
 
         elif len(points) == 4:
@@ -126,7 +126,7 @@ class BoxTracker(PolyLineTracker):
         BoxTracker: undefined coordinate format for {}
         """.format(str(points))
 
-        return result
+        return _result
 
     def pad_points(self, points, length=3, value=0.0):
         """
