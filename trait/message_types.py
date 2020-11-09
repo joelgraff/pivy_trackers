@@ -25,7 +25,8 @@ MessageTypes class
 
 import types
 
-from pivy_trackers import Const, Singleton
+from ..support.core.const import Const
+from ..support.core.singleton import Singleton
 
 class MessageTypes(metaclass=Singleton):
 
