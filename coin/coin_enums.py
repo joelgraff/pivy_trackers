@@ -35,7 +35,7 @@ class Axis(Const):
     Tuple definitions of unit axes
     """
 
-    X: Final: Final = (1.0, 0.0, 0.0)
+    X: Final = (1.0, 0.0, 0.0)
     Y: Final = (0.0, 1.0, 0.0)
     Z: Final = (0.0, 0.0, 1.0)
     XY: Final = (1.0, 1.0, 0.0)
