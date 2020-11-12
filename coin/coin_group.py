@@ -23,9 +23,7 @@
 Support class for creating Coin3D node structures
 """
 
-from collections.abc import Iterable
-
-from ..support.code.const import Const
+from ..support.core.const import Const
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
 
@@ -35,6 +33,9 @@ class CoinGroup(object):
     """
 
     class ParentTypes(Const):
+        """
+        Parent node type enums
+        """
         SEPARATOR = 1
         SWITCH = 2
         GEO_SEPARATOR = 4
@@ -70,32 +71,32 @@ class CoinGroup(object):
 
         _top_group = None
 
-        if parent_flags = -1:
+        if parent_flags == -1:
 
             parent_flags = 0
 
             if is_switched:
-                parent_flags = ParentTypes.SWITCH
+                parent_flags = self.ParentTypes.SWITCH
 
             if is_separated:
-                parent_flags += ParentTypes.SEPARATOR
+                parent_flags += self.ParentTypes.SEPARATOR
 
             if is_geo:
-                parent_flags += ParentTypes.GEO
+                parent_flags += self.ParentTypes.GEO
 
-        if parent_flags & ParentTypes.SWITCH:
+        if parent_flags & self.ParentTypes.SWITCH:
 
             self.switch = utils.add_child(
                 Nodes.SWITCH, None, self.name + '__Switch')
 
             self.root = self.switch
 
-        if parent_flags & ParentTypes.SEPARATOR:
+        if parent_flags & self.ParentTypes.SEPARATOR:
 
             _type = Nodes.SEPARATOR
             _name = self.name + '_Separator'
 
-            if parent_flags & ParentTypes.GEO_SEPARATOR:
+            if parent_flags & self.ParentTypes.GEO_SEPARATOR:
                 _type = Nodes.GEO_SEPARATOR
                 _name = self.name + '_GeoSeparator'
 
@@ -316,7 +317,7 @@ class CoinGroup(object):
             center = self.get_center
 
         if angle is None:
-            angle = self.get_rotation[1]
+            angle = self.get_rotation()[1]
 
         self.transform.rotation = utils.get_rotation(angle)
         self.transform.rotation.center = center
