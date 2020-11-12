@@ -24,6 +24,8 @@ Support class for creating Coin3D node structures
 """
 
 from collections.abc import Iterable
+
+from ..support.code.const import Const
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
 
@@ -32,10 +34,15 @@ class CoinGroup(object):
     Basic coin scenegraph node structure for use with trackers
     """
 
+    class ParentTypes(Const):
+        SEPARATOR = 1
+        SWITCH = 2
+        GEO_SEPARATOR = 4
+
     scenegraph_root = None
 
     def __init__(self, is_separated=False, is_switched=False, switch_first=True,
-                 parent=None, is_geo=False, name='', index=-1):
+                 parent=None, is_geo=False, name='', index=-1, parent_flags=-1):
         """
         Constructor
         parent = CoinGroup or SoNode
@@ -63,18 +70,32 @@ class CoinGroup(object):
 
         _top_group = None
 
-        if is_switched:
+        if parent_flags = -1:
+
+            parent_flags = 0
+
+            if is_switched:
+                parent_flags = ParentTypes.SWITCH
+
+            if is_separated:
+                parent_flags += ParentTypes.SEPARATOR
+
+            if is_geo:
+                parent_flags += ParentTypes.GEO
+
+        if parent_flags & ParentTypes.SWITCH:
+
             self.switch = utils.add_child(
                 Nodes.SWITCH, None, self.name + '__Switch')
 
             self.root = self.switch
 
-        if is_separated:
+        if parent_flags & ParentTypes.SEPARATOR:
 
             _type = Nodes.SEPARATOR
             _name = self.name + '_Separator'
 
-            if is_geo:
+            if parent_flags & ParentTypes.GEO_SEPARATOR:
                 _type = Nodes.GEO_SEPARATOR
                 _name = self.name + '_GeoSeparator'
 
