@@ -23,16 +23,9 @@
 Line tracker class for tracker objects
 """
 
-import random
-
-from ..coin import coin_utils
-
-from collections.abc import Iterable
-
 from ..support.core.tuple_math import TupleMath
 
 from ..coin.coin_enums import NodeTypes as Nodes
-from ..coin.todo import todo
 
 from .geometry_tracker import GeometryTracker
 from .marker_tracker import MarkerTracker

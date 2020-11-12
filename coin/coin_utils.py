@@ -22,6 +22,7 @@
 """
 General utilities for pivy.coin objects
 """
+import math
 
 from pivy import coin
 
@@ -30,6 +31,8 @@ from .todo import todo
 from pivy_trackers import GEO_SUPPORT
 
 from .coin_enums import MarkerStyles
+
+_NEAR_ZERO = 10**-30
 
 def describe(node):
     """
@@ -205,6 +208,20 @@ def get_rotation(angle, axis=(0.0, 0.0, 1.0)):
 
     return coin.SbRotation(coin.SbVec3f(axis), angle)
 
+def create_matrix(translation=(0.0, 0.0, 0.0), angle=0.0, axis=(0.0, 0.0, 1.0)):
+    """
+    Generate a Coin3D matrix based on the passed parameters
+    """
+
+    _rot = get_rotation(angle, axis)
+
+    _mat = coin.SbMatrix()
+    _mat.setRotate(_rot)
+
+    _mat.setTranslate(coin.SbVec3f(translation))
+
+    return _mat
+
 def toggle_switch(switch, toggle_all=False, index=-3):
     """
     Toggle a switch between off (-1) and on (-3 or >-1)
@@ -217,3 +234,52 @@ def toggle_switch(switch, toggle_all=False, index=-3):
 
     else:
         switch.whichChild = -1
+
+def transform_points(points, matrix):
+    """
+    Transform selected points by the transformation matrix
+    """
+
+    #store the view state matrix if a valid node is passed.
+    #subsequent calls with null node will re-use the last valid node matrix
+
+    _matrix = matrix
+
+    if _matrix is None:
+        return points
+
+    _xlate = _matrix.getValue()[3]
+
+    if any(math.isnan(_v) for _v in _xlate):
+        return points
+
+    if all([_v < _NEAR_ZERO for _v in _xlate]):
+        return points
+
+    #append fourth point to each coordinate
+    _pts = [_v + (1.0,) for _v in points]
+
+    _s = 0
+    _result = []
+    _l = len(_pts)
+
+    #iterate the list, processing it in sets of four coordinates at a time
+    while _s < _l:
+
+        _mat_pts = _pts[_s:_s + 4]
+
+        _last_point = len(_mat_pts)
+
+        #pad the list if less than four points
+        for _i in range(len(_mat_pts), 4):
+            _mat_pts.append((0.0, 0.0, 0.0, 1.0))
+
+        #convert and transform
+        _mat = coin.SbMatrix(_mat_pts)
+
+        for _v in _mat.multRight(_matrix).getValue()[:_last_point]:
+            _result.append(tuple(_v)[0:3])
+
+        _s += 4
+
+    return _result

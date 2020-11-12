@@ -172,9 +172,6 @@ class Geometry():
             if self.coordinates == _c:
                 return
 
-            #abort if there are a different number of new coordinates
-            if len(self.coordinates) != len(_c):
-                return
 
         #compute the changes in coordinates
         _deltas = _c

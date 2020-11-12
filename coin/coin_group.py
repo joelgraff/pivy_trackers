@@ -321,7 +321,30 @@ class CoinGroup(object):
         self.transform.rotation = utils.get_rotation(angle)
         self.transform.rotation.center = center
 
-    def get_matrix(self, viewport, node=None):
+    def transform_points(self, points, viewport=None, matrix=None):
+        """
+        Transform points using provided parametres.  If none, uses matrix
+        from existing transform
+        """
+
+        if not matrix:
+
+            if not viewport:
+                return points
+
+            matrix = self.get_view_matrix(viewport, self.transform)
+
+        return utils.transform_points(points, matrix)
+
+    def get_matrix(self,
+        translation=(0.0, 0.0, 0.0), axis=(0.0, 0.0, 1.0), angle=0.0):
+        """
+        Return a matrix defined by the passed parameters
+        """
+
+        return utils.create_matrix(translation, axis=axis, angle=angle)
+
+    def get_view_matrix(self, viewport, node=None):
         """
         Return the transformation matrix at the Transform node
         """
@@ -329,7 +352,7 @@ class CoinGroup(object):
         if not node:
             node = self.root
 
-        return utils.get_matrix(self.root, viewport)
+        return utils.get_matrix(node, viewport)
 
     def copy_matrix(self, node, viewport):
         """
