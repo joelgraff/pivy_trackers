@@ -23,7 +23,7 @@
 Coin-based enumerations
 """
 
-from types import Final
+from typing import Final
 
 from pivy import coin
 
