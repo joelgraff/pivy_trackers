@@ -75,7 +75,7 @@ class Event():
         Create a callback container for event callbacks
         """
 
-        return types.SimpleNamespace(
+        return SimpleNamespace(
             callback=callback,
             type=event_type
         )

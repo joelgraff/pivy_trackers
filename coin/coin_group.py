@@ -23,7 +23,8 @@
 Support class for creating Coin3D node structures
 """
 
-from ..support.core.const import Const
+from collections.abc import Iterable
+
 from . import coin_utils as utils
 from .coin_enums import NodeTypes as Nodes
 
@@ -32,18 +33,10 @@ class CoinGroup(object):
     Basic coin scenegraph node structure for use with trackers
     """
 
-    class ParentTypes(Const):
-        """
-        Parent node type enums
-        """
-        SEPARATOR = 1
-        SWITCH = 2
-        GEO_SEPARATOR = 4
-
     scenegraph_root = None
 
     def __init__(self, is_separated=False, is_switched=False, switch_first=True,
-                 parent=None, is_geo=False, name='', index=-1, parent_flags=-1):
+                 parent=None, is_geo=False, name='', index=-1, root_nodes=None):
         """
         Constructor
         parent = CoinGroup or SoNode
@@ -69,56 +62,39 @@ class CoinGroup(object):
         self.root = None
         self.font = None
 
-        _top_group = None
+        _parent = None
 
-        if parent_flags == -1:
-
-            parent_flags = 0
+        if not root_nodes:
+            root_nodes = ()
 
             if is_switched:
-                parent_flags = self.ParentTypes.SWITCH
+                root_nodes += (Nodes.SWITCH,)
 
             if is_separated:
-                parent_flags += self.ParentTypes.SEPARATOR
+                root_nodes += (Nodes.SEPARATOR,)
 
             if is_geo:
-                parent_flags += self.ParentTypes.GEO
+                root_nodes += (Nodes.GEO_SEPARATOR,)
 
-        if parent_flags & self.ParentTypes.SWITCH:
+        for _n in self.validate_root_nodes(root_nodes):
 
-            self.switch = utils.add_child(
-                Nodes.SWITCH, None, self.name + '__Switch')
+            if _n == Nodes.SWITCH:
+                _parent = utils.add_child(Nodes.SWITCH, _parent, self.name + "__Switch")
+                self.switch = _parent
+                self.set_visibility()
 
-            self.root = self.switch
+            elif _n == Nodes.SEPARATOR:
+                _parent = utils.add_child(Nodes.SEPARATOR, _parent, self.name + '__Separator')
+                self.separator = _parent
 
-        if parent_flags & self.ParentTypes.SEPARATOR:
+            elif _n == Nodes.GROUP:
+                _parent = utils.add_child(Nodes.GROUP, _parent, self.name + '__Group')
+                self.group = _parent
 
-            _type = Nodes.SEPARATOR
-            _name = self.name + '_Separator'
+            if not self.root:
+                self.root = _parent
 
-            if parent_flags & self.ParentTypes.GEO_SEPARATOR:
-                _type = Nodes.GEO_SEPARATOR
-                _name = self.name + '_GeoSeparator'
-
-            self.separator = utils.add_child(_type, None, _name)
-            _top_group = self.separator
-
-        else:
-            self.group = utils.add_child(
-                Nodes.GROUP, None, self.name + '__TopGroup')
-
-            _top_group = self.group
-
-        self.top = _top_group
-
-        if not self.root:
-            self.root = self.top
-
-        else:
-            if not switch_first:
-                self.top, self.root = self.root, self.top
-
-            self.root.addChild(self.top)
+            self.top = _parent
 
         if not self.parent:
             return
@@ -131,6 +107,31 @@ class CoinGroup(object):
                 'CoinGroup parent not of CoinGroup or SoNode type'
 
         utils.insert_child(self.root, self.parent, index=index)
+
+
+    def validate_root_nodes(self, root_nodes):
+        """
+        Validate the root node structure, ensuring specified nodes
+        are valid.  Prints warnings and returns valid root nodes
+            """
+
+        #single node case
+        if not isinstance(root_nodes, Iterable):
+            root_nodes = (root_nodes,)
+
+        #valid node list
+        _default_set = set((Nodes.GROUP, Nodes.SWITCH, Nodes.SEPARATOR, Nodes.GEO_SEPARATOR))
+        _node_set = set(root_nodes)
+
+        #default node configuration
+        if not root_nodes:
+            return (Nodes.SWITCH, Nodes.SEPARATOR)
+
+        #valid list
+        if _node_set.issubset(_default_set):
+            return root_nodes
+
+        return _node_set & _default_set
 
     def set_visibility(self, visible=True, child=-3):
         """
