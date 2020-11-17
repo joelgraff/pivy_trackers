@@ -30,7 +30,7 @@ from FreeCAD import Vector
 
 import FreeCADGui as Gui
 
-from .select_drag_linked_tracker import SelectDragLinkedTracker
+from .select_drag_tracker import SelectDragTracker
 
 class SelectDragTask():
     """

@@ -336,11 +336,9 @@ class NodeTypes(Const):
     EVENT_CB:   Final = coin.SoEventCallback
     FONT:       Final = coin.SoFont
 
-    if GEO_SUPPORT:
-
-        GEO_COORDINATE: Final = coin.SoGeoCoordinate
-        GEO_ORIGIN:     Final = coin.SoGeoOrigin
-        GEO_SEPARATOR:  Final = coin.SoGeoSeparator
+    GEO_COORDINATE: Final = coin.SoGeoCoordinate
+    GEO_ORIGIN:     Final = coin.SoGeoOrigin
+    GEO_SEPARATOR:  Final = coin.SoGeoSeparator
 
     GROUP:          Final = coin.SoGroup
     KEYBOARD_EVENT: Final = coin.SoKeyboardEvent
