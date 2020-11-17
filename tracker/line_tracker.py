@@ -162,7 +162,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         if not self.coordinates:
             return 0.0
 
-        return TupleMath.length(self.coordinates)
+        return TupleMath._length(self.coordinates)
 
     def set_length(self, length):
         """

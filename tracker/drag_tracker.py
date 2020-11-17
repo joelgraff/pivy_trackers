@@ -503,7 +503,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #incremental movement
         if self.translate_increment > 0.0:
 
-            _len = int(TupleMath.length(_delta) / self.translate_increment)
+            _len = int(TupleMath._length(_delta) / self.translate_increment)
             _delta = TupleMath.scale(TupleMath.unit(_delta), _len)
 
         if not TupleMath.is_zero(_delta):
@@ -529,7 +529,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
             _start = TupleMath.add(_center, _offset)
             _vec = TupleMath.subtract(radius_coord, _start)
 
-            _len = TupleMath.length(_vec)
+            _len = TupleMath._length(_vec)
 
             _angle = coin_math.get_bearing(_vec)
 
