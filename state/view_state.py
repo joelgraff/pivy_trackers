@@ -23,16 +23,12 @@
 View state class
 """
 
-import math
-
 from pivy import coin
 from PySide import QtGui
 
 from ..coin import coin_utils
 
 from ..support.core.singleton import Singleton
-
-_NEAR_ZERO = 10**-30
 
 class ViewStateGlobalCallbacks():
     """
@@ -165,48 +161,7 @@ class ViewState(metaclass=Singleton):
         Transform selected points by the transformation matrix
         """
 
-        #store the view state matrix if a valid node is passed.
-        #subsequent calls with null node will re-use the last valid node matrix
-
-        _matrix = matrix
-
-        if _matrix is None:
-            return points
-
-        _xlate = [_v for _v in _matrix.getValue()[3]]
-
-        if all([_v < _NEAR_ZERO for _v in _xlate]):
-            return points
-
-        if any(math.isnan(_v) for _v in _xlate):
-            return points
-
-        #append fourth point to each coordinate
-        _pts = [_v + (1.0,) for _v in points]
-
-        _s = 0
-        _result = []
-
-        #iterate the list, processing it in sets of four coordinates at a time
-        while _s < len(_pts):
-
-            _mat_pts = _pts[_s:_s + 4]
-
-            _last_point = len(_mat_pts)
-
-            #pad the list if less than four points
-            for _i in range(len(_mat_pts), 4):
-                _mat_pts.append((0.0, 0.0, 0.0, 1.0))
-
-            #convert and transform
-            _mat = coin.SbMatrix(_mat_pts)
-
-            for _v in _mat.multRight(_matrix).getValue()[:_last_point]:
-                _result.append(tuple(_v)[0:3])
-
-            _s += 4
-
-        return _result
+        utils.transform_points(points, matrix)
 
     def remove_event_cb(self, callback, event_class):
         """

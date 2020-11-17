@@ -23,14 +23,8 @@
 Polyline tracker class
 """
 
-from ..support.core.tuple_math import TupleMath
-
-from ..trait.base import Base
-from ..trait.geometry import Geometry
-
 from .line_tracker import LineTracker
 from .geometry_tracker import GeometryTracker
-from .marker_tracker import MarkerTracker
 
 class PolyLineTracker(GeometryTracker):
     """
@@ -38,7 +32,7 @@ class PolyLineTracker(GeometryTracker):
     """
 
     def __init__(self, name, points, parent, is_adjustable=True,
-                 is_closed=False, view=None, index=-1):
+                 is_closed=False, view=None, index=-1, subdivided=True):
         """
         Constructor
 
@@ -50,11 +44,26 @@ class PolyLineTracker(GeometryTracker):
 
         super().__init__(name=name, parent=parent, view=view)
 
-        self.points = []
+        self.points = points
         self.lines = []
         self.is_linked = is_adjustable
+        self.is_subdivided = subdivided
 
         _prev = None
+
+        if subdivided:
+            self.build_subd_tracker(points, index, is_closed)
+
+        else:
+
+            self.lines = [LineTracker(
+                self.name + '_segment 0', points, self.base, index=index)]
+
+
+    def build_subd_tracker(self, points, index, is_closed):
+        """
+        Build a subdivided tracker for each point pair
+        """
 
         for _i, _p in enumerate(points):
 
@@ -103,13 +112,6 @@ class PolyLineTracker(GeometryTracker):
                 self.lines[-2].link_geometry(self.lines[-1], 1, [0])
                 self.lines[-1].link_geometry(self.lines[0], 1, [0])
 
-        if not self.lines:
-
-            self.lines = [
-                LineTracker(self.name + '_segment 0', _points, self.base, index=index)]
-
-        self.set_visibility()
-
     def get_coordinates(self):
         """
         Return the line coordinates
@@ -130,6 +132,10 @@ class PolyLineTracker(GeometryTracker):
         """
 
         _prev = coordinates[0]
+        self.points = coordinates
+
+        if not self.is_subdivided:
+            return
 
         for _i, _v in enumerate(coordinates[1:]):
 

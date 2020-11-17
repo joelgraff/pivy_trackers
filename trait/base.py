@@ -119,6 +119,7 @@ class Base():
 
         self.path_node = None
         self.transform = self.base.add_node(Nodes.TRANSFORM, 'Transform')
+        self.base.transform = self.transform
 
         self.top = self.base.top
         self.root = self.base.root
