@@ -76,6 +76,8 @@ class CoinGroup(object):
             if is_geo:
                 root_nodes += (Nodes.GEO_SEPARATOR,)
 
+        _val_nodes = self.validate_root_nodes(root_nodes)
+
         for _n in self.validate_root_nodes(root_nodes):
 
             if _n == Nodes.SWITCH:
@@ -98,6 +100,10 @@ class CoinGroup(object):
 
         if not self.parent:
             return
+
+        if not self.root:
+            self.root = utils.add_child(Nodes.GROUP, _parent, self.name + '__GROUP')
+            self.top = self.root
 
         if isinstance(self.parent, CoinGroup):
             self.parent = self.parent.top
@@ -124,12 +130,12 @@ class CoinGroup(object):
         _node_set = set(root_nodes)
 
         #default node configuration
-        if not root_nodes:
-            return (Nodes.SWITCH, Nodes.SEPARATOR)
+        #if not root_nodes:
+        #    return (Nodes.SWITCH, Nodes.SEPARATOR)
 
         #valid list
-        if _node_set.issubset(_default_set):
-            return root_nodes
+        #if _node_set.issubset(_default_set):
+            #return root_nodes
 
         return _node_set & _default_set
 

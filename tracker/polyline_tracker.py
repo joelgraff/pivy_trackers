@@ -44,7 +44,7 @@ class PolyLineTracker(GeometryTracker):
 
         super().__init__(name=name, parent=parent, view=view)
 
-        self.points = points
+        self.points = [_v + (0.0,) if len(_v) == 2 else _v for _v in points]
         self.lines = []
         self.is_linked = is_adjustable
         self.is_subdivided = subdivided
@@ -65,36 +65,40 @@ class PolyLineTracker(GeometryTracker):
         Build a subdivided tracker for each point pair
         """
 
-        for _i, _p in enumerate(points):
+        print(self.points)
 
-            if len(_p) == 2:
-               _p += (0.0,)
+        for _v, _w in zip(self.points[:-1], self.points[1:]):
+        #for _i, _p in enumerate(points):
 
-            if self.points:
 
-                _line = LineTracker(self.name + '_segment ' + str(_i),
-                    [_prev, _p], self.base, index=index)
+            #if len(_p) == 2:
+            #   _p += (0.0,)
 
-                self.lines.append(_line)
+            #if self.points:
 
-                _count = len(self.lines)
+            _line = LineTracker(self.name + '_segment ',
+                [_v, _w], self.base, index=index)
 
-                if self.is_linked:
+            self.lines.append(_line)
 
-                    if _count > 1:
+            _count = len(self.lines)
 
-                        self.lines[-2].link_geometry(_line, 1, [0])
+            if self.is_linked:
 
-                _indices = [0]
+                if _count > 1:
 
-                if _i == len(points) - 1:
-                    _indices = []
+                    self.lines[-2].link_geometry(_line, 1, [0])
 
-                _line.enable_markers(_indices, self.is_linked)
+            _indices = [0]
 
-            self.points.append(_p)
+            #if _i == len(points) - 1:
+            #    _indices = []
 
-            _prev = _p
+            _line.enable_markers(_indices, self.is_linked)
+
+            #self.points.append(_p)
+
+            #_prev = _p
 
         _points = self.points
 
