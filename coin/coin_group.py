@@ -262,6 +262,16 @@ class CoinGroup(object):
 
         utils.remove_child(self.root, _parent)
 
+    def get_child(self, name, node=None):
+        """
+        Return a list of all children containing the specified name
+        """
+
+        if not node:
+            node = self.root
+
+        return utils.find_child_by_name(name, node)
+
     def get_center(self):
         """
         Return the center of the group SoTransform node as a tuple

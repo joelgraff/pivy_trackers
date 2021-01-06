@@ -24,6 +24,8 @@ General utilities for pivy.coin objects
 """
 import math
 
+from ..support.core.const import Const
+
 from pivy import coin
 
 from .todo import todo
@@ -33,6 +35,65 @@ from pivy_trackers import GEO_SUPPORT
 from .coin_enums import MarkerStyles
 
 _NEAR_ZERO = 10**-30
+
+class Describe(Const):
+    """
+    Describe nodes
+    """
+
+    def __init__(self):
+        """
+        Constructor
+        """
+
+        self.node_points = lambda n:\
+            [_v.getValue for _v in n.point.getValues()]
+
+        _pts = lambda n: [_v.getValue for _v in n.point.getValues()]
+
+        self.format = {
+            coin.SoGroup: lambda n: str(n.getNumChildren()),
+
+            coin.SoSwitch: lambda n:
+                f'{str(n.getNumChildren())}/{str(n.whichChild.getValue())}',
+
+            coin.SoCoordinate3: lambda n:
+                f'points ({str(n.point.getNum())}) = {str(_pts(n))}',
+
+            coin.SoGeoCoordinate3: lambda n:
+                f"""
+                    system = {str(n.geoSystem.getValues())}; points ({str(n.point.getNum())}) = {str(_pts(n))}'
+                """,
+
+            coin.SoDrawStyle: lambda n:
+                f"""
+                    style={str(n.style.get())}, size={str(n.pointSize.getValue())}, width={str(n.lineWidth.getValue())}, pattern={hex(n.linePattern.getValue())}
+                """,
+
+            coin.SoMarkerset: lambda n:
+                f'shape={str(MarkerStyles.get_by_value(n.markerIndex))}',
+
+            coin.SoFont: lambda n:
+                f'name={n.name.getValue()}, size={str(n.size.getValue())}',
+
+            coin.SoText2: lambda n: f'text={n.string.getValue()}',
+
+            coin.SoTransform: lambda n:
+                f"""
+                    translation={str(n.translation.getValue().getValue())}; rotation=<{str(n.rotation.getValue().getAxisAngle()[0].getValue())}>, {str(n.rotation.getValue().getAxisAngle()[1].getValue())} rad; center={str(n.center.getValue().getValue())}
+                """,
+
+            coin.SoGeoOrigin: lambda n:
+                f"""
+                    system={str(n.geoSystem.getValues())}; coordinates={str(n.geoCoords.getValue().getValue())}
+                """
+        }
+
+        def apply(self, node):
+            """
+            Apply formatting to the target node
+            """
+
 
 def describe(node):
     """
@@ -198,6 +259,23 @@ def add_child(event_class, parent, name='', index=-1):
         insert_child(_node, parent, index)
 
     return _node
+
+def find_child_by_name(name, node):
+    """
+    Return a list of all children containing the specified name
+    """
+
+    #define the search path
+    _search = coin.SoSearchAction()
+    _search.setName(name)
+    _search.apply(node)
+
+    _path = _search.getPath()
+
+    if not _path:
+        return None
+
+    return _path.getTail()
 
 def get_rotation(angle, axis=(0.0, 0.0, 1.0)):
     """
