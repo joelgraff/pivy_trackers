@@ -58,7 +58,7 @@ class Style():
             is_separated=Style.is_separated,
             is_switched=Style.is_switched,
             switch_first=Style.switch_first,
-            parent=self.base, name=self.name +'__STYLE')
+            parent=self.base, name=self.name +'_STYLE')
 
         self.style.draw_style = self.style.add_node(Nodes.DRAW_STYLE)
         self.style.color = self.style.add_node(Nodes.COLOR)

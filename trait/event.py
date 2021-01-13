@@ -89,7 +89,7 @@ class Event():
             switch_first=Event.switch_first,
             is_separated=Event.is_separated,
             is_switched=Event.is_switched,
-            parent=self.base, name=self.name + '__EVENTS')
+            parent=self.base, name=self.name + '_EVENTS')
 
         self.pathed_switch = self.event.add_node(Nodes.SWITCH, 'PATH_SWITCH')
         self.local_switch = self.event.add_node(Nodes.SWITCH, 'LOCAL_SWITCH')

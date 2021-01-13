@@ -81,16 +81,16 @@ class CoinGroup(object):
         for _n in self.validate_root_nodes(root_nodes):
 
             if _n == Nodes.SWITCH:
-                _parent = utils.add_child(Nodes.SWITCH, _parent, self.name + "__Switch")
+                _parent = utils.add_child(Nodes.SWITCH, _parent, self.name + "_Switch")
                 self.switch = _parent
                 self.set_visibility()
 
             elif _n == Nodes.SEPARATOR:
-                _parent = utils.add_child(Nodes.SEPARATOR, _parent, self.name + '__Separator')
+                _parent = utils.add_child(Nodes.SEPARATOR, _parent, self.name + '_Separator')
                 self.separator = _parent
 
             elif _n == Nodes.GROUP:
-                _parent = utils.add_child(Nodes.GROUP, _parent, self.name + '__Group')
+                _parent = utils.add_child(Nodes.GROUP, _parent, self.name + '_Group')
                 self.group = _parent
 
             if not self.root:
@@ -102,7 +102,7 @@ class CoinGroup(object):
             return
 
         if not self.root:
-            self.root = utils.add_child(Nodes.GROUP, _parent, self.name + '__GROUP')
+            self.root = utils.add_child(Nodes.GROUP, _parent, self.name + '_GROUP')
             self.top = self.root
 
         if isinstance(self.parent, CoinGroup):
@@ -198,14 +198,12 @@ class CoinGroup(object):
         """
 
         if not name:
-            name = str(event_class.getClassTypeId().getName())
+            name = f'{self.name}_{str(event_class.getClassTypeId().getName())}'
 
         if not parent:
             parent = self.top
 
-        _name = self.name + '__' + name
-
-        return utils.add_child(event_class, parent, _name, index)
+        return utils.add_child(event_class, parent, name, index)
 
     def remove_node(self, node, parent=None):
         """

@@ -78,7 +78,7 @@ class Select():
         self.select.objectName.setValue(self.names[1])
         self.select.subElementName.setValue(self.names[0])
 
-        self.select.setName(self.name + '__SELECT')
+        self.select.setName(self.name + '_SELECT')
         self.base.insert_node(self.select, self.base.top)
 
         self.select_mouse_cb = None

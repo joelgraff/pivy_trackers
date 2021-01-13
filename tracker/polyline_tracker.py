@@ -57,7 +57,7 @@ class PolyLineTracker(GeometryTracker):
         else:
 
             self.lines = [LineTracker(
-                self.name + '_segment 0', points, self.base, index=index)]
+                self.name + '_segment', points, self.base, index=index)]
 
 
     def build_subd_tracker(self, points, index, is_closed):
@@ -76,7 +76,7 @@ class PolyLineTracker(GeometryTracker):
 
             #if self.points:
 
-            _line = LineTracker(self.name + '_segment ',
+            _line = LineTracker(self.name + '_segment',
                 [_v, _w], self.base, index=index)
 
             self.lines.append(_line)

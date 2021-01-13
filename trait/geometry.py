@@ -70,7 +70,7 @@ class Geometry():
             is_separated=Geometry.is_separated,
             is_switched=Geometry.is_switched,
             switch_first=Geometry.switch_first,
-            parent=self.base, name=self.name + '__GEOMETRY')
+            parent=self.base, name=self.name + '_GEOMETRY')
 
         self.geometry.transform =\
             self.geometry.add_node(Nodes.TRANSFORM, self.name + '_transform')

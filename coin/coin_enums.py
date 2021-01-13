@@ -30,6 +30,7 @@ from pivy import coin
 from ..support.core.const import Const
 from pivy_trackers import GEO_SUPPORT
 
+
 class Axis(Const):
     """
     Tuple definitions of unit axes
@@ -42,6 +43,7 @@ class Axis(Const):
     YZ: Final = (0.0, 1.0, 1.0)
     XZ: Final = (1.0, 0.0, 1.0)
 
+
 class InputEvent(Const):
     """
     Mouse state event constant enumerants
@@ -49,6 +51,7 @@ class InputEvent(Const):
     LOCATION2: Final = coin.SoLocation2Event.getClassTypeId()
     MOUSE_BUTTON: Final = coin.SoMouseButtonEvent.getClassTypeId()
     KEYBOARD: Final = coin.SoKeyboardEvent.getClassTypeId()
+
 
 class FontStyles(Const):
     """
@@ -59,6 +62,7 @@ class FontStyles(Const):
     BOLD: Final = 'Bold'
     ITALIC: Final = 'Italic'
     BOLD_ITALIC: Final = 'Bold Italic'
+
 
 class PickStyles(Const):
     """
@@ -194,6 +198,7 @@ class Keys(Const):
     BACKSLASH: Final = coin.SoKeyboardEvent.BACKSLASH
     BRACKETRIGHT: Final = coin.SoKeyboardEvent.BRACKETRIGHT
     GRAVE: Final = coin.SoKeyboardEvent.GRAVE
+
 
 class MarkerStyles(Const):
     """

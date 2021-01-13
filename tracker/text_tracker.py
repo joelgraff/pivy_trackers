@@ -51,7 +51,7 @@ class TextTracker(Base):
 
         _idx = 1
         _index = ''
-        _name = self.name + '__TEXT'
+        _name = self.name + '_TEXT'
 
         while hasattr(self, _name + _index):
             _index = str(_idx)

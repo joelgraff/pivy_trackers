@@ -115,7 +115,7 @@ class Base():
             is_separated=Base.is_separated,
             is_switched=Base.is_switched,
             switch_first=Base.switch_first,
-            name=self.name + '_BASE', parent=parent, index=index)
+            name=f'{self.name}_BASE', parent=parent, index=index)
 
         self.path_node = None
         self.transform = self.base.add_node(Nodes.TRANSFORM, 'Transform')
