@@ -26,7 +26,7 @@ Support class for creating Coin3D node structures
 from collections.abc import Iterable
 
 from . import coin_utils as utils
-from .coin_enums import NodeTypes as Nodes
+from .coin_enums import NodeTypes as Nodes, NodeSearch
 
 class CoinGroup(object):
     """
@@ -260,15 +260,54 @@ class CoinGroup(object):
 
         utils.remove_child(self.root, _parent)
 
-    def get_child(self, name, node=None):
+
+    def get_children_by_name(self, name, node):
+        """
+        Return a list of all children of the specified type
+        """
+
+        return utils.find_child_by_name(name, node, interest=NodeSearch.ALL)
+
+    def get_first_child_by_name(self, name, node):
         """
         Return a list of all children containing the specified name
         """
 
-        if not node:
-            node = self.root
+        return utils.find_child_by_name(name, node, interest=NodeSearch.FIRST)
 
-        return utils.find_child_by_name(name, node)
+    def get_last_child_by_name(self, name, node):
+        """
+        Return a list of all children containing the specified name
+        """
+
+        return utils.find_child_by_name(name, node, interest=NodeSearch.LAST)
+
+    def get_children_by_type(self, node_type, node):
+        """
+        Return a list of all children of the specified type
+        node_type = coin_enums.NoteTypes
+        """
+
+        return utils.find_child_by_type(
+            Nodes.type_id(node_type), node, interest=NodeSearch.ALL)
+
+    def get_first_child_by_type(self, node_type, node):
+        """
+        Return a list of all children containing the specified name
+        node_type = coin_enums.NoteTypes
+        """
+
+        return utils.find_child_by_type(
+            Nodes.type_id(node_type), node, interest=NodeSearch.FIRST)
+
+    def get_last_child_by_type(self, node_type, node):
+        """
+        Return a list of all children containing the specified name
+        node_type = coin_enums.NoteTypes
+        """
+
+        return utils.find_child_by_type(
+            Nodes.type_id(node_type), node, interest=NodeSearch.LAST)
 
     def get_center(self):
         """

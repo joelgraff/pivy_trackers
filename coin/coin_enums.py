@@ -329,11 +329,21 @@ class MarkerStyles(Const):
 
         return ''
 
+class NodeSearch(Const):
+    """
+    Const class of enumeratants for node searching
+    """
+
+    FIRST:  Final = coin.SoSearchAction.FIRST
+    LAST:   Final = coin.SoSearchAction.LAST
+    ALL:    Final = coin.SoSearchAction.ALL
 
 class NodeTypes(Const):
     """
     Const class of enumerants correlating to coin node types
     """
+
+    type_id: Final = lambda class_type: class_type.getClassTypeId()
 
     COLOR:      Final = coin.SoBaseColor
     COORDINATE: Final = coin.SoCoordinate3

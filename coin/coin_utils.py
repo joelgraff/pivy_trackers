@@ -32,7 +32,7 @@ from .todo import todo
 
 from pivy_trackers import GEO_SUPPORT
 
-from .coin_enums import MarkerStyles
+from .coin_enums import MarkerStyles, NodeSearch
 
 _NEAR_ZERO = 10**-30
 
@@ -260,15 +260,33 @@ def add_child(event_class, parent, name='', index=-1):
 
     return _node
 
-def find_child_by_name(name, node):
+def _apply_search(node, name='', node_type=None, interest=NodeSearch.FIRST):
     """
-    Return a list of all children containing the specified name
+    Perform a search for a node, returning a list of found nodes
     """
 
     #define the search path
     _search = coin.SoSearchAction()
-    _search.setName(name)
+
+    if name:
+        _search.setName(name)
+
+    elif node_type:
+        _search.setType(node_type)
+
+    _search.setInterest(interest)
     _search.apply(node)
+
+    if interest == NodeSearch.ALL:
+
+        _paths = _search.getPaths()
+
+        if not _paths:
+            return None
+
+        _paths = [_paths.get(_i) for _i in range(0, _paths.getLength())]
+
+        return [_p.getTail() for _p in _paths]
 
     _path = _search.getPath()
 
@@ -276,6 +294,20 @@ def find_child_by_name(name, node):
         return None
 
     return _path.getTail()
+
+def find_child_by_name(name, node, interest=NodeSearch.FIRST):
+    """
+    Return the child node containing the specified name
+    """
+
+    return _apply_search(node = node, name=name, interest=interest)
+
+def find_child_by_type(node_type, node, interest=NodeSearch.FIRST):
+    """
+    Return the child of the specified type
+    """
+
+    return _apply_search(node=node, node_type=node_type, interest=interest)
 
 def get_rotation(angle, axis=(0.0, 0.0, 1.0)):
     """

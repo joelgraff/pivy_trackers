@@ -24,9 +24,9 @@ Polyline tracker class
 """
 
 from .line_tracker import LineTracker
-from .geometry_tracker import GeometryTracker
+from .context_tracker import ContextTracker
 
-class PolyLineTracker(GeometryTracker):
+class PolyLineTracker(ContextTracker):
     """
     PolyLine tracker class
     """
@@ -65,18 +65,9 @@ class PolyLineTracker(GeometryTracker):
         Build a subdivided tracker for each point pair
         """
 
-        print(self.points)
+        for _i, (_v, _w) in enumerate(zip(self.points[:-1], self.points[1:])):
 
-        for _v, _w in zip(self.points[:-1], self.points[1:]):
-        #for _i, _p in enumerate(points):
-
-
-            #if len(_p) == 2:
-            #   _p += (0.0,)
-
-            #if self.points:
-
-            _line = LineTracker(self.name + '_segment',
+            _line = LineTracker(f'{self.name}_segment{str(_i)}',
                 [_v, _w], self.base, index=index)
 
             self.lines.append(_line)

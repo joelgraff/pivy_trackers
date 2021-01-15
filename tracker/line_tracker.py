@@ -91,6 +91,8 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         for _i, _p in enumerate([self.coordinates[_i] for _i in indices]):
 
+            #add marker tracker to parent node at top of list so it's rendered
+            #on top of line segment
             _m = MarkerTracker(
                 self.name + '_marker_tracker_' + str(_i),
                 _p, self.base.parent, index=0)
