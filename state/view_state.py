@@ -161,7 +161,7 @@ class ViewState(metaclass=Singleton):
         Transform selected points by the transformation matrix
         """
 
-        coin_utils.transform_points(points, matrix)
+        return coin_utils.transform_points(points, matrix)
 
     def remove_event_cb(self, callback, event_class):
         """

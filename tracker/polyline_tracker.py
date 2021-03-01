@@ -82,14 +82,10 @@ class PolyLineTracker(ContextTracker):
 
             _indices = [0]
 
-            #if _i == len(points) - 1:
-            #    _indices = []
+            if _i == len(points) - 2:
+                _indices = []
 
             _line.enable_markers(_indices, self.is_linked)
-
-            #self.points.append(_p)
-
-            #_prev = _p
 
         _points = self.points
 

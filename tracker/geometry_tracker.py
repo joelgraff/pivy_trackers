@@ -63,6 +63,7 @@ class GeometryTracker(
 
         super().__init__(name=name, parent=parent, view=view, index=index)
 
+        self.type_name = 'Geometry'
         self.coin_style = CoinStyles.DEFAULT
 
         self.update_after_drag = True

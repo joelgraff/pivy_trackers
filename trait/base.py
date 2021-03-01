@@ -92,6 +92,7 @@ class Base():
         #object name is always first
         self.names = name.split('.')[::-1]
         self.name = self.names[0]
+        self.type_name = ''
 
         #pad array to ensure three elements
         if len(self.names) < 3:

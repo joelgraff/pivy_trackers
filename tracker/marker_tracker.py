@@ -40,6 +40,7 @@ class MarkerTracker(GeometryTracker):
 
         super().__init__(name=name, parent=parent, view=view, index=index)
 
+        self.type_name += '.Marker'
         self.point = None
 
         #build node structure for the node tracker
@@ -140,7 +141,6 @@ class MarkerTracker(GeometryTracker):
         Callback from DragTracker ops when object is partially-dragged
         """
 
-        print(self.name, 'MarkerTracker::on_partial_drag()')
         super().on_partial_drag(user_data)
 
     def on_drag(self, user_data):

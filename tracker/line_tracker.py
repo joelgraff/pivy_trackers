@@ -47,6 +47,7 @@ class LineTracker(GeometryTracker, Text, Keyboard):
 
         super().__init__(name=name, parent=parent, is_geo=is_geo, view=view)
 
+        self.type_name += '.Line'
         self.markers =[]
 
         #build node structure for the node tracker

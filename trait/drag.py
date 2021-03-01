@@ -29,6 +29,7 @@ from collections.abc import Iterable
 
 from ..coin.todo import todo
 from ..coin import coin_utils
+from ..coin.coin_enums import NodeTypes as Nodes
 from types import SimpleNamespace
 
 from ..trait.select import Select
@@ -277,10 +278,11 @@ class Drag():
             #if all the coordinate indices are added, switch to full drag
             _v.is_full_drag = len(_v.drag_indices) == len(_v.coordinates)
 
+            #refresh the drag copy for latest changes
+            _v.drag_copy = _v.geometry.copy()
+
             if _v.is_full_drag:
 
-                #refresh the drag copy for latest changes
-                _v.drag_copy = _v.geometry.copy()
                 Drag.drag_tracker.insert_full_drag(
                     _v.drag_copy, cb_on=_v.on_full_drag)
 
@@ -302,12 +304,50 @@ class Drag():
             if _idx_range[1] >= len(_v.coordinates):
                 _idx_range[1] = len(_v.coordinates) - 1
 
-            Drag.drag_tracker.insert_partial_drag(_v.drag_copy, _idx_range,
+            _coord = _v.geometry.get_children_by_type(
+                Nodes.COORDINATE, _v.geometry.top)[0]
+
+            Drag.drag_tracker.insert_partial_drag(_coord, _idx_range,
                 _v.drag_indices, cb_on=_v.on_partial_drag)
 
             #add extra child class drag nodes as fully-dragged
             for _w in _v.get_drag_nodes():
                 Drag.drag_tracker.insert_full_drag(_w, cb_on=_w.on_full_drag)
+
+    def _apply_search(self, node, node_type):
+        """
+        Perform a search for a node, returning a list of found nodes
+        """
+
+        from pivy import coin
+        from ..coin.coin_enums import NodeTypes as Nodes, NodeSearch
+
+        interest = NodeSearch.FIRST
+
+        #define the search path
+        _search = coin.SoSearchAction()
+        _search.setType(node_type)
+        _search.setInterest(interest)
+        _search.apply(node)
+
+        if interest == NodeSearch.ALL:
+
+            _paths = _search.getPaths()
+
+            if not _paths:
+                return None
+
+            _paths = [_paths.get(_i) for _i in range(0, _paths.getLength())]
+
+            return [_p.getTail() for _p in _paths]
+
+        _path = _search.getPath()
+
+        if not _path:
+            return None
+
+
+        return _path.getTail()
 
     def on_partial_drag(self, user_data):
         """

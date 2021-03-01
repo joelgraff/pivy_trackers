@@ -176,9 +176,11 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         self.constraints.points = []
 
         if axis:
+
             self.constraints.axis = TupleMath.unit(axis)
 
         if origin:
+
             self.constraints.origin = origin
 
         if points:
@@ -242,13 +244,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         if cb_after:
             _cbs.after_drag.full.append(cb_after)
 
-    def insert_partial_drag(self, node_group, index_range, indices,
+    def insert_partial_drag(self, coord_node, index_range, indices,
         cb_before=None, cb_on=None, cb_after=None):
 
         """
         Insert a graph to be partially transformed by dragging
 
-        node_group - the SoCoordinate node to be added
+        coord_node - the SoCoordinate node to be added
         index_range - list of two indices indicating first and last coordinate
         indices - the list of indices of coordinates to be dragged
         cb_before, cb_on, cb_after - custom callbacks
@@ -259,7 +261,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _len = len(_point.getValues())
 
         #copy the coordinates of the node group to a list
-        _pt = node_group.getChild(1).point
+        _pt = coord_node.point
         _coords = [_v.getValue() for _v in _pt.getValues()]
         _xf_coords = _coords[:]
 
@@ -270,10 +272,13 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         #get the active view matrix from the node group
         #first call made to clear out previous transform... bug?
         _matrix = self.view_state.get_matrix(self.base.parent)
-        _matrix = self.view_state.get_matrix(node_group.getChild(1))
+        _matrix = self.view_state.get_matrix(coord_node)
 
         #transform coordinates by the transformation active on the node
         _xf_coords = self.view_state.transform_points(_xf_coords, _matrix)
+
+        if not _xf_coords:
+            _xf_coords = _coords
 
         #copy the transformed coordinates back to the original list
         for _i in indices:
@@ -578,8 +583,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         _matrix = self.view_state.get_matrix(
             self.drag.full.group, self.drag.full.top)
 
-        _selected = self.view_state.transform_points(_selected, _matrix)
-
+        _selected = self.view_state.transform_points(_selected, matrix=_matrix)
         _p = self.partial.coordinates[:]
 
         for _i, _j in enumerate(self.partial.drag_indices):
