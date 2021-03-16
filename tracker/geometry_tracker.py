@@ -76,7 +76,16 @@ class GeometryTracker(
 
         #callbacks to be called when the geometry has been finally updated
         #in the scenegraph, which is triggered on a UI delay
-        self._after_drag_callbacks = []
+        self.after_drag_callbacks = []
+
+        self.is_invalid = False
+
+    def invalidate(self):
+        """
+        Invalidate geometry to prevent updates
+        """
+
+        self.is_invalid = True
 
     def link_geometry(self, target, source_idx, target_idx, target_only=False):
         """
@@ -232,6 +241,8 @@ class GeometryTracker(
         Start of drag operations
         """
 
+        self.is_invalid = False
+
         self.setup_linked_drag()
 
         #establish the drag center point based on the average of the
@@ -261,11 +272,13 @@ class GeometryTracker(
         Proxy function to handle delayed calls
         """
 
-        if self.update_after_drag:
+        if self.update_after_drag and not self.is_invalid:
             self.update(matrix=matrix, notify='8')
 
-        for _cb in self._after_drag_callbacks:
+        for _cb in self.after_drag_callbacks:
             _cb(matrix)
+
+        self.is_invalid = False
 
     def update(self, coordinates, matrix=None, notify = False):
         """

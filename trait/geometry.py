@@ -92,6 +92,7 @@ class Geometry():
         self.in_update = False
         self.linked_parent = None
         self.do_linked_update = True
+        self.is_invalid = False
 
         #flag to update the transform node instead of the coordinate node
         self.update_transform = False
@@ -137,6 +138,7 @@ class Geometry():
         self.geometry.coordinate.point.setValue([1, 1, 0])
         self.coordinates = []
         self.prev_coordinates = []
+        self.is_invalid = False
 
     def update(self, coordinates, matrix=None, notify=False):
         """
@@ -226,11 +228,11 @@ class Geometry():
         """
 
         if not parent in self.linked_geometry:
-            print('ABORT: {} not linked to {}'.format(parent.name, self.name))
             return
 
         if self.in_update:
-            print('ABORT:{} already updating!!'.format(self.name))
+            return
+
         #indices in this object which are linked to the parent
         _link_indices = self.linked_geometry[parent]
         _link_coords = [_v.getValue()\

@@ -142,6 +142,23 @@ class PolyLineTracker(ContextTracker):
 
             _prev = _v
 
+    def invalidate(self, lines=[], markers=[]):
+        """
+        Invalidate geometry to prevent updates (drag operations)
+        lines / markers, indices of geometry to invalidate
+        """
+
+        #if no indices are passed, invalideate everything
+        if not lines and not markers:
+            lines = tuple(range(0, len(self.lines)))
+
+        for _i in lines:
+            self.lines[_i].invalidate()
+
+        for _i in markers:
+            self.lines[_i].markers[0].invalidate()
+
+
     def finish(self):
         """
         Cleanup

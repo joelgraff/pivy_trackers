@@ -179,6 +179,16 @@ class LineTracker(GeometryTracker, Text, Keyboard):
         self.update(coordinates=_coords, notify='5')
         self.set_text(str(length))
 
+    def invalidate(self):
+        """
+        Invalidate linked markers, if any
+        """
+
+        for _m in self.markers:
+            _m.invalidate()
+
+        super().invalidate()
+
     def show_markers(self, marker_list = []):
         """
         Show the SoMarkerSet
