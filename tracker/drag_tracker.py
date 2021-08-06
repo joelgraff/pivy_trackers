@@ -320,7 +320,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
         """
 
         if axis:
-            aixs = TupleMath.unit(axis)
+            axis = TupleMath.unit(axis)
 
         self.lock_axis = axis
 
