@@ -293,7 +293,7 @@ class DragTracker(Base, Style, Event, Pick, Geometry, metaclass=Singleton):
 
         _len = len(_num.getValues())
 
-        #-1 indicates unintialized
+        #-1 indicates uninitialized
         if _num.getValues()[0] == -1:
             _len = 0
 

@@ -378,7 +378,7 @@ class CoinGroup(object):
 
     def transform_points(self, points, viewport=None, matrix=None):
         """
-        Transform points using provided parametres.  If none, uses matrix
+        Transform points using provided parameters.  If none, uses matrix
         from existing transform
         """
 

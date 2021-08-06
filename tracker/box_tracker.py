@@ -48,7 +48,7 @@ class BoxTracker(PolyLineTracker):
 
         parent - the reference to the parent node
         is_resizeable - determines whether or not box dimensions can change
-        update_transform - when linked to other geomtry, update single transform
+        update_transform - when linked to other geometry, update single transform
         """
 
         self.coordinates = self._coordinates(points)
