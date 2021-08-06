@@ -117,7 +117,7 @@ class Text():
         index - index of node in self.text_nodes.  Default is last item
         """
 
-        if node == None:
+        if node is None:
 
             assert((index > -2 and index < len(self.text_nodes))),\
                 "Text.set_text(): array index {} out of bounds"\
